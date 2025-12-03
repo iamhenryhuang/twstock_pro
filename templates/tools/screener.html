@@ -1,473 +1,211 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智能選股 | Taiwan Stock Terminal</title>
-    
-    <!-- Bloomberg專業字體 -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    
-    <!-- 主要樣式 -->
-    <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet">
-    
-    <style>
-        /* 統一的工具頁面樣式 */
-        .tool-hero {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #0f1419 100%);
-            border-bottom: 3px solid #ff9800;
-            padding: 3rem 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .tool-hero::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(255, 152, 0, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 50%, rgba(0, 123, 255, 0.08) 0%, transparent 50%);
-            pointer-events: none;
-        }
-        
-        .tool-header {
-            text-align: center;
-            position: relative;
-            z-index: 2;
-        }
-        
-        .tool-icon {
-            display: inline-block;
-            width: 64px;
-            height: 64px;
-            background: rgba(255, 152, 0, 0.2);
-            border: 2px solid #ff9800;
-            border-radius: 12px;
-            color: #ff9800;
-            font-size: 28px;
-            line-height: 60px;
-            margin-bottom: 1rem;
-        }
-        
-        .tool-title {
-            font-size: 36px;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 1rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        .tool-subtitle {
-            font-size: 18px;
-            color: rgba(255, 255, 255, 0.85);
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-        }
-        
-        .screener-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-        .filters-section {
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        
-        .filters-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #ff9800;
-            padding-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .filters-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        
-        .form-label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #ff9800;
-            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
-        }
-        
-        .btn-screen {
-            padding: 0.75rem 2rem;
-            background: #ff9800;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-screen:hover {
-            background: #e68900;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
-        }
-        
-        .results-section {
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        
-        .results-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #ff9800;
-            padding-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        
-        .results-table th,
-        .results-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        }
-        
-        .results-table th {
-            background: rgba(255, 152, 0, 0.1);
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .stock-code {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-            color: #ff9800;
-        }
-        
-        .stock-name {
-            font-weight: 500;
-            color: #333;
-        }
-        
-        .stock-price {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-        }
-        
-        .positive {
-            color: #00d4aa;
-        }
-        
-        .negative {
-            color: #ff6b6b;
-        }
-        
-        .neutral {
-            color: #666;
-        }
-        
-        @media (max-width: 768px) {
-            .filters-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .results-table {
-                font-size: 14px;
-            }
-            
-            .results-table th,
-            .results-table td {
-                padding: 0.5rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    
-    <!-- Bloomberg風格導航列 -->
-    <nav class="bloomberg-navbar">
-        <div class="bloomberg-navbar-content">
-            <a href="{{ url_for('home') }}" class="bloomberg-brand">
-                <div class="bloomberg-brand-logo">TS</div>
-                Taiwan Stock Terminal
-            </a>
-            
-            <div class="bloomberg-nav-items d-none d-md-flex">
-                <a href="{{ url_for('home') }}" class="bloomberg-nav-link">Markets</a>
-                <a href="#" class="bloomberg-nav-link">Stocks</a>
-                <a href="#" class="bloomberg-nav-link">News</a>
-                <a href="#" class="bloomberg-nav-link active">Tools</a>
+{% extends "layouts/base.html" %}
+
+{% block title %}Stock Screener | TST{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+
+        <!-- Header -->
+        <div class="text-center mb-xl">
+            <div
+                class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-surface border border-brand mb-md">
+                <i class="bi bi-funnel text-brand text-2xl"></i>
             </div>
-            
-            <div class="bloomberg-nav-items">
-                {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('dashboard') }}" class="bloomberg-nav-link">
-                        <i class="bi bi-person-circle"></i> {{ current_user.username }}
-                    </a>
-                    <a href="{{ url_for('logout') }}" class="bloomberg-nav-link">Logout</a>
-                {% else %}
-                    <a href="{{ url_for('login') }}" class="bloomberg-nav-link">Login</a>
-                    <a href="{{ url_for('register') }}" class="bloomberg-btn bloomberg-btn-orange">Sign Up</a>
-                {% endif %}
-            </div>
+            <h1 class="h1 mb-sm">Stock Screener</h1>
+            <p class="text-secondary">Filter stocks based on financial metrics and technical indicators</p>
         </div>
-    </nav>
-    
-    <!-- 工具頁面Header -->
-    <section class="tool-hero">
-        <div class="bloomberg-container">
-            <div class="tool-header">
-                <div class="tool-icon">
-                    <i class="bi bi-funnel"></i>
-                </div>
-                <h1 class="tool-title">智能選股</h1>
-                <p class="tool-subtitle">基於多重財務指標篩選優質投資標的</p>
+
+        <!-- Filters -->
+        <div class="card mb-xl">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-sliders me-sm"></i>Filter Settings
+                </h3>
             </div>
-        </div>
-    </section>
-    
-    <!-- 智能選股主體 -->
-    <section class="bloomberg-section">
-        <div class="screener-container">
-            <!-- 篩選條件 -->
-            <div class="filters-section">
-                <h2 class="filters-title">
-                    <i class="bi bi-sliders"></i>
-                    篩選條件設定
-                </h2>
-                
-                <form id="screenerForm">
-                    <div class="filters-grid">
-                        <div class="form-group">
-                            <label for="marketCap" class="form-label">市值範圍</label>
-                            <select id="marketCap" class="form-input">
-                                <option value="">不限</option>
-                                <option value="large">大型股 (>1000億)</option>
-                                <option value="mid">中型股 (100-1000億)</option>
-                                <option value="small">小型股 (<100億)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="peRatio" class="form-label">本益比 (PE)</label>
-                            <select id="peRatio" class="form-input">
-                                <option value="">不限</option>
-                                <option value="low">低估值 (<15)</option>
-                                <option value="moderate">合理 (15-25)</option>
-                                <option value="high">高成長 (>25)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="dividendYield" class="form-label">股息殖利率</label>
-                            <select id="dividendYield" class="form-input">
-                                <option value="">不限</option>
-                                <option value="high">高股息 (>4%)</option>
-                                <option value="moderate">中等 (2-4%)</option>
-                                <option value="low">成長股 (<2%)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="industry" class="form-label">產業類別</label>
-                            <select id="industry" class="form-input">
-                                <option value="">不限</option>
-                                <option value="tech">科技業</option>
-                                <option value="finance">金融業</option>
-                                <option value="traditional">傳統產業</option>
-                                <option value="biotech">生技醫療</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="roe" class="form-label">ROE範圍</label>
-                            <select id="roe" class="form-input">
-                                <option value="">不限</option>
-                                <option value="excellent">優秀 (>20%)</option>
-                                <option value="good">良好 (15-20%)</option>
-                                <option value="average">一般 (10-15%)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="priceChange" class="form-label">近期表現</label>
-                            <select id="priceChange" class="form-input">
-                                <option value="">不限</option>
-                                <option value="strong">強勢 (近月+10%以上)</option>
-                                <option value="stable">穩定 (近月±5%內)</option>
-                                <option value="weak">弱勢 (近月-10%以下)</option>
-                            </select>
-                        </div>
+            <form id="screenerForm">
+                <div class="grid grid-cols-3-md gap-lg mb-lg">
+                    <div>
+                        <label for="marketCap" class="text-secondary mb-xs block">Market Cap</label>
+                        <select id="marketCap" class="input">
+                            <option value="">Any</option>
+                            <option value="large">Large Cap (>100B)</option>
+                            <option value="mid">Mid Cap (10-100B)</option>
+                            <option value="small">Small Cap (<10B)< /option>
+                        </select>
                     </div>
-                    
-                    <button type="submit" class="btn-screen">
-                        <i class="bi bi-funnel"></i>
-                        開始篩選
+
+                    <div>
+                        <label for="peRatio" class="text-secondary mb-xs block">P/E Ratio</label>
+                        <select id="peRatio" class="input">
+                            <option value="">Any</option>
+                            <option value="low">Undervalued (<15)< /option>
+                            <option value="moderate">Fair (15-25)</option>
+                            <option value="high">Growth (>25)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="dividendYield" class="text-secondary mb-xs block">Dividend Yield</label>
+                        <select id="dividendYield" class="input">
+                            <option value="">Any</option>
+                            <option value="high">High (>4%)</option>
+                            <option value="moderate">Moderate (2-4%)</option>
+                            <option value="low">Low (<2%)< /option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="industry" class="text-secondary mb-xs block">Industry</label>
+                        <select id="industry" class="input">
+                            <option value="">Any</option>
+                            <option value="tech">Technology</option>
+                            <option value="finance">Finance</option>
+                            <option value="traditional">Traditional</option>
+                            <option value="biotech">Biotech</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="roe" class="text-secondary mb-xs block">ROE</label>
+                        <select id="roe" class="input">
+                            <option value="">Any</option>
+                            <option value="excellent">Excellent (>20%)</option>
+                            <option value="good">Good (15-20%)</option>
+                            <option value="average">Average (10-15%)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="priceChange" class="text-secondary mb-xs block">Recent Performance</label>
+                        <select id="priceChange" class="input">
+                            <option value="">Any</option>
+                            <option value="strong">Strong (>10%)</option>
+                            <option value="stable">Stable (±5%)</option>
+                            <option value="weak">Weak (<-10%)< /option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary px-xl">
+                        <i class="bi bi-funnel me-sm"></i>Run Screen
                     </button>
-                </form>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results -->
+        <div class="card">
+            <div class="card-header flex justify-between items-center">
+                <h3 class="card-title">
+                    <i class="bi bi-list-ul me-sm"></i>Results
+                </h3>
+                <div class="text-secondary text-sm" id="resultCount"></div>
             </div>
-            
-            <!-- 篩選結果 -->
-            <div class="results-section">
-                <h2 class="results-title">
-                    <i class="bi bi-list-ul"></i>
-                    篩選結果
-                </h2>
-                
-                <div id="resultsContainer">
-                    <div style="text-align: center; color: #666; padding: 4rem 2rem;">
-                        <i class="bi bi-funnel" style="font-size: 3rem; opacity: 0.3;"></i>
-                        <p style="margin-top: 1rem; opacity: 0.7;">請設定篩選條件開始選股</p>
-                    </div>
+
+            <div id="resultsContainer">
+                <div class="text-center py-xl">
+                    <i class="bi bi-funnel text-secondary mb-md block" style="font-size: 3rem; opacity: 0.3;"></i>
+                    <p class="text-secondary">Set filters and click "Run Screen" to see results</p>
                 </div>
             </div>
         </div>
-    </section>
-    
-    <!-- JavaScript -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            
-            document.getElementById('screenerForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                performScreening();
+
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        document.getElementById('screenerForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            performScreening();
+        });
+
+        function performScreening() {
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = `
+                <div class="text-center py-xl">
+                    <div class="spinner-border text-brand mb-md" role="status"></div>
+                    <p class="text-secondary">Screening stocks...</p>
+                </div>
+            `;
+
+            // Mock API call
+            setTimeout(() => {
+                const mockStocks = generateMockResults();
+                displayResults(mockStocks);
+            }, 1500);
+        }
+
+        function generateMockResults() {
+            const stockCodes = ['2330', '2317', '2454', '2882', '6505', '3008', '2303', '2474', '2412', '2308'];
+            const stockNames = ['TSMC', 'Hon Hai', 'MediaTek', 'Cathay Fin', 'Formosa Petro', 'Largan', 'UMC', 'Catcher', 'Chunghwa Telecom', 'Delta'];
+
+            return stockCodes.slice(0, 7).map((code, index) => {
+                const price = 100 + Math.random() * 400;
+                const change = (Math.random() - 0.5) * 20;
+                const changePercent = (change / price * 100).toFixed(2);
+
+                return {
+                    code,
+                    name: stockNames[index],
+                    price: price.toFixed(2),
+                    change: change.toFixed(2),
+                    changePercent,
+                    pe: (Math.random() * 30 + 5).toFixed(1),
+                    dividend: (Math.random() * 6 + 1).toFixed(2),
+                    roe: (Math.random() * 25 + 5).toFixed(1)
+                };
             });
-            
-            function performScreening() {
-                // 顯示載入狀態
-                const resultsContainer = document.getElementById('resultsContainer');
-                resultsContainer.innerHTML = `
-                    <div style="text-align: center; color: #666; padding: 4rem 2rem;">
-                        <i class="bi bi-arrow-clockwise" style="font-size: 3rem; opacity: 0.5; animation: spin 1s linear infinite;"></i>
-                        <p style="margin-top: 1rem; opacity: 0.7;">篩選中...</p>
-                    </div>
-                `;
-                
-                // 模擬API調用
-                setTimeout(() => {
-                    const mockStocks = generateMockResults();
-                    displayResults(mockStocks);
-                }, 2000);
-            }
-            
-            function generateMockResults() {
-                const stockCodes = ['2330', '2317', '2454', '2882', '6505', '3008', '2303', '2474', '2412', '2308'];
-                const stockNames = ['台積電', '鴻海', '聯發科', '中華電', '台塑化', '大立光', '聯電', '可成', '中華電信', '台達電'];
-                
-                return stockCodes.slice(0, 7).map((code, index) => {
-                    const price = 100 + Math.random() * 400;
-                    const change = (Math.random() - 0.5) * 20;
-                    const changePercent = (change / price * 100).toFixed(2);
-                    
-                    return {
-                        code,
-                        name: stockNames[index],
-                        price: price.toFixed(2),
-                        change: change.toFixed(2),
-                        changePercent,
-                        pe: (Math.random() * 30 + 5).toFixed(1),
-                        dividend: (Math.random() * 6 + 1).toFixed(2),
-                        roe: (Math.random() * 25 + 5).toFixed(1)
-                    };
-                });
-            }
-            
-            function displayResults(stocks) {
-                const resultsContainer = document.getElementById('resultsContainer');
-                
-                const tableHtml = `
-                    <table class="results-table">
+        }
+
+        function displayResults(stocks) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            document.getElementById('resultCount').textContent = `${stocks.length} matches found`;
+
+            const tableHtml = `
+                <div class="table-container">
+                    <table class="table">
                         <thead>
                             <tr>
-                                <th>股票代號</th>
-                                <th>公司名稱</th>
-                                <th>股價</th>
-                                <th>漲跌</th>
-                                <th>漲跌幅</th>
-                                <th>本益比</th>
-                                <th>殖利率</th>
-                                <th>ROE</th>
+                                <th>Symbol</th>
+                                <th>Name</th>
+                                <th class="text-right">Price</th>
+                                <th class="text-right">Change</th>
+                                <th class="text-right">Change %</th>
+                                <th class="text-right">P/E</th>
+                                <th class="text-right">Yield</th>
+                                <th class="text-right">ROE</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${stocks.map(stock => `
                                 <tr style="cursor: pointer;" onclick="window.location.href='/stock?code=${stock.code}'">
-                                    <td class="stock-code">${stock.code}</td>
-                                    <td class="stock-name">${stock.name}</td>
-                                    <td class="stock-price">$${stock.price}</td>
-                                    <td class="stock-price ${stock.change > 0 ? 'positive' : stock.change < 0 ? 'negative' : 'neutral'}">
+                                    <td><span class="badge badge-brand font-mono">${stock.code}</span></td>
+                                    <td>${stock.name}</td>
+                                    <td class="text-right font-mono text-white">${stock.price}</td>
+                                    <td class="text-right font-mono ${stock.change > 0 ? 'text-up' : stock.change < 0 ? 'text-down' : 'text-secondary'}">
                                         ${stock.change > 0 ? '+' : ''}${stock.change}
                                     </td>
-                                    <td class="stock-price ${stock.changePercent > 0 ? 'positive' : stock.changePercent < 0 ? 'negative' : 'neutral'}">
+                                    <td class="text-right font-mono ${stock.changePercent > 0 ? 'text-up' : stock.changePercent < 0 ? 'text-down' : 'text-secondary'}">
                                         ${stock.changePercent > 0 ? '+' : ''}${stock.changePercent}%
                                     </td>
-                                    <td class="stock-price">${stock.pe}</td>
-                                    <td class="stock-price">${stock.dividend}%</td>
-                                    <td class="stock-price">${stock.roe}%</td>
+                                    <td class="text-right font-mono text-secondary">${stock.pe}</td>
+                                    <td class="text-right font-mono text-secondary">${stock.dividend}%</td>
+                                    <td class="text-right font-mono text-secondary">${stock.roe}%</td>
                                 </tr>
                             `).join('')}
                         </tbody>
                     </table>
-                `;
-                
-                resultsContainer.innerHTML = tableHtml;
-            }
-            
-            console.log('Stock Screener loaded successfully');
-        });
-        
-        // CSS for spin animation
-        const style = document.createElement('style');
-        style.textContent = `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`;
-        document.head.appendChild(style);
-    </script>
-</body>
-</html>
+                </div>
+            `;
+
+            resultsContainer.innerHTML = tableHtml;
+        }
+    });
+</script>
+{% endblock %}

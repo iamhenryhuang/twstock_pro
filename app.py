@@ -359,6 +359,19 @@ def stock_screener_tool():
     """股票選股工具"""
     return render_template('tools/screener.html')
 
+@app.route('/news')
+def news_page():
+    """新聞頁面"""
+    try:
+        # 獲取更多新聞
+        news_items = get_yahoo_stock_top_news(12)
+    except Exception as e:
+        print(f"獲取新聞失敗: {e}")
+        news_items = []
+        
+    return render_template('news.html', news_items=news_items)
+
+
 # === 會員系統路由 ===
 
 @app.route('/login', methods=['GET', 'POST'])

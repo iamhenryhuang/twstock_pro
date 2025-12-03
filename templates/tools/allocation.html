@@ -1,408 +1,199 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>資產配置 | Taiwan Stock Terminal</title>
-    
-    <!-- Bloomberg專業字體 -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    
-    <!-- 主要樣式 -->
-    <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet">
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <style>
-        /* 統一的工具頁面樣式 */
-        .tool-hero {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #0f1419 100%);
-            border-bottom: 3px solid #ff9800;
-            padding: 3rem 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .tool-hero::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(255, 152, 0, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 50%, rgba(0, 123, 255, 0.08) 0%, transparent 50%);
-            pointer-events: none;
-        }
-        
-        .tool-header {
-            text-align: center;
-            position: relative;
-            z-index: 2;
-        }
-        
-        .tool-icon {
-            display: inline-block;
-            width: 64px;
-            height: 64px;
-            background: rgba(255, 152, 0, 0.2);
-            border: 2px solid #ff9800;
-            border-radius: 12px;
-            color: #ff9800;
-            font-size: 28px;
-            line-height: 60px;
-            margin-bottom: 1rem;
-        }
-        
-        .tool-title {
-            font-size: 36px;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 1rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        .tool-subtitle {
-            font-size: 18px;
-            color: rgba(255, 255, 255, 0.85);
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-        }
-        
-        .allocation-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-        .allocation-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-        
-        .allocation-card {
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        
-        .card-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #ff9800;
-            padding-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #ff9800;
-            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
-        }
-        
-        .btn-calculate {
-            width: 100%;
-            padding: 0.75rem 1.5rem;
-            background: #ff9800;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-calculate:hover {
-            background: #e68900;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
-        }
-        
-        .portfolio-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
-        
-        .portfolio-name {
-            font-weight: 500;
-            color: #333;
-        }
-        
-        .portfolio-allocation {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-            color: #ff9800;
-        }
-        
-        @media (max-width: 768px) {
-            .allocation-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .tool-title {
-                font-size: 28px;
-            }
-        }
-    </style>
-</head>
-<body>
-    
-    <!-- Bloomberg風格導航列 -->
-    <nav class="bloomberg-navbar">
-        <div class="bloomberg-navbar-content">
-            <a href="{{ url_for('home') }}" class="bloomberg-brand">
-                <div class="bloomberg-brand-logo">TS</div>
-                Taiwan Stock Terminal
-            </a>
-            
-            <div class="bloomberg-nav-items d-none d-md-flex">
-                <a href="{{ url_for('home') }}" class="bloomberg-nav-link">Markets</a>
-                <a href="#" class="bloomberg-nav-link">Stocks</a>
-                <a href="#" class="bloomberg-nav-link">News</a>
-                <a href="#" class="bloomberg-nav-link active">Tools</a>
+{% extends "layouts/base.html" %}
+
+{% block title %}Asset Allocation | TST{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+
+        <!-- Header -->
+        <div class="text-center mb-xl">
+            <div
+                class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-surface border border-brand mb-md">
+                <i class="bi bi-pie-chart text-brand text-2xl"></i>
             </div>
-            
-            <div class="bloomberg-nav-items">
-                {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('dashboard') }}" class="bloomberg-nav-link">
-                        <i class="bi bi-person-circle"></i> {{ current_user.username }}
-                    </a>
-                    <a href="{{ url_for('logout') }}" class="bloomberg-nav-link">Logout</a>
-                {% else %}
-                    <a href="{{ url_for('login') }}" class="bloomberg-nav-link">Login</a>
-                    <a href="{{ url_for('register') }}" class="bloomberg-btn bloomberg-btn-orange">Sign Up</a>
-                {% endif %}
-            </div>
+            <h1 class="h1 mb-sm">Asset Allocation</h1>
+            <p class="text-secondary">Optimize your portfolio based on risk tolerance and investment horizon</p>
         </div>
-    </nav>
-    
-    <!-- 工具頁面Header -->
-    <section class="tool-hero">
-        <div class="bloomberg-container">
-            <div class="tool-header">
-                <div class="tool-icon">
-                    <i class="bi bi-pie-chart"></i>
+
+        <div class="grid grid-cols-2-md gap-xl">
+
+            <!-- Parameters -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-sliders me-sm"></i>Investment Parameters
+                    </h3>
                 </div>
-                <h1 class="tool-title">資產配置</h1>
-                <p class="tool-subtitle">科學化的投資組合配置，降低風險並優化報酬</p>
-            </div>
-        </div>
-    </section>
-    
-    <!-- 資產配置主體 -->
-    <section class="bloomberg-section">
-        <div class="allocation-container">
-            <div class="allocation-grid">
-                <!-- 輸入參數 -->
-                <div class="allocation-card">
-                    <h2 class="card-title">
-                        <i class="bi bi-sliders"></i>
-                        投資參數設定
-                    </h2>
-                    
-                    <form id="allocationForm">
-                        <div class="form-group">
-                            <label for="totalAmount" class="form-label">總投資金額</label>
-                            <input type="number" id="totalAmount" class="form-input" 
-                                   placeholder="1000000" min="10000" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="riskProfile" class="form-label">風險承受度</label>
-                            <select id="riskProfile" class="form-input" required>
-                                <option value="conservative">保守型 (低風險)</option>
-                                <option value="moderate">穩健型 (中風險)</option>
-                                <option value="aggressive">積極型 (高風險)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="investmentHorizon" class="form-label">投資期間</label>
-                            <select id="investmentHorizon" class="form-input" required>
-                                <option value="short">短期 (1-3年)</option>
-                                <option value="medium">中期 (3-7年)</option>
-                                <option value="long">長期 (7年以上)</option>
-                            </select>
-                        </div>
-                        
-                        <button type="submit" class="btn-calculate">
-                            <i class="bi bi-pie-chart"></i>
-                            生成配置建議
-                        </button>
-                    </form>
-                </div>
-                
-                <!-- 配置結果 -->
-                <div class="allocation-card">
-                    <h2 class="card-title">
-                        <i class="bi bi-graph-up"></i>
-                        建議配置
-                    </h2>
-                    
-                    <div style="height: 300px; margin-bottom: 2rem;">
-                        <canvas id="allocationChart" style="display: none;"></canvas>
-                        <div id="chartPlaceholder" style="text-align: center; color: #666; padding: 4rem 2rem;">
-                            <i class="bi bi-pie-chart" style="font-size: 3rem; opacity: 0.3;"></i>
-                            <p style="margin-top: 1rem; opacity: 0.7;">請設定投資參數</p>
+                <form id="allocationForm">
+                    <div class="mb-lg">
+                        <label for="totalAmount" class="text-secondary mb-xs block">Total Investment</label>
+                        <div class="input-group">
+                            <span class="input-group-text">NT$</span>
+                            <input type="number" id="totalAmount" class="input" placeholder="1000000" min="10000"
+                                required>
                         </div>
                     </div>
-                    
-                    <div id="allocationResults" style="display: none;">
-                        <!-- 配置項目將動態生成 -->
+
+                    <div class="mb-lg">
+                        <label for="riskProfile" class="text-secondary mb-xs block">Risk Profile</label>
+                        <select id="riskProfile" class="input" required>
+                            <option value="conservative">Conservative (Low Risk)</option>
+                            <option value="moderate">Moderate (Medium Risk)</option>
+                            <option value="aggressive">Aggressive (High Risk)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-xl">
+                        <label for="investmentHorizon" class="text-secondary mb-xs block">Investment Horizon</label>
+                        <select id="investmentHorizon" class="input" required>
+                            <option value="short">Short Term (1-3 Years)</option>
+                            <option value="medium">Medium Term (3-7 Years)</option>
+                            <option value="long">Long Term (>7 Years)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-full">
+                        <i class="bi bi-pie-chart me-sm"></i>Generate Allocation
+                    </button>
+                </form>
+            </div>
+
+            <!-- Results -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-graph-up me-sm"></i>Recommended Allocation
+                    </h3>
+                </div>
+
+                <div style="height: 300px; margin-bottom: var(--space-lg);">
+                    <canvas id="allocationChart" style="display: none;"></canvas>
+                    <div id="chartPlaceholder"
+                        class="flex flex-col items-center justify-center h-full text-secondary opacity-50">
+                        <i class="bi bi-pie-chart text-4xl mb-md"></i>
+                        <p>Set parameters to see recommendation</p>
                     </div>
                 </div>
+
+                <div id="allocationResults" class="flex flex-col gap-md" style="display: none;">
+                    <!-- Results injected here -->
+                </div>
             </div>
+
         </div>
-    </section>
-    
-    <!-- JavaScript -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let chart = null;
-            
-            document.getElementById('allocationForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                generateAllocation();
-            });
-            
-            function generateAllocation() {
-                const totalAmount = parseFloat(document.getElementById('totalAmount').value);
-                const riskProfile = document.getElementById('riskProfile').value;
-                const horizon = document.getElementById('investmentHorizon').value;
-                
-                // 根據風險和期間生成配置
-                const allocations = getPortfolioAllocation(riskProfile, horizon);
-                
-                // 計算金額
-                const allocatedAmounts = allocations.map(item => ({
-                    ...item,
-                    amount: Math.round(totalAmount * item.percentage / 100)
-                }));
-                
-                displayAllocation(allocatedAmounts);
-                createChart(allocatedAmounts);
-            }
-            
-            function getPortfolioAllocation(risk, horizon) {
-                const allocations = {
-                    conservative: [
-                        { name: '台股大型股', percentage: 25, color: '#ff9800' },
-                        { name: '債券型基金', percentage: 40, color: '#2196f3' },
-                        { name: '定存/貨幣基金', percentage: 20, color: '#4caf50' },
-                        { name: '海外股票基金', percentage: 15, color: '#9c27b0' }
-                    ],
-                    moderate: [
-                        { name: '台股大型股', percentage: 35, color: '#ff9800' },
-                        { name: '台股中小型股', percentage: 15, color: '#ff5722' },
-                        { name: '債券型基金', percentage: 25, color: '#2196f3' },
-                        { name: '海外股票基金', percentage: 25, color: '#9c27b0' }
-                    ],
-                    aggressive: [
-                        { name: '台股大型股', percentage: 30, color: '#ff9800' },
-                        { name: '台股中小型股', percentage: 25, color: '#ff5722' },
-                        { name: '成長型基金', percentage: 20, color: '#e91e63' },
-                        { name: '海外新興市場', percentage: 15, color: '#9c27b0' },
-                        { name: '債券型基金', percentage: 10, color: '#2196f3' }
-                    ]
-                };
-                
-                return allocations[risk] || allocations.moderate;
-            }
-            
-            function displayAllocation(allocations) {
-                const resultsDiv = document.getElementById('allocationResults');
-                
-                resultsDiv.innerHTML = allocations.map(item => `
-                    <div class="portfolio-item">
-                        <span class="portfolio-name">${item.name}</span>
-                        <div>
-                            <span class="portfolio-allocation">${item.percentage}%</span>
-                            <div style="font-size: 12px; color: #666; font-family: 'JetBrains Mono', monospace;">
-                                $${item.amount.toLocaleString('zh-TW')}
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-                
-                document.getElementById('chartPlaceholder').style.display = 'none';
-                resultsDiv.style.display = 'block';
-            }
-            
-            function createChart(allocations) {
-                const ctx = document.getElementById('allocationChart').getContext('2d');
-                
-                if (chart) {
-                    chart.destroy();
-                }
-                
-                chart = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: allocations.map(item => item.name),
-                        datasets: [{
-                            data: allocations.map(item => item.percentage),
-                            backgroundColor: allocations.map(item => item.color),
-                            borderWidth: 2,
-                            borderColor: '#ffffff'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    padding: 20,
-                                    usePointStyle: true
-                                }
-                            }
-                        }
-                    }
-                });
-                
-                document.getElementById('allocationChart').style.display = 'block';
-            }
-            
-            console.log('Asset Allocation loaded successfully');
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let chart = null;
+
+        // Chart Config
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = '#334155';
+        Chart.defaults.font.family = "'JetBrains Mono', monospace";
+
+        document.getElementById('allocationForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            generateAllocation();
         });
-    </script>
-</body>
-</html>
+
+        function generateAllocation() {
+            const totalAmount = parseFloat(document.getElementById('totalAmount').value);
+            const riskProfile = document.getElementById('riskProfile').value;
+            const horizon = document.getElementById('investmentHorizon').value;
+
+            const allocations = getPortfolioAllocation(riskProfile, horizon);
+
+            const allocatedAmounts = allocations.map(item => ({
+                ...item,
+                amount: Math.round(totalAmount * item.percentage / 100)
+            }));
+
+            displayAllocation(allocatedAmounts);
+            createChart(allocatedAmounts);
+        }
+
+        function getPortfolioAllocation(risk, horizon) {
+            const allocations = {
+                conservative: [
+                    { name: 'Large Cap Stocks', percentage: 25, color: '#00E5FF' },
+                    { name: 'Bonds', percentage: 40, color: '#00C853' },
+                    { name: 'Cash/Money Market', percentage: 20, color: '#FFD700' },
+                    { name: 'Global Stocks', percentage: 15, color: '#7B68EE' }
+                ],
+                moderate: [
+                    { name: 'Large Cap Stocks', percentage: 35, color: '#00E5FF' },
+                    { name: 'Mid/Small Cap', percentage: 15, color: '#FF3D00' },
+                    { name: 'Bonds', percentage: 25, color: '#00C853' },
+                    { name: 'Global Stocks', percentage: 25, color: '#7B68EE' }
+                ],
+                aggressive: [
+                    { name: 'Large Cap Stocks', percentage: 30, color: '#00E5FF' },
+                    { name: 'Mid/Small Cap', percentage: 25, color: '#FF3D00' },
+                    { name: 'Growth Funds', percentage: 20, color: '#FFD700' },
+                    { name: 'Emerging Markets', percentage: 15, color: '#7B68EE' },
+                    { name: 'Bonds', percentage: 10, color: '#00C853' }
+                ]
+            };
+
+            return allocations[risk] || allocations.moderate;
+        }
+
+        function displayAllocation(allocations) {
+            const resultsDiv = document.getElementById('allocationResults');
+
+            resultsDiv.innerHTML = allocations.map(item => `
+                <div class="p-md radius-md bg-surface border border-color flex justify-between items-center">
+                    <div class="flex items-center gap-sm">
+                        <div style="width: 12px; height: 12px; background: ${item.color}; border-radius: 2px;"></div>
+                        <span class="text-secondary">${item.name}</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold text-white">${item.percentage}%</div>
+                        <div class="font-mono text-sm text-secondary">NT$ ${item.amount.toLocaleString()}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('chartPlaceholder').style.display = 'none';
+            resultsDiv.style.display = 'flex';
+        }
+
+        function createChart(allocations) {
+            const ctx = document.getElementById('allocationChart').getContext('2d');
+            if (chart) chart.destroy();
+
+            chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: allocations.map(item => item.name),
+                    datasets: [{
+                        data: allocations.map(item => item.percentage),
+                        backgroundColor: allocations.map(item => item.color),
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 20, usePointStyle: true }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            document.getElementById('allocationChart').style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}

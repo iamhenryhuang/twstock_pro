@@ -1,0 +1,60 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Market News | TST{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+
+        <!-- Header -->
+        <div class="text-center mb-2xl">
+            <div
+                class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-surface border border-brand mb-md">
+                <i class="bi bi-newspaper text-brand text-2xl"></i>
+            </div>
+            <h1 class="h1 mb-sm">Market News</h1>
+            <p class="text-secondary">Latest updates from the financial world</p>
+        </div>
+
+        <!-- News Grid -->
+        <div class="grid grid-cols-3-md gap-xl">
+            {% if news_items %}
+            {% for news in news_items %}
+            <div class="card flex flex-col h-full hover:border-brand transition-all duration-300">
+                <div class="card-header border-0 pb-0 mb-md">
+                    <div class="flex justify-between items-start w-full">
+                        <span class="badge badge-brand">{{ news.source|default('Market') }}</span>
+                        <span class="text-secondary text-sm">{{ news.time|default('Just now') }}</span>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <h3 class="h4 mb-md">
+                        <a href="{{ news.link }}" target="_blank" class="hover:text-brand transition-colors">
+                            {{ news.title }}
+                        </a>
+                    </h3>
+                    <p class="text-secondary text-sm line-clamp-3">
+                        {{ news.summary|default(news.title) }}
+                    </p>
+                </div>
+                <div class="mt-lg pt-md border-t border-color flex justify-between items-center">
+                    <a href="{{ news.link }}" target="_blank" class="btn btn-ghost btn-sm pl-0">
+                        Read More <i class="bi bi-arrow-right"></i>
+                    </a>
+                    <button class="btn btn-ghost btn-sm text-secondary">
+                        <i class="bi bi-share"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="col-span-3 text-center py-3xl text-secondary">
+                <i class="bi bi-newspaper text-3xl mb-md block opacity-50"></i>
+                No news available at the moment.
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</section>
+{% endblock %}

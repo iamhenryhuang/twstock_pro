@@ -1,709 +1,619 @@
 /* 
- * Taiwan Stock Terminal - 主要樣式文件
- * 整合後的Bloomberg風格金融網站設計
- * Version: 3.0
+ * Taiwan Stock Terminal - Premium Design System
+ * Theme: Midnight Fintech (Dark Mode First)
+ * Version: 4.0
  */
 
-/* ===== Bloomberg色彩系統與變數 ===== */
 :root {
-    /* Bloomberg主色調 */
-    --bloomberg-black: #000000;
-    --bloomberg-white: #FFFFFF;
-    --bloomberg-orange: #FF9800;
-    --bloomberg-blue: #0066CC;
-    
-    /* 灰階系統 */
-    --gray-50: #FAFAFA;
-    --gray-100: #F5F5F5;
-    --gray-200: #EEEEEE;
-    --gray-300: #E0E0E0;
-    --gray-400: #BDBDBD;
-    --gray-500: #9E9E9E;
-    --gray-600: #757575;
-    --gray-700: #616161;
-    --gray-800: #424242;
-    --gray-900: #212121;
-    
-    /* Light Mode 變數 (預設) */
-    --text-primary: #1F2937;
-    --text-secondary: #4B5563;
-    --text-muted: #6B7280;
-    --bg-primary: #FFFFFF;
-    --bg-secondary: #F8F9FA;
-    --bg-hover: rgba(255, 152, 0, 0.05);
-    --border-primary: rgba(0, 0, 0, 0.1);
-    --border-secondary: rgba(0, 0, 0, 0.05);
-    
-    /* 市場顏色 */
-    --market-up: #00d4aa;
-    --market-down: #ff6b6b;
-    --market-neutral: #666666;
-    
-    /* 間距系統 */
-    --space-xs: 0.25rem;
-    --space-sm: 0.5rem;
+    /* --- Color Palette --- */
+    /* Primary Brand Colors */
+    --color-brand-primary: #00E5FF;
+    /* Cyan Neon */
+    --color-brand-secondary: #2979FF;
+    /* Electric Blue */
+    --color-brand-accent: #FFD700;
+    /* Gold */
+
+    /* Backgrounds */
+    --bg-body: #050505;
+    /* Deepest Black */
+    --bg-surface: #0A0A0A;
+    /* Slightly lighter black */
+    --bg-surface-hover: #141414;
+    --bg-glass: rgba(20, 20, 20, 0.7);
+    --bg-glass-border: rgba(255, 255, 255, 0.08);
+
+    /* Text */
+    --text-primary: #FFFFFF;
+    --text-secondary: #A0A0A0;
+    --text-tertiary: #606060;
+    --text-brand: var(--color-brand-primary);
+
+    /* Market Data Colors */
+    --market-up: #00FF9D;
+    /* Bright Green */
+    --market-down: #FF3D57;
+    /* Bright Red */
+    --market-neutral: #888888;
+
+    /* Semantic Colors */
+    --color-success: var(--market-up);
+    --color-danger: var(--market-down);
+    --color-warning: #FF9100;
+    --color-info: #2979FF;
+
+    /* --- Typography --- */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+    /* --- Spacing --- */
+    --space-2xs: 0.25rem;
+    --space-xs: 0.5rem;
+    --space-sm: 0.75rem;
     --space-md: 1rem;
     --space-lg: 1.5rem;
     --space-xl: 2rem;
     --space-2xl: 3rem;
     --space-3xl: 4rem;
-    
-    /* 字體 */
-    --font-main: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-data: 'JetBrains Mono', 'SF Mono', Monaco, Consolas, monospace;
-    
-    /* 圓角和陰影 */
+
+    /* --- Borders & Radius --- */
     --radius-sm: 4px;
     --radius-md: 8px;
-    --radius-lg: 12px;
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
-    
-    /* 過渡效果 */
-    --transition-fast: all 0.15s ease;
-    --transition-normal: all 0.3s ease;
-    --transition-slow: all 0.5s ease;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+    --border-width: 1px;
+    --border-color: rgba(255, 255, 255, 0.1);
+
+    /* --- Effects --- */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 20px rgba(0, 229, 255, 0.15);
+    --backdrop-blur: blur(12px);
+    --transition-fast: 150ms ease;
+    --transition-normal: 300ms ease;
 }
 
-/* ===== 基礎重置與全局樣式 ===== */
-* {
+/* --- Reset & Base --- */
+*,
+*::before,
+*::after {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    font-family: var(--font-main);
-    line-height: 1.6;
+    font-family: var(--font-sans);
+    background-color: var(--bg-body);
     color: var(--text-primary);
-    background-color: var(--bg-primary);
-    margin: 0;
-    padding: 0;
-    font-size: 14px;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
 }
 
-/* ===== Bloomberg導航列 ===== */
-.bloomberg-navbar {
-    background: var(--bloomberg-black);
-    border-bottom: 2px solid var(--bloomberg-orange);
-    padding: 0;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-
-.bloomberg-navbar-content {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 var(--space-lg);
-    min-height: 60px;
-}
-
-.bloomberg-brand {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    color: var(--bloomberg-white);
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 18px;
-}
-
-.bloomberg-brand-logo {
-    width: 32px;
-    height: 32px;
-    background: var(--bloomberg-orange);
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 700;
-    font-size: 14px;
-}
-
-.bloomberg-nav-items {
-    display: flex;
-    align-items: center;
-    gap: var(--space-lg);
-}
-
-.bloomberg-nav-link {
-    color: rgba(255, 255, 255, 0.8);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    padding: var(--space-sm) var(--space-md);
-    border-radius: var(--radius-sm);
-    transition: var(--transition-fast);
-}
-
-.bloomberg-nav-link:hover,
-.bloomberg-nav-link.active {
-    color: var(--bloomberg-white);
-    background: rgba(255, 152, 0, 0.1);
-    text-decoration: none;
-}
-
-.bloomberg-search-container {
-    position: relative;
-}
-
-.bloomberg-search-input {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: var(--radius-sm);
-    color: var(--bloomberg-white);
-    padding: var(--space-sm) var(--space-md);
-    font-size: 14px;
-    width: 200px;
-    transition: var(--transition-fast);
-}
-
-.bloomberg-search-input:focus {
-    outline: none;
-    border-color: var(--bloomberg-orange);
-    background: rgba(255, 255, 255, 0.15);
-}
-
-.bloomberg-search-input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.bloomberg-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-sm);
-    padding: var(--space-sm) var(--space-lg);
-    background: transparent;
-    border: 1px solid rgba(255, 152, 0, 0.5);
-    border-radius: var(--radius-sm);
-    color: var(--bloomberg-orange);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    transition: var(--transition-fast);
-    cursor: pointer;
-}
-
-.bloomberg-btn:hover {
-    background: var(--bloomberg-orange);
-    color: var(--bloomberg-white);
-    text-decoration: none;
-}
-
-.bloomberg-btn-orange {
-    background: var(--bloomberg-orange);
-    color: var(--bloomberg-white);
-    border-color: var(--bloomberg-orange);
-}
-
-.bloomberg-btn-orange:hover {
-    background: #e68900;
-    border-color: #e68900;
-}
-
-/* ===== 容器系統 ===== */
-.bloomberg-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 var(--space-lg);
-}
-
-/* ===== 格子系統 ===== */
-.bloomberg-grid {
-    display: grid;
-    gap: var(--space-xl);
-}
-
-.bloomberg-grid-main-sidebar {
-    grid-template-columns: 2fr 1fr;
-}
-
-/* ===== 卡片系統 ===== */
-.bloomberg-card {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-    transition: var(--transition-normal);
-}
-
-.bloomberg-card:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-}
-
-.bloomberg-card-header {
-    background: var(--bg-secondary);
-    padding: var(--space-lg) var(--space-xl);
-    border-bottom: 1px solid var(--border-primary);
-}
-
-.bloomberg-card-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-}
-
-.bloomberg-card-body {
-    padding: var(--space-xl);
-}
-
-/* ===== 表格系統 ===== */
-.bloomberg-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-}
-
-.bloomberg-table th {
-    background: var(--bg-secondary);
-    padding: var(--space-md) var(--space-lg);
-    text-align: left;
-    font-weight: 600;
-    color: var(--text-primary);
-    border-bottom: 2px solid var(--border-primary);
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.bloomberg-table td {
-    padding: var(--space-md) var(--space-lg);
-    border-bottom: 1px solid var(--border-secondary);
-    color: var(--text-primary);
-}
-
-.bloomberg-table tbody tr:hover {
-    background: var(--bg-hover);
-}
-
-.bloomberg-ticker {
-    font-family: var(--font-data);
-    font-weight: 600;
-    font-size: 13px;
-    color: var(--bloomberg-orange);
-    background: rgba(255, 152, 0, 0.1);
-    padding: 2px 6px;
-    border-radius: var(--radius-sm);
-}
-
-/* ===== 數據顯示 ===== */
-.bloomberg-data-change {
-    font-family: var(--font-data);
-    font-weight: 600;
-    font-size: 13px;
-}
-
-.bloomberg-data-change.positive {
-    color: var(--market-up);
-}
-
-.bloomberg-data-change.negative {
-    color: var(--market-down);
-}
-
-.bloomberg-data-change.neutral {
-    color: var(--market-neutral);
-}
-
-/* ===== 狀態系統 ===== */
-.bloomberg-status {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.bloomberg-status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--market-up);
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-.bloomberg-status.live .bloomberg-status-dot {
-    background: var(--market-up);
-}
-
-.bloomberg-status.closed .bloomberg-status-dot {
-    background: var(--market-neutral);
-    animation: none;
-}
-
-/* ===== 新聞系統 ===== */
-.bloomberg-news-item {
-    display: block;
-    padding: var(--space-lg);
-    border-bottom: 1px solid var(--border-secondary);
-    color: var(--text-primary);
+a {
+    color: inherit;
     text-decoration: none;
     transition: var(--transition-fast);
 }
 
-.bloomberg-news-item:hover {
-    background: var(--bg-hover);
-    text-decoration: none;
+ul {
+    list-style: none;
 }
 
-.bloomberg-news-item:last-child {
-    border-bottom: none;
+/* --- Typography Utilities --- */
+.font-mono {
+    font-family: var(--font-mono);
 }
 
-.bloomberg-news-title {
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.4;
-    margin-bottom: var(--space-xs);
-    color: var(--text-primary);
-}
-
-.bloomberg-news-meta {
-    font-size: 12px;
-    color: var(--text-muted);
-}
-
-.bloomberg-news-time {
-    font-family: var(--font-data);
-}
-
-/* ===== 區段系統 ===== */
-.bloomberg-section {
-    padding: var(--space-3xl) 0;
-}
-
-.bloomberg-section:nth-child(even) {
-    background: var(--bg-secondary);
-}
-
-.bloomberg-section-title {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: var(--space-xl);
-    border-bottom: 3px solid var(--bloomberg-orange);
-    padding-bottom: var(--space-md);
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-}
-
-.bloomberg-section-title::before {
-    content: '';
-    width: 4px;
-    height: 24px;
-    background: var(--bloomberg-orange);
-    border-radius: 2px;
-}
-
-/* ===== 統計卡片 ===== */
-.bloomberg-quick-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--space-xl);
-    margin: var(--space-xl) 0;
-}
-
-.bloomberg-stat-card {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-md);
-    padding: var(--space-xl);
-    text-align: center;
-    transition: var(--transition-normal);
-}
-
-.bloomberg-stat-card:hover {
-    border-color: var(--bloomberg-orange);
-    box-shadow: var(--shadow-md);
-}
-
-.bloomberg-stat-value {
-    font-family: var(--font-data);
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: var(--space-sm);
-}
-
-.bloomberg-stat-label {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* ===== Footer ===== */
-.bloomberg-footer {
-    background: var(--bloomberg-black);
-    color: var(--bloomberg-white);
-    padding: var(--space-2xl) 0;
-    border-top: 1px solid var(--bloomberg-orange);
-}
-
-.bloomberg-footer-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.bloomberg-footer-links {
-    display: flex;
-    gap: var(--space-xl);
-}
-
-.bloomberg-footer-link {
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-    font-size: 14px;
-    transition: var(--transition-fast);
-}
-
-.bloomberg-footer-link:hover {
-    color: var(--bloomberg-orange);
-    text-decoration: none;
-}
-
-/* ===== 響應式設計 ===== */
-@media (max-width: 768px) {
-    .bloomberg-navbar-content {
-        padding: 0 var(--space-md);
-        flex-wrap: wrap;
-    }
-    
-    .bloomberg-nav-items {
-        gap: var(--space-md);
-    }
-    
-    .bloomberg-search-input {
-        width: 150px;
-    }
-    
-    .bloomberg-container {
-        padding: 0 var(--space-md);
-    }
-    
-    .bloomberg-grid-main-sidebar {
-        grid-template-columns: 1fr;
-    }
-    
-    .bloomberg-quick-stats {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: var(--space-lg);
-    }
-    
-    .bloomberg-card-header,
-    .bloomberg-card-body {
-        padding: var(--space-lg);
-    }
-    
-    .bloomberg-table th,
-    .bloomberg-table td {
-        padding: var(--space-sm) var(--space-md);
-        font-size: 13px;
-    }
-    
-    .bloomberg-section-title {
-        font-size: 20px;
-    }
-    
-    .bloomberg-footer-content {
-        flex-direction: column;
-        gap: var(--space-lg);
-        text-align: center;
-    }
-    
-    .d-none.d-md-flex {
-        display: none !important;
-    }
-}
-
-/* ===== 工具樣式 ===== */
-.clickable-row {
-    cursor: pointer;
-    transition: var(--transition-fast);
-}
-
-.clickable-row:hover {
-    background: var(--bg-hover);
-}
-
-/* ===== 專用類別 ===== */
-.text-muted {
-    color: var(--text-muted);
-}
-
-.text-primary {
-    color: var(--text-primary);
+.text-brand {
+    color: var(--text-brand);
 }
 
 .text-secondary {
     color: var(--text-secondary);
 }
 
-.font-data {
-    font-family: var(--font-data);
+.text-up {
+    color: var(--market-up);
 }
 
-.font-main {
-    font-family: var(--font-main);
+.text-down {
+    color: var(--market-down);
 }
 
-/* ===== Dark Mode 主題系統 ===== */
-[data-theme="dark"] {
-    /* Dark Mode 變數重新定義 */
-    --text-primary: #F8FAFC;
-    --text-secondary: #CBD5E1;
-    --text-muted: #94A3B8;
-    --bg-primary: #0F172A;
-    --bg-secondary: #1E293B;
-    --bg-hover: rgba(255, 152, 0, 0.1);
-    --border-primary: rgba(255, 255, 255, 0.1);
-    --border-secondary: rgba(255, 255, 255, 0.05);
-    
-    /* Dark mode 下的市場顏色調整 */
-    --market-up: #10B981;
-    --market-down: #EF4444;
-    --market-neutral: #94A3B8;
+.h1,
+.h2,
+.h3,
+.h4 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
 }
 
-/* Dark Mode 切換按鈕 */
-.theme-toggle {
-    background: transparent;
-    border: 1px solid rgba(255, 152, 0, 0.5);
-    border-radius: var(--radius-sm);
-    color: var(--bloomberg-orange);
-    padding: var(--space-sm);
-    cursor: pointer;
-    transition: var(--transition-fast);
-    font-size: 16px;
-    width: 36px;
-    height: 36px;
+.h1 {
+    font-size: 3.5rem;
+}
+
+.h2 {
+    font-size: 2.5rem;
+}
+
+.h3 {
+    font-size: 1.75rem;
+}
+
+.h4 {
+    font-size: 1.25rem;
+}
+
+/* --- Layout Components --- */
+.container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--space-lg);
+}
+
+.section {
+    padding: var(--space-3xl) 0;
+}
+
+/* --- Navbar --- */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: rgba(5, 5, 5, 0.8);
+    backdrop-filter: var(--backdrop-blur);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 1000;
     display: flex;
     align-items: center;
+}
+
+.navbar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.brand {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.brand-logo {
+    color: var(--color-brand-primary);
+}
+
+.nav-links {
+    display: flex;
+    gap: var(--space-xl);
+}
+
+.nav-link {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--text-primary);
+}
+
+/* --- Buttons --- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: var(--transition-fast);
+    cursor: pointer;
+    border: 1px solid transparent;
+    gap: var(--space-xs);
+}
+
+.btn-primary {
+    background: var(--color-brand-primary);
+    color: #000;
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+}
+
+.btn-primary:hover {
+    background: #33EBFF;
+    transform: translateY(-1px);
+    box-shadow: 0 0 25px rgba(0, 229, 255, 0.5);
+}
+
+.btn-outline {
+    background: transparent;
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.btn-outline:hover {
+    border-color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* --- Cards --- */
+.card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    transition: var(--transition-normal);
+}
+
+.card:hover {
+    border-color: var(--color-brand-primary);
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px);
+}
+
+.card-glass {
+    background: var(--bg-glass);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--bg-glass-border);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* --- Forms --- */
+.input-group {
+    position: relative;
+}
+
+.input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: var(--space-sm) var(--space-md);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    transition: var(--transition-fast);
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--color-brand-primary);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.1);
+}
+
+/* --- Tables --- */
+.table-container {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.table th {
+    text-align: left;
+    padding: var(--space-md);
+    color: var(--text-secondary);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.table td {
+    padding: var(--space-md);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.table tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.table-num {
+    text-align: right;
+    font-family: var(--font-mono);
+}
+
+/* --- Ticker --- */
+.ticker-wrap {
+    width: 100%;
+    overflow: hidden;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color);
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.ticker {
+    display: inline-block;
+    white-space: nowrap;
+    animation: ticker 60s linear infinite;
+}
+
+.ticker:hover {
+    animation-play-state: paused;
+}
+
+.ticker-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 var(--space-xl);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.ticker-item span {
+    margin-left: var(--space-xs);
+}
+
+@keyframes ticker {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+
+    100% {
+        transform: translate3d(-100%, 0, 0);
+    }
+}
+
+/* --- Hero Section --- */
+.hero {
+    position: relative;
+    padding: 8rem 0 4rem;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1000px;
+    height: 1000px;
+    background: radial-gradient(circle, rgba(0, 229, 255, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* --- Badges --- */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25em 0.6em;
+    font-size: 0.75em;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    line-height: 1;
+}
+
+.badge-brand {
+    background: rgba(0, 229, 255, 0.15);
+    color: var(--color-brand-primary);
+}
+
+.badge-up {
+    background: rgba(0, 255, 157, 0.15);
+    color: var(--market-up);
+}
+
+.badge-down {
+    background: rgba(255, 61, 87, 0.15);
+    color: var(--market-down);
+}
+
+/* --- Utilities --- */
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.justify-center {
     justify-content: center;
 }
 
-.theme-toggle:hover {
-    background: var(--bloomberg-orange);
-    color: var(--bloomberg-white);
+.justify-start {
+    justify-content: flex-start;
 }
 
-.theme-toggle:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.3);
+.gap-xs {
+    gap: var(--space-xs);
 }
 
-/* Dark Mode 圖標 */
-.theme-icon {
-    transition: var(--transition-fast);
+.gap-sm {
+    gap: var(--space-sm);
 }
 
-[data-theme="light"] .theme-icon.moon {
-    display: inline;
+.gap-md {
+    gap: var(--space-md);
 }
 
-[data-theme="light"] .theme-icon.sun {
-    display: none;
+.gap-lg {
+    gap: var(--space-lg);
 }
 
-[data-theme="dark"] .theme-icon.moon {
-    display: none;
+.gap-xl {
+    gap: var(--space-xl);
 }
 
-[data-theme="dark"] .theme-icon.sun {
-    display: inline;
+.mt-lg {
+    margin-top: var(--space-lg);
 }
 
-/* 預設為 light mode 圖標 */
-.theme-icon.moon {
-    display: inline;
+.mb-lg {
+    margin-bottom: var(--space-lg);
 }
 
-.theme-icon.sun {
-    display: none;
+.mb-sm {
+    margin-bottom: var(--space-sm);
 }
 
-/* Dark Mode 下的特殊調整 */
-[data-theme="dark"] .bloomberg-card {
-    background: var(--bg-primary);
-    border-color: var(--border-primary);
+.mb-xs {
+    margin-bottom: var(--space-xs);
 }
 
-[data-theme="dark"] .bloomberg-card-header {
-    background: var(--bg-secondary);
-    border-bottom-color: var(--border-primary);
+.p-xl {
+    padding: var(--space-xl);
 }
 
-[data-theme="dark"] .bloomberg-table th {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    border-bottom-color: var(--border-primary);
+.text-center {
+    text-align: center;
 }
 
-[data-theme="dark"] .bloomberg-table td {
-    color: var(--text-primary);
-    border-bottom-color: var(--border-secondary);
+.text-right {
+    text-align: right;
 }
 
-[data-theme="dark"] .bloomberg-ticker {
-    background: rgba(255, 152, 0, 0.15);
-    color: var(--bloomberg-orange);
+.text-left {
+    text-align: left;
 }
 
-[data-theme="dark"] .bloomberg-section:nth-child(even) {
-    background: var(--bg-secondary);
+.w-full {
+    width: 100%;
 }
 
-[data-theme="dark"] .bloomberg-search-input {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
+.h-full {
+    height: 100%;
 }
 
-[data-theme="dark"] .bloomberg-search-input:focus {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--bloomberg-orange);
+.block {
+    display: block;
 }
 
-[data-theme="dark"] .bloomberg-search-input::placeholder {
-    color: var(--text-muted);
+.uppercase {
+    text-transform: uppercase;
 }
 
-/* Dark Mode 下的新聞項目 */
-[data-theme="dark"] .bloomberg-news-item {
-    color: var(--text-primary);
-    border-bottom-color: var(--border-secondary);
+.tracking-wider {
+    letter-spacing: 0.05em;
 }
 
-[data-theme="dark"] .bloomberg-news-title {
-    color: var(--text-primary);
+.transition-all {
+    transition: all 0.3s ease;
 }
 
-[data-theme="dark"] .bloomberg-news-meta {
-    color: var(--text-muted);
+.duration-300 {
+    transition-duration: 300ms;
 }
 
-/* Dark Mode 動畫優化 */
-[data-theme="dark"] * {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+.hover\:border-brand:hover {
+    border-color: var(--color-brand-primary);
 }
 
+.grid {
+    display: grid;
+    gap: var(--space-xl);
+}
+
+.grid-cols-1 {
+    grid-template-columns: repeat(1, 1fr);
+}
+
+.grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+@media (min-width: 768px) {
+    .grid-cols-2-md {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-cols-3-md {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .grid-cols-4-md {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .col-span-2 {
+        grid-column: span 2;
+    }
+
+    .col-span-3 {
+        grid-column: span 3;
+    }
+
+    .col-span-full {
+        grid-column: 1 / -1;
+    }
+}
+
+/* --- Scrollbar --- */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-body);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-tertiary);
+}

@@ -1,166 +1,214 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI 股價預測 | Taiwan Stock Pro</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
-  <!-- 主要樣式 -->
-  <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet" />
-</head>
-<body>
-  <nav class="enhanced-navbar">
-    <div class="container-fluid">
-      <div class="enhanced-navbar-content">
-        <div class="enhanced-navbar-brand">
-          <a href="{{ url_for('home') }}" class="brand-link">
-            <div class="brand-icon"><i class="bi bi-graph-up-arrow"></i></div>
-            <div class="brand-text">
-              <span class="brand-name">Taiwan Stock</span>
-              <span class="brand-subtitle">Pro</span>
-            </div>
-          </a>
+{% extends "layouts/base.html" %}
+
+{% block title %}AI Price Prediction | TST{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="text-center mb-xl">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-surface border border-brand mb-md">
+        <i class="bi bi-cpu-fill text-brand text-2xl"></i>
+      </div>
+      <h1 class="h1 mb-sm">AI Price Prediction</h1>
+      <p class="text-secondary">Experimental price forecasting using statistical models</p>
+    </div>
+
+    <!-- Prediction Form -->
+    <div class="card mb-xl" style="max-width: 800px; margin: 0 auto;">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="bi bi-sliders me-sm"></i>Prediction Settings
+        </h3>
+      </div>
+      <form onsubmit="event.preventDefault(); runPrediction();" class="grid grid-cols-3-md gap-lg items-end">
+        <div>
+          <label class="text-secondary mb-xs block">Stock Code</label>
+          <input id="ai-code" type="text" class="input font-mono" placeholder="e.g. 2330" required />
         </div>
-        <div class="enhanced-navbar-user">
-          <a href="{{ url_for('home') }}" class="btn-enhanced btn-enhanced-ghost btn-enhanced-sm">
-            <i class="bi bi-house"></i>
-            <span class="d-none d-md-inline">首頁</span>
-          </a>
+        <div>
+          <label class="text-secondary mb-xs block">Forecast Days (1-180)</label>
+          <input id="ai-days" type="number" min="1" max="180" value="30" class="input font-mono" />
         </div>
+        <div>
+          <button class="btn btn-primary w-full" type="submit">
+            <i class="bi bi-play-circle me-sm"></i>Generate
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Results -->
+    <div class="grid grid-cols-3-md gap-lg mb-xl">
+      <div class="card text-center">
+        <div class="text-secondary text-sm uppercase font-mono mb-xs">Last Close</div>
+        <div class="h2 font-mono mb-0" id="ai-last">--</div>
+      </div>
+      <div class="card text-center">
+        <div class="text-secondary text-sm uppercase font-mono mb-xs">Forecast End</div>
+        <div class="h2 font-mono mb-0 text-brand" id="ai-forecast-end">--</div>
+      </div>
+      <div class="card text-center">
+        <div class="text-secondary text-sm uppercase font-mono mb-xs">Expected Change</div>
+        <div class="h2 font-mono mb-0" id="ai-forecast-change">--</div>
       </div>
     </div>
-  </nav>
 
-  <div class="container my-4">
-    <div class="row justify-content-center">
-      <div class="col-lg-10">
-        <div class="card-enhanced animate-slide-in-up">
-          <div class="card-enhanced-header d-flex align-items-center justify-content-between">
-            <h5 class="mb-0 text-enhanced-primary" style="font-size: 1.125rem; font-weight: 600;">
-              <i class="bi bi-cpu-fill text-primary me-2"></i>AI 股價預測（試驗版）
-            </h5>
-          </div>
-          <div class="card-enhanced-body">
-            <form class="row g-3" onsubmit="event.preventDefault(); runPrediction();">
-              <div class="col-sm-4">
-                <label class="form-label">股票代碼</label>
-                <input id="ai-code" type="text" class="form-control-enhanced" placeholder="如 2330" required />
-              </div>
-              <div class="col-sm-4">
-                <label class="form-label">預測天數（1-180）</label>
-                <input id="ai-days" type="number" min="1" max="180" value="30" class="form-control-enhanced" />
-              </div>
-              <div class="col-sm-4 d-flex align-items-end">
-                <button class="btn-enhanced btn-enhanced-primary w-100" type="submit">
-                  <i class="bi bi-play-circle"></i>
-                  <span>產生預測</span>
-                </button>
-              </div>
-            </form>
-
-            <!-- LSTM 功能已移除 -->
-
-            <div class="row g-3 mt-3">
-              <div class="col-md-4">
-                <div class="data-card-enhanced">
-                  <div class="data-label-enhanced">最新收盤</div>
-                  <div class="data-value-enhanced" id="ai-last">--</div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="data-card-enhanced">
-                  <div class="data-label-enhanced">預測期末</div>
-                  <div class="data-value-enhanced" id="ai-forecast-end">--</div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="data-card-enhanced">
-                  <div class="data-label-enhanced">預估漲跌幅</div>
-                  <div class="data-value-enhanced" id="ai-forecast-change">--</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-enhanced mt-4">
-              <div class="card-enhanced-header">
-                <h6 class="mb-0">歷史與預測</h6>
-              </div>
-              <div class="card-enhanced-body">
-                <div class="chart-container" style="height:360px">
-                  <canvas id="aiChart"></canvas>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <!-- Chart -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Forecast Chart</h3>
+      </div>
+      <div style="height: 400px; position: relative;">
+        <canvas id="aiChart"></canvas>
       </div>
     </div>
+
   </div>
+</section>
+{% endblock %}
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-  <script>
-    let aiChart=null;
-    async function runPrediction(){
-      const code = document.getElementById('ai-code').value.trim();
-      const days = +document.getElementById('ai-days').value||30;
-      if(!code) return;
-      // LSTM 模式已移除
-      // 備用：簡易趨勢外推
-      const baseDays = Math.min(180, Math.max(days, 30));
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  let aiChart = null;
+
+  // Chart Config
+  Chart.defaults.color = '#94a3b8';
+  Chart.defaults.borderColor = '#334155';
+  Chart.defaults.font.family = "'JetBrains Mono', monospace";
+
+  async function runPrediction() {
+    const code = document.getElementById('ai-code').value.trim();
+    const days = +document.getElementById('ai-days').value || 30;
+
+    if (!code) return;
+
+    const baseDays = Math.min(180, Math.max(days, 30));
+
+    try {
       const res = await fetch(`/api/stock/${code}/chart?days=${baseDays}`);
       const data = await res.json();
-      if(!data.success || !data.data || data.data.length<5){ alert('資料不足'); return; }
-      const labels = data.data.map(x=>x.time);
-      const prices = data.data.map(x=>x.price);
-      const ln = prices.map(p=>Math.log(p));
-      const n = ln.length; const xs = [...Array(n).keys()];
-      const meanX = xs.reduce((a,b)=>a+b,0)/n;
-      const meanY = ln.reduce((a,b)=>a+b,0)/n;
-      let num=0, den=0; for(let i=0;i<n;i++){ num += (xs[i]-meanX)*(ln[i]-meanY); den += (xs[i]-meanX)*(xs[i]-meanX); }
-      const slope = den===0? 0 : num/den; const intercept = meanY - slope*meanX;
-      const fitted = xs.map(x=> intercept + slope*x);
-      const residuals = ln.map((y,i)=> y - fitted[i]);
-      const std = Math.sqrt(residuals.reduce((a,b)=>a+b*b,0)/Math.max(1,n-2));
+
+      if (!data.success || !data.data || data.data.length < 5) {
+        alert('Insufficient data');
+        return;
+      }
+
+      const labels = data.data.map(x => x.time);
+      const prices = data.data.map(x => x.price);
+
+      // Simple Log-Linear Regression
+      const ln = prices.map(p => Math.log(p));
+      const n = ln.length;
+      const xs = [...Array(n).keys()];
+      const meanX = xs.reduce((a, b) => a + b, 0) / n;
+      const meanY = ln.reduce((a, b) => a + b, 0) / n;
+
+      let num = 0, den = 0;
+      for (let i = 0; i < n; i++) {
+        num += (xs[i] - meanX) * (ln[i] - meanY);
+        den += (xs[i] - meanX) * (xs[i] - meanX);
+      }
+
+      const slope = den === 0 ? 0 : num / den;
+      const intercept = meanY - slope * meanX;
+      const fitted = xs.map(x => intercept + slope * x);
+      const residuals = ln.map((y, i) => y - fitted[i]);
+      const std = Math.sqrt(residuals.reduce((a, b) => a + b * b, 0) / Math.max(1, n - 2));
+
       const futureLabels = [];
       const futurePrices = [];
-      for(let i=1;i<=days;i++){
-        const x = n-1 + i; const y = intercept + slope*x;
-        futureLabels.push(`+${i} 天`); futurePrices.push(Math.exp(y));
+
+      for (let i = 1; i <= days; i++) {
+        const x = n - 1 + i;
+        const y = intercept + slope * x;
+        futureLabels.push(`+${i}d`);
+        futurePrices.push(Math.exp(y));
       }
+
       const allLabels = labels.concat(futureLabels);
-      const last = prices[prices.length-1];
-      const end = futurePrices[futurePrices.length-1];
-      const change = last>0? ((end/last-1)*100) : 0;
+      const last = prices[prices.length - 1];
+      const end = futurePrices[futurePrices.length - 1];
+      const change = last > 0 ? ((end / last - 1) * 100) : 0;
+
       document.getElementById('ai-last').textContent = last.toFixed(2);
       document.getElementById('ai-forecast-end').textContent = end.toFixed(2);
-      document.getElementById('ai-forecast-change').textContent = `${change>=0? '+' : ''}${change.toFixed(2)}%`;
-      const upper = allLabels.map((_,idx)=> idx<labels.length? null : futurePrices[idx-labels.length]*Math.exp(std));
-      const lower = allLabels.map((_,idx)=> idx<labels.length? null : futurePrices[idx-labels.length]/Math.exp(std));
+
+      const changeEl = document.getElementById('ai-forecast-change');
+      changeEl.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+      changeEl.className = `h2 font-mono mb-0 ${change >= 0 ? 'text-up' : 'text-down'}`;
+
+      const upper = allLabels.map((_, idx) => idx < labels.length ? null : futurePrices[idx - labels.length] * Math.exp(std));
+      const lower = allLabels.map((_, idx) => idx < labels.length ? null : futurePrices[idx - labels.length] / Math.exp(std));
+
       renderChart(allLabels, prices, futurePrices, upper, lower, labels.length);
-    }
 
-    // 訓練功能已移除
-    function renderChart(labels, hist, forecast, upper, lower, split){
-      const ctx = document.getElementById('aiChart').getContext('2d');
-      if(aiChart){ aiChart.destroy(); }
-      const all = hist.concat(forecast);
-      aiChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [
-            { label: '歷史', data: labels.map((_,i)=> i<split? all[i] : null), borderColor:'#94A3B8', backgroundColor:'rgba(148,163,184,0.15)', tension:0.25 },
-            { label: '預測', data: labels.map((_,i)=> i>=split? all[i] : null), borderColor:'#3B82F6', backgroundColor:'rgba(59,130,246,0.12)', tension:0.25 },
-            { label: '上界', data: upper, borderColor:'rgba(16,185,129,0.8)', pointRadius:0, borderDash:[6,6] },
-            { label: '下界', data: lower, borderColor:'rgba(239,68,68,0.8)', pointRadius:0, borderDash:[6,6] },
-          ]
+    } catch (e) {
+      console.error(e);
+      alert('Error fetching data');
+    }
+  }
+
+  function renderChart(labels, hist, forecast, upper, lower, split) {
+    const ctx = document.getElementById('aiChart').getContext('2d');
+    if (aiChart) aiChart.destroy();
+
+    const all = hist.concat(forecast);
+
+    aiChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Historical',
+            data: labels.map((_, i) => i < split ? all[i] : null),
+            borderColor: '#94a3b8',
+            backgroundColor: 'rgba(148, 163, 184, 0.1)',
+            tension: 0.4,
+            pointRadius: 0
+          },
+          {
+            label: 'Forecast',
+            data: labels.map((_, i) => i >= split ? all[i] : null),
+            borderColor: '#00E5FF',
+            backgroundColor: 'rgba(0, 229, 255, 0.1)',
+            tension: 0.4,
+            pointRadius: 0
+          },
+          {
+            label: 'Upper Bound',
+            data: upper,
+            borderColor: 'rgba(0, 200, 83, 0.5)',
+            borderDash: [5, 5],
+            pointRadius: 0,
+            fill: false
+          },
+          {
+            label: 'Lower Bound',
+            data: lower,
+            borderColor: 'rgba(255, 23, 68, 0.5)',
+            borderDash: [5, 5],
+            pointRadius: 0,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          intersect: false,
+          mode: 'index'
         },
-        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'top'} } }
-      });
-    }
-  </script>
-</body>
-</html>
-
+        scales: {
+          x: { grid: { display: false } },
+          y: { grid: { color: 'rgba(255, 255, 255, 0.05)' } }
+        }
+      }
+    });
+  }
+</script>
+{% endblock %}

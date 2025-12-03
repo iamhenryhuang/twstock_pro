@@ -1,511 +1,224 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>技術分析 | Taiwan Stock Terminal</title>
-    
-    <!-- Bloomberg專業字體 -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    
-    <!-- 主要樣式 -->
-    <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet">
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <style>
-        /* 技術分析專用樣式 */
-        .tool-hero {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #0f1419 100%);
-            border-bottom: 3px solid #ff9800;
-            padding: 3rem 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .tool-hero::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(255, 152, 0, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 50%, rgba(0, 123, 255, 0.08) 0%, transparent 50%);
-            pointer-events: none;
-        }
-        
-        .tool-header {
-            text-align: center;
-            position: relative;
-            z-index: 2;
-        }
-        
-        .tool-icon {
-            display: inline-block;
-            width: 64px;
-            height: 64px;
-            background: rgba(255, 152, 0, 0.2);
-            border: 2px solid #ff9800;
-            border-radius: 12px;
-            color: #ff9800;
-            font-size: 28px;
-            line-height: 60px;
-            margin-bottom: 1rem;
-        }
-        
-        .tool-title {
-            font-size: 36px;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 1rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        .tool-subtitle {
-            font-size: 18px;
-            color: rgba(255, 255, 255, 0.85);
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-        }
-        
-        .ta-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-        .search-section {
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        
-        .search-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #ff9800;
-            padding-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .search-form {
-            display: flex;
-            gap: 1rem;
-            align-items: end;
-        }
-        
-        .form-group {
-            flex: 1;
-        }
-        
-        .form-label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            font-size: 16px;
-            font-family: 'JetBrains Mono', monospace;
-            transition: all 0.3s ease;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #ff9800;
-            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
-        }
-        
-        .btn-analyze {
-            padding: 0.75rem 2rem;
-            background: #ff9800;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-        
-        .btn-analyze:hover {
-            background: #e68900;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
-        }
-        
-        .analysis-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-        
-        .chart-section {
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #ff9800;
-            padding-bottom: 0.5rem;
-        }
-        
-        .chart-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .indicators-section {
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        
-        .indicators-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #ff9800;
-            padding-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .indicator-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        .indicator-item:hover {
-            border-color: #ff9800;
-            background: rgba(255, 152, 0, 0.05);
-        }
-        
-        .indicator-name {
-            font-weight: 500;
-            color: #333;
-        }
-        
-        .indicator-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-        }
-        
-        .indicator-bullish {
-            color: #00d4aa;
-        }
-        
-        .indicator-bearish {
-            color: #ff6b6b;
-        }
-        
-        .indicator-neutral {
-            color: #666;
-        }
-        
-        @media (max-width: 768px) {
-            .analysis-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-            
-            .search-form {
-                flex-direction: column;
-                align-items: stretch;
-            }
-        }
-    </style>
-</head>
-<body>
-    
-    <!-- Bloomberg風格導航列 -->
-    <nav class="bloomberg-navbar">
-        <div class="bloomberg-navbar-content">
-            <!-- 品牌標識 -->
-            <a href="{{ url_for('home') }}" class="bloomberg-brand">
-                <div class="bloomberg-brand-logo">TS</div>
-                Taiwan Stock Terminal
-            </a>
-            
-            <!-- 導航項目 -->
-            <div class="bloomberg-nav-items d-none d-md-flex">
-                <a href="{{ url_for('home') }}" class="bloomberg-nav-link">Markets</a>
-                <a href="#" class="bloomberg-nav-link">Stocks</a>
-                <a href="#" class="bloomberg-nav-link">News</a>
-                <a href="#" class="bloomberg-nav-link active">Tools</a>
+{% extends "layouts/base.html" %}
+
+{% block title %}Technical Analysis | TST{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+
+        <!-- Header -->
+        <div class="text-center mb-xl">
+            <div
+                class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-surface border border-brand mb-md">
+                <i class="bi bi-graph-up text-brand text-2xl"></i>
             </div>
-            
-            <!-- 用戶選單 -->
-            <div class="bloomberg-nav-items">
-                {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('dashboard') }}" class="bloomberg-nav-link">
-                        <i class="bi bi-person-circle"></i> {{ current_user.username }}
-                    </a>
-                    <a href="{{ url_for('logout') }}" class="bloomberg-nav-link">Logout</a>
-                {% else %}
-                    <a href="{{ url_for('login') }}" class="bloomberg-nav-link">Login</a>
-                    <a href="{{ url_for('register') }}" class="bloomberg-btn bloomberg-btn-orange">Sign Up</a>
-                {% endif %}
-            </div>
+            <h1 class="h1 mb-sm">Technical Analysis</h1>
+            <p class="text-secondary">Advanced technical indicators and chart patterns</p>
         </div>
-    </nav>
-    
-    <!-- 工具頁面Header -->
-    <section class="tool-hero">
-        <div class="bloomberg-container">
-            <div class="tool-header">
-                <div class="tool-icon">
-                    <i class="bi bi-graph-up"></i>
+
+        <!-- Search -->
+        <div class="card mb-xl">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-search me-sm"></i>Analysis Settings
+                </h3>
+            </div>
+            <form id="analysisForm" class="flex gap-md items-end flex-wrap">
+                <div class="flex-1 min-w-[200px]">
+                    <label for="stockCode" class="text-secondary mb-xs block">Stock Code</label>
+                    <input type="text" id="stockCode" name="stockCode" class="input font-mono" placeholder="e.g. 2330"
+                        maxlength="10" required>
                 </div>
-                <h1 class="tool-title">技術分析</h1>
-                <p class="tool-subtitle">專業級技術指標分析，協助您做出明智的投資決策</p>
-            </div>
+
+                <div class="flex-1 min-w-[200px]">
+                    <label for="period" class="text-secondary mb-xs block">Period</label>
+                    <select id="period" name="period" class="input">
+                        <option value="5">5 Days</option>
+                        <option value="20" selected>20 Days</option>
+                        <option value="60">60 Days</option>
+                        <option value="120">120 Days</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-graph-up me-sm"></i>Analyze
+                </button>
+            </form>
         </div>
-    </section>
-    
-    <!-- 技術分析主體 -->
-    <section class="bloomberg-section">
-        <div class="ta-container">
-            <!-- 搜尋區域 -->
-            <div class="search-section">
-                <h2 class="search-title">
-                    <i class="bi bi-search"></i>
-                    股票代號查詢
-                </h2>
-                
-                <form class="search-form" id="analysisForm">
-                    <div class="form-group">
-                        <label for="stockCode" class="form-label">股票代號</label>
-                        <input type="text" id="stockCode" name="stockCode" class="form-input" 
-                               placeholder="例如: 2330" maxlength="10" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="period" class="form-label">分析週期</label>
-                        <select id="period" name="period" class="form-input" required>
-                            <option value="5">5日</option>
-                            <option value="20" selected>20日</option>
-                            <option value="60">60日</option>
-                            <option value="120">120日</option>
-                        </select>
-                    </div>
-                    
-                    <button type="submit" class="btn-analyze">
-                        <i class="bi bi-graph-up"></i>
-                        開始分析
-                    </button>
-                </form>
-            </div>
-            
-            <!-- 分析結果 -->
-            <div class="analysis-grid">
-                <!-- 圖表區域 -->
-                <div class="chart-section">
-                    <div class="chart-header">
-                        <h3 class="chart-title">價格走勢圖</h3>
-                    </div>
-                    
-                    <div style="height: 400px; display: flex; align-items: center; justify-content: center; color: #666;">
-                        <canvas id="priceChart" style="display: none;"></canvas>
-                        <div id="chartPlaceholder">
-                            <i class="bi bi-graph-up" style="font-size: 4rem; opacity: 0.3;"></i>
-                            <p style="margin-top: 1rem; opacity: 0.7;">請輸入股票代號開始分析</p>
-                        </div>
+
+        <!-- Analysis Grid -->
+        <div class="grid grid-cols-3-lg gap-xl">
+
+            <!-- Chart -->
+            <div class="col-span-2-lg card">
+                <div class="card-header">
+                    <h3 class="card-title">Price Chart</h3>
+                </div>
+                <div style="height: 400px; position: relative;">
+                    <canvas id="priceChart" style="display: none;"></canvas>
+                    <div id="chartPlaceholder"
+                        class="flex flex-col items-center justify-center h-full text-secondary opacity-50">
+                        <i class="bi bi-graph-up text-4xl mb-md"></i>
+                        <p>Enter stock code to start analysis</p>
                     </div>
                 </div>
-                
-                <!-- 技術指標 -->
-                <div class="indicators-section">
-                    <h3 class="indicators-title">
-                        <i class="bi bi-speedometer2"></i>
-                        技術指標
+            </div>
+
+            <!-- Indicators -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-speedometer2 me-sm"></i>Indicators
                     </h3>
-                    
-                    <div id="indicators">
-                        <!-- RSI -->
-                        <div class="indicator-item">
-                            <span class="indicator-name">RSI (14)</span>
-                            <span class="indicator-value indicator-neutral" id="rsi">--</span>
-                        </div>
-                        
-                        <!-- MACD -->
-                        <div class="indicator-item">
-                            <span class="indicator-name">MACD</span>
-                            <span class="indicator-value indicator-neutral" id="macd">--</span>
-                        </div>
-                        
-                        <!-- 布林通道 -->
-                        <div class="indicator-item">
-                            <span class="indicator-name">布林通道</span>
-                            <span class="indicator-value indicator-neutral" id="bollinger">--</span>
-                        </div>
-                        
-                        <!-- KD指標 -->
-                        <div class="indicator-item">
-                            <span class="indicator-name">KD指標</span>
-                            <span class="indicator-value indicator-neutral" id="kd">--</span>
-                        </div>
-                        
-                        <!-- 移動平均線 -->
-                        <div class="indicator-item">
-                            <span class="indicator-name">MA20</span>
-                            <span class="indicator-value indicator-neutral" id="ma20">--</span>
-                        </div>
+                </div>
+                <div id="indicators" class="flex flex-col gap-md">
+                    <!-- RSI -->
+                    <div class="p-md radius-md bg-surface border border-color flex justify-between items-center">
+                        <span class="text-secondary">RSI (14)</span>
+                        <span class="font-mono font-bold text-secondary" id="rsi">--</span>
+                    </div>
+
+                    <!-- MACD -->
+                    <div class="p-md radius-md bg-surface border border-color flex justify-between items-center">
+                        <span class="text-secondary">MACD</span>
+                        <span class="font-mono font-bold text-secondary" id="macd">--</span>
+                    </div>
+
+                    <!-- Bollinger -->
+                    <div class="p-md radius-md bg-surface border border-color flex justify-between items-center">
+                        <span class="text-secondary">Bollinger</span>
+                        <span class="font-mono font-bold text-secondary" id="bollinger">--</span>
+                    </div>
+
+                    <!-- KD -->
+                    <div class="p-md radius-md bg-surface border border-color flex justify-between items-center">
+                        <span class="text-secondary">KD</span>
+                        <span class="font-mono font-bold text-secondary" id="kd">--</span>
+                    </div>
+
+                    <!-- MA20 -->
+                    <div class="p-md radius-md bg-surface border border-color flex justify-between items-center">
+                        <span class="text-secondary">MA20</span>
+                        <span class="font-mono font-bold text-secondary" id="ma20">--</span>
                     </div>
                 </div>
             </div>
+
         </div>
-    </section>
-    
-    <!-- JavaScript -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let chart = null;
-            
-            // 表單提交處理
-            document.getElementById('analysisForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                performTechnicalAnalysis();
-            });
-            
-            function performTechnicalAnalysis() {
-                const stockCode = document.getElementById('stockCode').value.trim();
-                
-                if (!stockCode) {
-                    alert('請輸入股票代號');
-                    return;
-                }
-                
-                // 顯示載入狀態
-                showLoading();
-                
-                // 模擬API調用
-                setTimeout(() => {
-                    const mockData = generateMockAnalysis(stockCode);
-                    displayAnalysisResults(mockData);
-                    createChart(mockData.prices);
-                }, 1500);
-            }
-            
-            function showLoading() {
-                document.getElementById('chartPlaceholder').innerHTML = 
-                    '<i class="bi bi-arrow-clockwise" style="font-size: 3rem; opacity: 0.5; animation: spin 1s linear infinite;"></i>' +
-                    '<p style="margin-top: 1rem; opacity: 0.7;">分析中...</p>';
-            }
-            
-            function generateMockAnalysis(stockCode) {
-                const rsi = Math.random() * 100;
-                const prices = [];
-                
-                let basePrice = 100 + Math.random() * 400;
-                for (let i = 0; i < 30; i++) {
-                    basePrice += (Math.random() - 0.5) * 20;
-                    prices.push({
-                        date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
-                        price: Math.max(50, basePrice + Math.random() * 10)
-                    });
-                }
-                
-                return {
-                    stockCode,
-                    rsi: rsi.toFixed(2),
-                    macd: ((Math.random() - 0.5) * 10).toFixed(3),
-                    bollinger: Math.random() > 0.5 ? '上軌' : '下軌',
-                    kd: (Math.random() * 100).toFixed(2),
-                    ma20: (basePrice * (0.95 + Math.random() * 0.1)).toFixed(2),
-                    prices
-                };
-            }
-            
-            function displayAnalysisResults(data) {
-                // 更新RSI
-                const rsiEl = document.getElementById('rsi');
-                rsiEl.textContent = data.rsi;
-                rsiEl.className = 'indicator-value ' + 
-                    (data.rsi > 70 ? 'indicator-bearish' : 
-                     data.rsi < 30 ? 'indicator-bullish' : 'indicator-neutral');
-                
-                // 更新其他指標
-                document.getElementById('macd').textContent = data.macd;
-                document.getElementById('bollinger').textContent = data.bollinger;
-                document.getElementById('kd').textContent = data.kd;
-                document.getElementById('ma20').textContent = data.ma20;
-            }
-            
-            function createChart(prices) {
-                const ctx = document.getElementById('priceChart').getContext('2d');
-                
-                if (chart) {
-                    chart.destroy();
-                }
-                
-                chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: prices.map(p => p.date),
-                        datasets: [{
-                            label: '股價',
-                            data: prices.map(p => p.price),
-                            borderColor: '#ff9800',
-                            backgroundColor: 'rgba(255, 152, 0, 0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false
-                    }
-                });
-                
-                document.getElementById('chartPlaceholder').style.display = 'none';
-                document.getElementById('priceChart').style.display = 'block';
-            }
-            
-            console.log('Technical Analysis loaded successfully');
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let chart = null;
+
+        // Chart Config
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = '#334155';
+        Chart.defaults.font.family = "'JetBrains Mono', monospace";
+
+        document.getElementById('analysisForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            performTechnicalAnalysis();
         });
-        
-        // CSS for spin animation
-        const style = document.createElement('style');
-        style.textContent = `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`;
-        document.head.appendChild(style);
-    </script>
-</body>
-</html>
+
+        function performTechnicalAnalysis() {
+            const stockCode = document.getElementById('stockCode').value.trim();
+            if (!stockCode) return;
+
+            showLoading();
+
+            setTimeout(() => {
+                const mockData = generateMockAnalysis(stockCode);
+                displayAnalysisResults(mockData);
+                createChart(mockData.prices);
+            }, 1000);
+        }
+
+        function showLoading() {
+            document.getElementById('chartPlaceholder').innerHTML = `
+                <div class="spinner-border text-brand mb-md" role="status"></div>
+                <p>Analyzing...</p>
+            `;
+        }
+
+        function generateMockAnalysis(stockCode) {
+            const rsi = Math.random() * 100;
+            const prices = [];
+            let basePrice = 100 + Math.random() * 400;
+
+            for (let i = 0; i < 30; i++) {
+                basePrice += (Math.random() - 0.5) * 20;
+                prices.push({
+                    date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
+                    price: Math.max(50, basePrice + Math.random() * 10)
+                });
+            }
+
+            return {
+                stockCode,
+                rsi: rsi.toFixed(2),
+                macd: ((Math.random() - 0.5) * 10).toFixed(3),
+                bollinger: Math.random() > 0.5 ? 'Upper' : 'Lower',
+                kd: (Math.random() * 100).toFixed(2),
+                ma20: (basePrice * (0.95 + Math.random() * 0.1)).toFixed(2),
+                prices
+            };
+        }
+
+        function displayAnalysisResults(data) {
+            const rsiEl = document.getElementById('rsi');
+            rsiEl.textContent = data.rsi;
+            rsiEl.className = 'font-mono font-bold ' +
+                (data.rsi > 70 ? 'text-down' : data.rsi < 30 ? 'text-up' : 'text-secondary');
+
+            document.getElementById('macd').textContent = data.macd;
+            document.getElementById('bollinger').textContent = data.bollinger;
+            document.getElementById('kd').textContent = data.kd;
+            document.getElementById('ma20').textContent = data.ma20;
+        }
+
+        function createChart(prices) {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            if (chart) chart.destroy();
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: prices.map(p => p.date),
+                    datasets: [{
+                        label: 'Price',
+                        data: prices.map(p => p.price),
+                        borderColor: '#00E5FF',
+                        backgroundColor: 'rgba(0, 229, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.1,
+                        pointRadius: 0,
+                        pointHoverRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' } }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+
+            document.getElementById('chartPlaceholder').style.display = 'none';
+            document.getElementById('priceChart').style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}

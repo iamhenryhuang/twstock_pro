@@ -1,260 +1,143 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>會員註冊 | 台股資訊</title>
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- 主要樣式 -->
-    <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet">
-</head>
-<body>
-    
-    <!-- 導航列 -->
-    <nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('home') }}">
-                <i class="bi bi-graph-up me-2"></i>台股資訊
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="navbar-nav ms-auto">
-                    
-                    <a href="{{ url_for('home') }}" class="btn btn-outline-light btn-sm">
-                        <i class="bi bi-house me-1"></i>返回首頁
-                    </a>
+{% extends "layouts/base.html" %}
+
+{% block title %}Register | TST{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="grid" style="grid-template-columns: 1fr; max-width: 800px; margin: 0 auto; gap: var(--space-xl);">
+
+            <!-- Register Card -->
+            <div class="card">
+                <div class="text-center mb-lg">
+                    <div class="mb-md">
+                        <i class="bi bi-person-plus-fill text-brand" style="font-size: 3rem;"></i>
+                    </div>
+                    <h2 class="h2 mb-sm">Create Account</h2>
+                    <p class="text-secondary">Join us to unlock professional features</p>
                 </div>
-            </div>
-        </div>
-    </nav>
 
-    <div class="container my-5 page-content">
-        <div class="row justify-content-center">
-            <div class="col-lg-6 col-md-8">
-                <div class="card hover-lift animate-delay-1">
-                    <div class="card-body p-5">
-                        <div class="text-center mb-4">
-                            <div class="mb-3">
-                                <i class="bi bi-person-plus-fill fs-1 text-primary" style="animation: pulse 2s infinite;"></i>
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="mb-md p-md radius-md"
+                    style="background: {% if category == 'error' %}rgba(239, 68, 68, 0.1){% else %}rgba(34, 197, 94, 0.1){% endif %}; border: 1px solid {% if category == 'error' %}var(--color-danger){% else %}var(--color-success){% endif %}; color: {% if category == 'error' %}var(--color-danger){% else %}var(--color-success){% endif %};">
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <div class="grid grid-cols-2 gap-lg mb-lg">
+                        <div>
+                            {{ form.username.label(class="text-secondary mb-xs block") }}
+                            {{ form.username(class="input" + (" border-danger" if form.username.errors else "")) }}
+                            {% if form.username.errors %}
+                            <div class="text-down text-sm mt-xs">
+                                {% for error in form.username.errors %}{{ error }}{% endfor %}
                             </div>
-                            <h2 class="fw-bold text-white">會員註冊</h2>
-                            <p class="text-muted">創建您的帳戶，解鎖更多專業功能</p>
+                            {% endif %}
                         </div>
 
-                        <!-- Flash Messages -->
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                        {% for category, message in messages %}
-                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                        {% endfor %}
-                        {% endif %}
-                        {% endwith %}
-
-                        <!-- 註冊表單 -->
-                        <form method="POST">
-                            {{ form.hidden_tag() }}
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    {{ form.username.label(class="form-label fw-semibold text-white") }}
-                                    {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else "")) }}
-                                    {% if form.username.errors %}
-                                    <div class="invalid-feedback">
-                                        {% for error in form.username.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                
-                                <div class="col-md-6 mb-3">
-                                    {{ form.email.label(class="form-label fw-semibold text-white") }}
-                                    {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
-                                    {% if form.email.errors %}
-                                    <div class="invalid-feedback">
-                                        {% for error in form.email.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                    {% endif %}
-                                </div>
+                        <div>
+                            {{ form.email.label(class="text-secondary mb-xs block") }}
+                            {{ form.email(class="input" + (" border-danger" if form.email.errors else "")) }}
+                            {% if form.email.errors %}
+                            <div class="text-down text-sm mt-xs">
+                                {% for error in form.email.errors %}{{ error }}{% endfor %}
                             </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    {{ form.full_name.label(class="form-label fw-semibold text-white") }}
-                                    {{ form.full_name(class="form-control", placeholder="選填") }}
-                                </div>
-                                
-                                <div class="col-md-6 mb-3">
-                                    {{ form.phone.label(class="form-label fw-semibold text-white") }}
-                                    {{ form.phone(class="form-control", placeholder="選填") }}
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    {{ form.password.label(class="form-label fw-semibold text-white") }}
-                                    {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else "")) }}
-                                    {% if form.password.errors %}
-                                    <div class="invalid-feedback">
-                                        {% for error in form.password.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                
-                                <div class="col-md-6 mb-4">
-                                    {{ form.password2.label(class="form-label fw-semibold text-white") }}
-                                    {{ form.password2(class="form-control" + (" is-invalid" if form.password2.errors else "")) }}
-                                    {% if form.password2.errors %}
-                                    <div class="invalid-feedback">
-                                        {% for error in form.password2.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            {{ form.submit(class="btn btn-primary w-100 py-2 mb-3") }}
-                        </form>
-
-                        <div class="text-center">
-                            <p class="text-muted mb-0">
-                                已有帳戶？
-                                <a href="{{ url_for('login') }}" class="text-white text-decoration-none fw-semibold">
-                                    立即登入
-                                </a>
-                            </p>
+                            {% endif %}
                         </div>
                     </div>
-                </div>
 
-                <!-- 會員等級說明 -->
-                <div class="card mt-4 hover-lift animate-delay-2">
-                    <div class="card-body">
-                        <h6 class="card-title text-center mb-4 text-white">
-                            <i class="bi bi-award-fill text-warning me-2"></i>會員等級比較
-                        </h6>
-                        <div class="row g-4 text-center">
-                            <div class="col-md-4">
-                                <div class="glass-effect p-3 rounded hover-lift">
-                                    <div class="mb-3">
-                                        <i class="bi bi-person-badge fs-2 text-muted"></i>
-                                    </div>
-                                    <h6 class="text-white mb-3">免費會員</h6>
-                                    <ul class="list-unstyled small">
-                                        <li class="mb-2"><i class="bi bi-check text-success me-1"></i><span class="text-muted">基礎查詢</span></li>
-                                        <li class="mb-2"><i class="bi bi-check text-success me-1"></i><span class="text-muted">10支自選股</span></li>
-                                        <li class="mb-2"><i class="bi bi-check text-success me-1"></i><span class="text-muted">7天歷史</span></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="glass-effect p-3 rounded hover-lift" style="border: 2px solid var(--primary-color);">
-                                    <div class="mb-3">
-                                        <i class="bi bi-person-badge-fill fs-2 text-primary"></i>
-                                    </div>
-                                    <h6 class="text-primary mb-3">付費會員</h6>
-                                    <ul class="list-unstyled small">
-                                        <li class="mb-2"><i class="bi bi-check text-success me-1"></i><span class="text-muted">進階分析</span></li>
-                                        <li class="mb-2"><i class="bi bi-check text-success me-1"></i><span class="text-muted">100支自選股</span></li>
-                                        <li class="mb-2"><i class="bi bi-check text-success me-1"></i><span class="text-muted">價格提醒</span></li>
-                                        <li class="mb-2"><i class="bi bi-check text-success me-1"></i><span class="text-muted">資料匯出</span></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="glass-effect p-3 rounded hover-lift" style="border: 2px solid var(--warning-color);">
-                                    <div class="mb-3">
-                                        <i class="bi bi-award-fill fs-2 text-warning" style="animation: bounce 2s infinite;"></i>
-                                    </div>
-                                    <h6 class="text-warning mb-3">VIP 會員</h6>
-                                    <ul class="list-unstyled small">
-                                        <li class="mb-2"><i class="bi bi-check text-success me-1"></i><span class="text-muted">API 存取</span></li>
-                                        <li class="mb-2"><i class="bi bi-check text-success me-1"></i><span class="text-muted">無限自選股</span></li>
-                                        <li class="mb-2"><i class="bi bi-check text-success me-1"></i><span class="text-muted">客製指標</span></li>
-                                        <li class="mb-2"><i class="bi bi-check text-success me-1"></i><span class="text-muted">優先客服</span></li>
-                                    </ul>
-                                </div>
-                            </div>
+                    <div class="grid grid-cols-2 gap-lg mb-lg">
+                        <div>
+                            {{ form.full_name.label(class="text-secondary mb-xs block") }}
+                            {{ form.full_name(class="input", placeholder="Optional") }}
                         </div>
+
+                        <div>
+                            {{ form.phone.label(class="text-secondary mb-xs block") }}
+                            {{ form.phone(class="input", placeholder="Optional") }}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-lg mb-xl">
+                        <div>
+                            {{ form.password.label(class="text-secondary mb-xs block") }}
+                            {{ form.password(class="input" + (" border-danger" if form.password.errors else "")) }}
+                            {% if form.password.errors %}
+                            <div class="text-down text-sm mt-xs">
+                                {% for error in form.password.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            {{ form.password2.label(class="text-secondary mb-xs block") }}
+                            {{ form.password2(class="input" + (" border-danger" if form.password2.errors else "")) }}
+                            {% if form.password2.errors %}
+                            <div class="text-down text-sm mt-xs">
+                                {% for error in form.password2.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {{ form.submit(class="btn btn-primary w-full mb-lg") }}
+                </form>
+
+                <div class="text-center">
+                    <p class="text-secondary mb-0">
+                        Already have an account?
+                        <a href="{{ url_for('login') }}" class="text-brand hover:text-white">Login Now</a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Membership Levels -->
+            <div class="card bg-surface">
+                <h6 class="text-center text-brand mb-lg font-mono uppercase tracking-wide">
+                    <i class="bi bi-award-fill me-sm"></i>Membership Levels
+                </h6>
+                <div class="grid grid-cols-3 gap-md text-center">
+                    <div class="p-md radius-md" style="background: rgba(255,255,255,0.03);">
+                        <i class="bi bi-person-badge text-secondary mb-sm block text-xl"></i>
+                        <h6 class="text-white mb-sm">Free</h6>
+                        <ul class="text-secondary text-sm text-left" style="list-style: none; padding: 0;">
+                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>Basic Info</li>
+                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>10 Watchlist</li>
+                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>7D History</li>
+                        </ul>
+                    </div>
+                    <div class="p-md radius-md"
+                        style="background: rgba(0, 229, 255, 0.05); border: 1px solid var(--color-brand-primary);">
+                        <i class="bi bi-person-badge-fill text-brand mb-sm block text-xl"></i>
+                        <h6 class="text-brand mb-sm">Pro</h6>
+                        <ul class="text-secondary text-sm text-left" style="list-style: none; padding: 0;">
+                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>Advanced</li>
+                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>100 Watchlist</li>
+                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>Alerts</li>
+                        </ul>
+                    </div>
+                    <div class="p-md radius-md"
+                        style="background: rgba(255, 152, 0, 0.05); border: 1px solid var(--color-brand-accent);">
+                        <i class="bi bi-award-fill text-warning mb-sm block text-xl"></i>
+                        <h6 class="text-warning mb-sm">VIP</h6>
+                        <ul class="text-secondary text-sm text-left" style="list-style: none; padding: 0;">
+                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>API Access</li>
+                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>Unlimited</li>
+                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>Priority</li>
+                        </ul>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
-
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- 自定義 JavaScript -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 添加滾動動畫效果
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver(function(entries) {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
-                    }
-                });
-            }, observerOptions);
-
-            // 觀察所有需要動畫的元素
-            document.querySelectorAll('.animate-delay-1, .animate-delay-2').forEach(el => {
-                el.style.opacity = '0';
-                el.style.transform = 'translateY(20px)';
-                el.style.transition = 'all 0.6s ease-out';
-                observer.observe(el);
-            });
-
-            // 表單增強
-            const form = document.querySelector('form');
-            if (form) {
-                form.addEventListener('submit', function() {
-                    const submitBtn = this.querySelector('input[type="submit"]');
-                    if (submitBtn) {
-                        submitBtn.value = '註冊中...';
-                        submitBtn.disabled = true;
-                    }
-                });
-            }
-
-            // 密碼強度檢查
-            const passwordInput = document.querySelector('input[name="password"]');
-            if (passwordInput) {
-                passwordInput.addEventListener('input', function() {
-                    const password = this.value;
-                    const strengthBar = document.querySelector('.password-strength');
-                    
-                    // 可以添加密碼強度指示器
-                    let strength = 0;
-                    if (password.length >= 8) strength++;
-                    if (/[A-Z]/.test(password)) strength++;
-                    if (/[a-z]/.test(password)) strength++;
-                    if (/[0-9]/.test(password)) strength++;
-                    if (/[^A-Za-z0-9]/.test(password)) strength++;
-                    
-                    // 根據強度改變邊框顏色
-                    this.style.borderColor = strength < 2 ? 'var(--danger-color)' : 
-                                           strength < 4 ? 'var(--warning-color)' : 
-                                           'var(--success-color)';
-                });
-            }
-        });
-    </script>
-</body>
-<<<<<<< HEAD
-</html> 
-=======
-</html> 
->>>>>>> 8d2ee598965db35e3e64408ee32639acb89acfa5
+</section>
+{% endblock %}

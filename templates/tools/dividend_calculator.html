@@ -1,447 +1,152 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>股息計算器 | Taiwan Stock Terminal</title>
-    
-    <!-- Bloomberg專業字體 -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    
-    <!-- 主要樣式 -->
-    <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet">
-    
-    <style>
-        /* 工具頁面專用樣式 */
-        .tool-hero {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #0f1419 100%);
-            border-bottom: 3px solid #ff9800;
-            padding: 3rem 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .tool-hero::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(255, 152, 0, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 50%, rgba(0, 123, 255, 0.08) 0%, transparent 50%);
-            pointer-events: none;
-        }
-        
-        .tool-header {
-            text-align: center;
-            position: relative;
-            z-index: 2;
-        }
-        
-        .tool-icon {
-            display: inline-block;
-            width: 64px;
-            height: 64px;
-            background: rgba(255, 152, 0, 0.2);
-            border: 2px solid #ff9800;
-            border-radius: 12px;
-            color: #ff9800;
-            font-size: 28px;
-            line-height: 60px;
-            margin-bottom: 1rem;
-        }
-        
-        .tool-title {
-            font-size: 36px;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 1rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        .tool-subtitle {
-            font-size: 18px;
-            color: rgba(255, 255, 255, 0.85);
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-        }
-        
-        .calculator-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-        .calculator-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-        
-        .calculator-card {
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        
-        .calculator-card-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #ff9800;
-            padding-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            font-size: 16px;
-            font-family: 'JetBrains Mono', monospace;
-            transition: all 0.3s ease;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #ff9800;
-            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
-        }
-        
-        .btn-calculate {
-            width: 100%;
-            padding: 0.75rem 1.5rem;
-            background: #ff9800;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-calculate:hover {
-            background: #e68900;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
-        }
-        
-        .result-card {
-            background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
-            color: white;
-            border-radius: 12px;
-            padding: 2rem;
-            text-align: center;
-        }
-        
-        .result-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            opacity: 0.9;
-        }
-        
-        .result-value {
-            font-size: 48px;
-            font-weight: 700;
-            font-family: 'JetBrains Mono', monospace;
-            margin-bottom: 0.5rem;
-        }
-        
-        .result-period {
-            font-size: 16px;
-            opacity: 0.9;
-        }
-        
-        .result-details {
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .result-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            font-size: 14px;
-        }
-        
-        .result-label {
-            opacity: 0.9;
-        }
-        
-        .result-amount {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-        }
-        
-        @media (max-width: 768px) {
-            .calculator-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-            
-            .tool-title {
-                font-size: 28px;
-            }
-            
-            .result-value {
-                font-size: 36px;
-            }
-        }
-    </style>
-</head>
-<body>
-    
-    <!-- Bloomberg風格導航列 -->
-    <nav class="bloomberg-navbar">
-        <div class="bloomberg-navbar-content">
-            <!-- 品牌標識 -->
-            <a href="{{ url_for('home') }}" class="bloomberg-brand">
-                <div class="bloomberg-brand-logo">TS</div>
-                Taiwan Stock Terminal
-            </a>
-            
-            <!-- 導航項目 -->
-            <div class="bloomberg-nav-items d-none d-md-flex">
-                <a href="{{ url_for('home') }}" class="bloomberg-nav-link">Markets</a>
-                <a href="#" class="bloomberg-nav-link">Stocks</a>
-                <a href="#" class="bloomberg-nav-link">News</a>
-                <a href="#" class="bloomberg-nav-link active">Tools</a>
-                
-                <!-- 搜尋框 -->
-                <div class="bloomberg-search-container">
-                    <form action="{{ url_for('stock_page') }}" method="GET">
-                        <input type="text" 
-                               name="code" 
-                               class="bloomberg-search-input" 
-                               placeholder="Search stocks..."
-                               autocomplete="off">
-                    </form>
-                </div>
+{% extends "layouts/base.html" %}
+
+{% block title %}Dividend Calculator | TST{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+
+        <!-- Header -->
+        <div class="text-center mb-xl">
+            <div
+                class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-surface border border-brand mb-md">
+                <i class="bi bi-calculator text-brand text-2xl"></i>
             </div>
-            
-            <!-- 用戶選單 -->
-            <div class="bloomberg-nav-items">
-                {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('dashboard') }}" class="bloomberg-nav-link">
-                        <i class="bi bi-person-circle"></i> {{ current_user.username }}
-                    </a>
-                    <a href="{{ url_for('logout') }}" class="bloomberg-nav-link">Logout</a>
-                {% else %}
-                    <a href="{{ url_for('login') }}" class="bloomberg-nav-link">Login</a>
-                    <a href="{{ url_for('register') }}" class="bloomberg-btn bloomberg-btn-orange">Sign Up</a>
-                {% endif %}
-            </div>
+            <h1 class="h1 mb-sm">Dividend Calculator</h1>
+            <p class="text-secondary">Calculate expected dividend income and yield</p>
         </div>
-    </nav>
-    
-    <!-- 工具頁面Header -->
-    <section class="tool-hero">
-        <div class="bloomberg-container">
-            <div class="tool-header">
-                <div class="tool-icon">
-                    <i class="bi bi-calculator"></i>
+
+        <div class="grid grid-cols-2-md gap-xl">
+
+            <!-- Parameters -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-pencil-square me-sm"></i>Investment Details
+                    </h3>
                 </div>
-                <h1 class="tool-title">股息計算器</h1>
-                <p class="tool-subtitle">計算股票投資的預期股息收益，幫助您制定投資策略</p>
+                <form id="dividendForm">
+                    <div class="mb-lg">
+                        <label for="stockCode" class="text-secondary mb-xs block">Stock Code</label>
+                        <input type="text" id="stockCode" name="stockCode" class="input font-mono"
+                            placeholder="e.g. 2330" maxlength="10">
+                    </div>
+
+                    <div class="mb-lg">
+                        <label for="shares" class="text-secondary mb-xs block">Shares Owned</label>
+                        <input type="number" id="shares" name="shares" class="input font-mono" placeholder="1000"
+                            min="1" required>
+                    </div>
+
+                    <div class="mb-lg">
+                        <label for="dividend" class="text-secondary mb-xs block">Dividend Per Share (NT$)</label>
+                        <input type="number" id="dividend" name="dividend" class="input font-mono" placeholder="3.5"
+                            step="0.01" min="0" required>
+                    </div>
+
+                    <div class="mb-lg">
+                        <label for="frequency" class="text-secondary mb-xs block">Frequency</label>
+                        <select id="frequency" name="frequency" class="input" required>
+                            <option value="1">Annually</option>
+                            <option value="2">Semi-Annually</option>
+                            <option value="4">Quarterly</option>
+                            <option value="12">Monthly</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-xl">
+                        <label for="years" class="text-secondary mb-xs block">Investment Period (Years)</label>
+                        <input type="number" id="years" name="years" class="input font-mono" placeholder="5" min="1"
+                            max="50" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-full">
+                        <i class="bi bi-calculator me-sm"></i>Calculate
+                    </button>
+                </form>
             </div>
-        </div>
-    </section>
-    
-    <!-- 計算器主體 -->
-    <section class="bloomberg-section">
-        <div class="calculator-container">
-            <div class="calculator-grid">
-                <!-- 輸入表單 -->
-                <div class="calculator-card">
-                    <h2 class="calculator-card-title">
-                        <i class="bi bi-pencil-square"></i>
-                        投資參數設定
-                    </h2>
-                    
-                    <form id="dividendForm">
-                        <div class="form-group">
-                            <label for="stockCode" class="form-label">股票代號</label>
-                            <input type="text" id="stockCode" name="stockCode" class="form-input" 
-                                   placeholder="例如: 2330" maxlength="10">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="shares" class="form-label">持有股數</label>
-                            <input type="number" id="shares" name="shares" class="form-input" 
-                                   placeholder="1000" min="1" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="dividend" class="form-label">每股股息 (元)</label>
-                            <input type="number" id="dividend" name="dividend" class="form-input" 
-                                   placeholder="3.5" step="0.01" min="0" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="frequency" class="form-label">配息頻率</label>
-                            <select id="frequency" name="frequency" class="form-input" required>
-                                <option value="1">年配息</option>
-                                <option value="2">半年配息</option>
-                                <option value="4">季配息</option>
-                                <option value="12">月配息</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="years" class="form-label">投資年數</label>
-                            <input type="number" id="years" name="years" class="form-input" 
-                                   placeholder="5" min="1" max="50" required>
-                        </div>
-                        
-                        <button type="submit" class="btn-calculate">
-                            <i class="bi bi-calculator"></i>
-                            計算股息收益
-                        </button>
-                    </form>
+
+            <!-- Results -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-graph-up me-sm"></i>Results
+                    </h3>
                 </div>
-                
-                <!-- 結果顯示 -->
-                <div class="calculator-card">
-                    <h2 class="calculator-card-title">
-                        <i class="bi bi-graph-up"></i>
-                        計算結果
-                    </h2>
-                    
-                    <div id="results" class="result-card" style="display: none;">
-                        <div class="result-title">預期年股息收益</div>
-                        <div class="result-value" id="annualDividend">$0</div>
-                        <div class="result-period">每年</div>
-                        
-                        <div class="result-details">
-                            <div class="result-row">
-                                <span class="result-label">總投資年數：</span>
-                                <span class="result-amount" id="totalYears">0 年</span>
-                            </div>
-                            <div class="result-row">
-                                <span class="result-label">累計股息收益：</span>
-                                <span class="result-amount" id="totalDividend">$0</span>
-                            </div>
-                            <div class="result-row">
-                                <span class="result-label">每月預期收益：</span>
-                                <span class="result-amount" id="monthlyDividend">$0</span>
-                            </div>
+
+                <div id="results" class="p-xl radius-md bg-surface border border-brand" style="display: none;">
+                    <div class="text-center mb-xl">
+                        <div class="text-secondary text-sm uppercase mb-xs">Expected Annual Income</div>
+                        <div class="h1 font-mono text-brand mb-0" id="annualDividend">$0</div>
+                        <div class="text-secondary text-sm">per year</div>
+                    </div>
+
+                    <div class="border-t border-color pt-lg">
+                        <div class="flex justify-between items-center mb-md">
+                            <span class="text-secondary">Total Period</span>
+                            <span class="font-mono font-bold" id="totalYears">0 Years</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-md">
+                            <span class="text-secondary">Total Dividend Income</span>
+                            <span class="font-mono font-bold text-up" id="totalDividend">$0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-secondary">Monthly Average</span>
+                            <span class="font-mono font-bold" id="monthlyDividend">$0</span>
                         </div>
                     </div>
-                    
-                    <div id="placeholder" style="text-align: center; color: #666; padding: 4rem 2rem;">
-                        <i class="bi bi-calculator" style="font-size: 3rem; opacity: 0.3;"></i>
-                        <p style="margin-top: 1rem; opacity: 0.7;">請填寫左側表單進行計算</p>
-                    </div>
+                </div>
+
+                <div id="placeholder"
+                    class="flex flex-col items-center justify-center h-full text-secondary opacity-50 py-xl">
+                    <i class="bi bi-calculator text-4xl mb-md"></i>
+                    <p>Enter details to calculate</p>
                 </div>
             </div>
+
         </div>
-    </section>
-    
-    <!-- Bloomberg風格頁尾 -->
-    <footer class="bloomberg-footer">
-        <div class="bloomberg-container">
-            <div class="bloomberg-footer-content">
-                <div>
-                    <div style="font-weight: 600; margin-bottom: 0.5rem;">Taiwan Stock Terminal</div>
-                    <div style="color: rgba(255, 255, 255, 0.7);">© 2025 All rights reserved.</div>
-                </div>
-                <div class="bloomberg-footer-links">
-                    <a href="#" class="bloomberg-footer-link">Terms</a>
-                    <a href="#" class="bloomberg-footer-link">Privacy</a>
-                    <a href="#" class="bloomberg-footer-link">Contact</a>
-                    <a href="#" class="bloomberg-footer-link">Help</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-    
-    <!-- JavaScript -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('dividendForm');
-            const results = document.getElementById('results');
-            const placeholder = document.getElementById('placeholder');
-            
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                calculateDividend();
-            });
-            
-            function calculateDividend() {
-                const shares = parseFloat(document.getElementById('shares').value);
-                const dividend = parseFloat(document.getElementById('dividend').value);
-                const frequency = parseInt(document.getElementById('frequency').value);
-                const years = parseInt(document.getElementById('years').value);
-                
-                if (!shares || !dividend || !frequency || !years) {
-                    alert('請填寫所有必要欄位');
-                    return;
-                }
-                
-                // 計算結果
-                const annualDividend = shares * dividend * frequency;
-                const totalDividend = annualDividend * years;
-                const monthlyDividend = annualDividend / 12;
-                
-                // 顯示結果
-                document.getElementById('annualDividend').textContent = 
-                    '$' + annualDividend.toLocaleString('zh-TW');
-                document.getElementById('totalYears').textContent = years + ' 年';
-                document.getElementById('totalDividend').textContent = 
-                    '$' + totalDividend.toLocaleString('zh-TW');
-                document.getElementById('monthlyDividend').textContent = 
-                    '$' + monthlyDividend.toLocaleString('zh-TW');
-                
-                // 切換顯示
-                placeholder.style.display = 'none';
-                results.style.display = 'block';
-            }
-            
-            // 搜尋功能
-            const searchInputs = document.querySelectorAll('.bloomberg-search-input');
-            searchInputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    this.value = this.value.replace(/[a-z]/g, function(s) { 
-                        return s.toUpperCase(); 
-                    });
-                });
-                
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        const code = this.value.trim();
-                        if (code.length >= 1) {
-                            window.location.href = `/stock?code=${code}`;
-                        }
-                    }
-                });
-            });
-            
-            console.log('Dividend Calculator loaded successfully');
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('dividendForm');
+        const results = document.getElementById('results');
+        const placeholder = document.getElementById('placeholder');
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            calculateDividend();
         });
-    </script>
-</body>
-</html>
+
+        function calculateDividend() {
+            const shares = parseFloat(document.getElementById('shares').value);
+            const dividend = parseFloat(document.getElementById('dividend').value);
+            const frequency = parseInt(document.getElementById('frequency').value);
+            const years = parseInt(document.getElementById('years').value);
+
+            if (!shares || !dividend || !frequency || !years) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const annualDividend = shares * dividend * frequency;
+            const totalDividend = annualDividend * years;
+            const monthlyDividend = annualDividend / 12;
+
+            document.getElementById('annualDividend').textContent =
+                'NT$ ' + annualDividend.toLocaleString();
+            document.getElementById('totalYears').textContent = years + ' Years';
+            document.getElementById('totalDividend').textContent =
+                'NT$ ' + totalDividend.toLocaleString();
+            document.getElementById('monthlyDividend').textContent =
+                'NT$ ' + monthlyDividend.toLocaleString();
+
+            placeholder.style.display = 'none';
+            results.style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}

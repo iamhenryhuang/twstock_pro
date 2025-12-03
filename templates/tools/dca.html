@@ -1,186 +1,226 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>定期定額試算 | Taiwan Stock Pro</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
-  <!-- 主要樣式 -->
-  <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet" />
-</head>
-<body>
-  <nav class="enhanced-navbar">
-    <div class="container-fluid">
-      <div class="enhanced-navbar-content">
-        <div class="enhanced-navbar-brand">
-          <a href="{{ url_for('home') }}" class="brand-link">
-            <div class="brand-icon"><i class="bi bi-graph-up-arrow"></i></div>
-            <div class="brand-text">
-              <span class="brand-name">Taiwan Stock</span>
-              <span class="brand-subtitle">Pro</span>
-            </div>
-          </a>
-        </div>
-        <div class="enhanced-navbar-user">
-          <a href="{{ url_for('home') }}" class="btn-enhanced btn-enhanced-ghost btn-enhanced-sm">
-            <i class="bi bi-house"></i>
-            <span class="d-none d-md-inline">首頁</span>
-          </a>
-        </div>
+{% extends "layouts/base.html" %}
+
+{% block title %}DCA Calculator | TST{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="text-center mb-xl">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-surface border border-brand mb-md">
+        <i class="bi bi-cash-coin text-brand text-2xl"></i>
       </div>
+      <h1 class="h1 mb-sm">DCA Calculator</h1>
+      <p class="text-secondary">Dollar-Cost Averaging simulation and projection</p>
     </div>
-  </nav>
 
-  <div class="container my-4">
-    <div class="row justify-content-center">
-      <div class="col-lg-10">
-        <div class="card-enhanced animate-slide-in-up">
-          <div class="card-enhanced-header d-flex align-items-center justify-content-between">
-            <h5 class="mb-0 text-enhanced-primary" style="font-size: 1.125rem; font-weight: 600;">
-              <i class="bi bi-cash-coin text-success me-2"></i>定期定額試算
-            </h5>
+    <div class="grid grid-cols-3-lg gap-xl">
+
+      <!-- Parameters -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="bi bi-sliders me-sm"></i>Settings
+          </h3>
+        </div>
+        <form onsubmit="event.preventDefault(); calcDCA();">
+          <div class="mb-lg">
+            <label class="text-secondary mb-xs block">Investment Amount</label>
+            <div class="input-group">
+              <span class="input-group-text">NT$</span>
+              <input id="dca-amount" type="number" step="1" min="0" class="input" value="10000" required />
+            </div>
           </div>
-          <div class="card-enhanced-body">
-            <form class="row g-3" onsubmit="event.preventDefault(); calcDCA();">
-              <div class="col-sm-4">
-                <label class="form-label">每期投入金額（元）</label>
-                <input id="dca-amount" type="number" step="1" min="0" class="form-control-enhanced" value="10000" required />
-              </div>
-              <div class="col-sm-4">
-                <label class="form-label">期數（月）</label>
-                <input id="dca-months" type="number" step="1" min="1" class="form-control-enhanced" value="24" required />
-              </div>
-              <div class="col-sm-4">
-                <label class="form-label">預估年化報酬率（%）</label>
-                <input id="dca-apy" type="number" step="0.01" class="form-control-enhanced" value="6" />
-              </div>
-              <div class="col-sm-4">
-                <label class="form-label">每股價格（元）</label>
-                <input id="dca-price" type="number" step="0.01" min="0" class="form-control-enhanced" value="50" />
-              </div>
-              <div class="col-sm-4">
-                <label class="form-label">頻率</label>
-                <select id="dca-frequency" class="form-control-enhanced">
-                  <option value="monthly" selected>每月</option>
-                  <option value="biweekly">每雙週</option>
-                  <option value="weekly">每週</option>
-                </select>
-              </div>
-              <div class="col-sm-4 d-flex align-items-end">
-                <button class="btn-enhanced btn-enhanced-primary w-100" type="submit">
-                  <i class="bi bi-play-circle"></i>
-                  <span>開始試算</span>
-                </button>
-              </div>
-            </form>
 
-            <div class="row g-3 mt-3">
-              <div class="col-md-3">
-                <div class="data-card-enhanced">
-                  <div class="data-label-enhanced">總投入</div>
-                  <div class="data-value-enhanced" id="dca-total-invest">0</div>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="data-card-enhanced">
-                  <div class="data-label-enhanced">累積股數</div>
-                  <div class="data-value-enhanced" id="dca-total-shares">0</div>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="data-card-enhanced">
-                  <div class="data-label-enhanced">期末市值估算</div>
-                  <div class="data-value-enhanced" id="dca-est-value">0</div>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="data-card-enhanced">
-                  <div class="data-label-enhanced">報酬率估算</div>
-                  <div class="data-value-enhanced" id="dca-est-return">0%</div>
-                </div>
-              </div>
-            </div>
+          <div class="mb-lg">
+            <label class="text-secondary mb-xs block">Duration (Months)</label>
+            <input id="dca-months" type="number" step="1" min="1" class="input" value="24" required />
+          </div>
 
-            <div class="card-enhanced mt-4">
-              <div class="card-enhanced-header">
-                <h6 class="mb-0">投入與累積走勢</h6>
-              </div>
-              <div class="card-enhanced-body">
-                <div class="chart-container" style="height:360px">
-                  <canvas id="dcaChart"></canvas>
-                </div>
-              </div>
-            </div>
+          <div class="mb-lg">
+            <label class="text-secondary mb-xs block">Expected Annual Return (%)</label>
+            <input id="dca-apy" type="number" step="0.01" class="input" value="6" />
+          </div>
+
+          <div class="mb-lg">
+            <label class="text-secondary mb-xs block">Share Price (Optional)</label>
+            <input id="dca-price" type="number" step="0.01" min="0" class="input" value="50" />
+          </div>
+
+          <div class="mb-xl">
+            <label class="text-secondary mb-xs block">Frequency</label>
+            <select id="dca-frequency" class="input">
+              <option value="monthly" selected>Monthly</option>
+              <option value="biweekly">Bi-weekly</option>
+              <option value="weekly">Weekly</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary w-full" type="submit">
+            <i class="bi bi-calculator me-sm"></i>Calculate
+          </button>
+        </form>
+      </div>
+
+      <!-- Results & Chart -->
+      <div class="col-span-2-lg flex flex-col gap-xl">
+
+        <!-- Stats -->
+        <div class="grid grid-cols-2-md gap-lg">
+          <div class="card text-center">
+            <div class="text-secondary text-sm uppercase font-mono mb-xs">Total Invested</div>
+            <div class="h2 font-mono mb-0" id="dca-total-invest">0</div>
+          </div>
+          <div class="card text-center">
+            <div class="text-secondary text-sm uppercase font-mono mb-xs">Total Shares</div>
+            <div class="h2 font-mono mb-0" id="dca-total-shares">0</div>
+          </div>
+          <div class="card text-center">
+            <div class="text-secondary text-sm uppercase font-mono mb-xs">Estimated Value</div>
+            <div class="h2 font-mono mb-0 text-brand" id="dca-est-value">0</div>
+          </div>
+          <div class="card text-center">
+            <div class="text-secondary text-sm uppercase font-mono mb-xs">Estimated Return</div>
+            <div class="h2 font-mono mb-0" id="dca-est-return">0%</div>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="card flex-1">
+          <div class="card-header">
+            <h3 class="card-title">Investment Growth</h3>
+          </div>
+          <div style="height: 350px; position: relative;">
+            <canvas id="dcaChart"></canvas>
           </div>
         </div>
       </div>
+
     </div>
   </div>
+</section>
+{% endblock %}
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-  <script>
-    let dcaChart = null;
-    function fmt(x){
-      return Number(x).toLocaleString(undefined,{maximumFractionDigits:2});
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  let dcaChart = null;
+
+  // Chart Config
+  Chart.defaults.color = '#94a3b8';
+  Chart.defaults.borderColor = '#334155';
+  Chart.defaults.font.family = "'JetBrains Mono', monospace";
+
+  function fmt(x) {
+    return Number(x).toLocaleString(undefined, { maximumFractionDigits: 2 });
+  }
+
+  function calcEffectivePeriods(freq, months) {
+    if (freq === 'weekly') return Math.round(months * 4.345);
+    if (freq === 'biweekly') return Math.round(months * 2.1725);
+    return months; // monthly
+  }
+
+  function apyToPerPeriod(apy, freq) {
+    const annual = Math.max(0, apy) / 100;
+    const periodsPerYear = freq === 'weekly' ? 52 : (freq === 'biweekly' ? 26 : 12);
+    return Math.pow(1 + annual, 1 / periodsPerYear) - 1;
+  }
+
+  function calcDCA() {
+    const amount = +document.getElementById('dca-amount').value || 0;
+    const months = +document.getElementById('dca-months').value || 0;
+    const apy = +document.getElementById('dca-apy').value || 0;
+    const price = +document.getElementById('dca-price').value || 0;
+    const freq = document.getElementById('dca-frequency').value;
+
+    const n = calcEffectivePeriods(freq, months);
+    if (amount <= 0 || n <= 0) {
+      alert('Please enter valid amount and duration');
+      return;
     }
-    function calcEffectivePeriods(freq, months){
-      if(freq==='weekly') return Math.round(months*4.345);
-      if(freq==='biweekly') return Math.round(months*2.1725);
-      return months; // monthly
+
+    const r = apyToPerPeriod(apy, freq);
+    let totalInvest = 0, totalShares = 0;
+    const labels = [], investSeries = [], valueSeries = [];
+
+    for (let i = 1; i <= n; i++) {
+      totalInvest += amount;
+      if (price > 0) { totalShares += amount / price; }
+
+      // FV = A * [((1+r)^i - 1)/r]
+      const fv = r > 0 ? amount * (((1 + r) ** i - 1) / r) : amount * i;
+
+      labels.push(i.toString());
+      investSeries.push(Number(totalInvest.toFixed(2)));
+      valueSeries.push(Number(fv.toFixed(2)));
     }
-    function apyToPerPeriod(apy, freq){
-      const annual = Math.max(0, apy)/100;
-      const periodsPerYear = freq==='weekly'?52:(freq==='biweekly'?26:12);
-      return Math.pow(1+annual, 1/periodsPerYear) - 1;
-    }
-    function calcDCA(){
-      const amount = +document.getElementById('dca-amount').value||0;
-      const months = +document.getElementById('dca-months').value||0;
-      const apy = +document.getElementById('dca-apy').value||0;
-      const price = +document.getElementById('dca-price').value||0;
-      const freq = document.getElementById('dca-frequency').value;
-      const n = calcEffectivePeriods(freq, months);
-      if(amount<=0 || n<=0){ alert('請輸入有效的金額與期數'); return; }
-      const r = apyToPerPeriod(apy, freq);
-      let totalInvest = 0, totalShares = 0;
-      const labels=[], investSeries=[], valueSeries=[];
-      for(let i=1;i<=n;i++){
-        totalInvest += amount;
-        if(price>0){ totalShares += amount/price; }
-        // 終值：期付終值公式 FV = A * [((1+r)^i - 1)/r]
-        const fv = r>0 ? amount * (((1+r)**i - 1) / r) : amount * i;
-        labels.push(i.toString());
-        investSeries.push(Number(totalInvest.toFixed(2)));
-        valueSeries.push(Number(fv.toFixed(2)));
-      }
-      document.getElementById('dca-total-invest').textContent = fmt(totalInvest);
-      document.getElementById('dca-total-shares').textContent = fmt(totalShares);
-      const estValue = valueSeries[valueSeries.length-1] || 0;
-      document.getElementById('dca-est-value').textContent = fmt(estValue);
-      const ret = totalInvest>0 ? (estValue/totalInvest-1)*100 : 0;
-      document.getElementById('dca-est-return').textContent = `${ret.toFixed(2)}%`;
-      renderDcaChart(labels, investSeries, valueSeries);
-    }
-    function renderDcaChart(labels, invest, value){
-      const ctx = document.getElementById('dcaChart').getContext('2d');
-      if(dcaChart){ dcaChart.destroy(); }
-      dcaChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [
-            { label: '累積投入', data: invest, borderColor: '#94A3B8', backgroundColor: 'rgba(148,163,184,0.15)', tension: 0.25, fill: true },
-            { label: '期末價值估算', data: value, borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,0.12)', tension: 0.25, fill: true },
-          ]
+
+    document.getElementById('dca-total-invest').textContent = fmt(totalInvest);
+    document.getElementById('dca-total-shares').textContent = fmt(totalShares);
+
+    const estValue = valueSeries[valueSeries.length - 1] || 0;
+    document.getElementById('dca-est-value').textContent = fmt(estValue);
+
+    const ret = totalInvest > 0 ? (estValue / totalInvest - 1) * 100 : 0;
+    const retEl = document.getElementById('dca-est-return');
+    retEl.textContent = `${ret >= 0 ? '+' : ''}${ret.toFixed(2)}%`;
+    retEl.className = `h2 font-mono mb-0 ${ret >= 0 ? 'text-up' : 'text-down'}`;
+
+    renderDcaChart(labels, investSeries, valueSeries);
+  }
+
+  function renderDcaChart(labels, invest, value) {
+    const ctx = document.getElementById('dcaChart').getContext('2d');
+    if (dcaChart) { dcaChart.destroy(); }
+
+    dcaChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Total Invested',
+            data: invest,
+            borderColor: '#94a3b8',
+            backgroundColor: 'rgba(148, 163, 184, 0.1)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 0
+          },
+          {
+            label: 'Estimated Value',
+            data: value,
+            borderColor: '#00E5FF',
+            backgroundColor: 'rgba(0, 229, 255, 0.1)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 0
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' }
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins:{ legend:{ position:'top' } }, scales:{ y:{ beginAtZero:true } } }
-      });
-    }
-    document.addEventListener('DOMContentLoaded', calcDCA);
-  </script>
-</body>
-</html>
+        scales: {
+          x: { grid: { display: false } },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+          }
+        },
+        interaction: {
+          intersect: false,
+          mode: 'index'
+        }
+      }
+    });
+  }
 
-
+  document.addEventListener('DOMContentLoaded', calcDCA);
+</script>
+{% endblock %}

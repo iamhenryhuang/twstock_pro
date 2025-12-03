@@ -1,267 +1,193 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的自選股 | 台股資訊</title>
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- 主要樣式 -->
-    <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet">
-</head>
-<body>
-    
-    <!-- 導航列 -->
-    <nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('home') }}">
-                <i class="bi bi-graph-up me-2"></i>台股資訊
-            </a>
-            <div class="navbar-nav ms-auto">
-                <div class="dropdown me-3">
-                    <a class="btn btn-outline-light btn-sm dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle me-1"></i>{{ current_user.username }}
-                        {% if current_user.is_vip() %}
-                        <span class="badge bg-warning text-dark ms-1">VIP</span>
-                        {% elif current_user.is_premium() %}
-                        <span class="badge bg-primary ms-1">會員</span>
-                        {% endif %}
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ url_for('dashboard') }}">
-                            <i class="bi bi-speedometer2 me-2"></i>控制台
-                        </a></li>
-                        <li><a class="dropdown-item active" href="{{ url_for('watchlist') }}">
-                            <i class="bi bi-bookmark-star me-2"></i>自選股
-                        </a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('profile') }}">
-                            <i class="bi bi-person me-2"></i>個人資料
-                        </a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ url_for('logout') }}">
-                            <i class="bi bi-box-arrow-right me-2"></i>登出
-                        </a></li>
-                    </ul>
-                </div>
-                <a href="{{ url_for('home') }}" class="btn btn-outline-light btn-sm">
-                    <i class="bi bi-house me-1"></i>返回首頁
-                </a>
+{% extends "layouts/base.html" %}
+
+{% block title %}Watchlist | TST{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-xl">
+            <div>
+                <h2 class="h2 mb-xs">My Watchlist</h2>
+                <p class="text-secondary">
+                    {{ watchlist|length }} stocks
+                    {% if features.watchlist_limit %}
+                    (Limit: {{ features.watchlist_limit }})
+                    {% endif %}
+                </p>
+            </div>
+            <div class="flex gap-md">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStockModal">
+                    <i class="bi bi-plus-circle me-sm"></i>Add Stock
+                </button>
+                <button class="btn btn-outline" onclick="location.reload()">
+                    <i class="bi bi-arrow-clockwise me-sm"></i>Refresh
+                </button>
             </div>
         </div>
-    </nav>
 
-    <div class="container my-5">
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, message in messages %}
-        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+        <div class="mb-lg p-md radius-md"
+            style="background: {% if category == 'error' %}rgba(239, 68, 68, 0.1){% else %}rgba(34, 197, 94, 0.1){% endif %}; border: 1px solid {% if category == 'error' %}var(--color-danger){% else %}var(--color-success){% endif %}; color: {% if category == 'error' %}var(--color-danger){% else %}var(--color-success){% endif %};">
             {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         {% endfor %}
         {% endif %}
         {% endwith %}
 
-        <!-- 標題區域 -->
-        <div class="row mb-4">
-            <div class="col-md-8">
-                <h2 class="mb-1">
-                    <i class="bi bi-bookmark-star text-warning me-2"></i>我的自選股
-                </h2>
-                <p class="text-muted">
-                    目前有 {{ watchlist|length }} 支股票
-                    {% if features.watchlist_limit %}
-                    （限制：{{ features.watchlist_limit }} 支）
-                    {% endif %}
-                </p>
-            </div>
-            <div class="col-md-4 text-md-end">
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStockModal">
-                    <i class="bi bi-plus-circle me-1"></i>新增自選股
-                </button>
-                <button class="btn btn-outline-secondary ms-2" onclick="refreshWatchlist()">
-                    <i class="bi bi-arrow-clockwise me-1"></i>重新整理
-                </button>
-            </div>
-        </div>
-
-        <!-- 自選股列表 -->
+        <!-- Watchlist Table -->
         {% if watchlist %}
         <div class="card">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>股票代號</th>
-                                <th>股票名稱</th>
-                                <th>即時股價</th>
-                                <th>漲跌</th>
-                                <th>漲跌幅</th>
-                                <th>加入價格</th>
-                                <th>損益</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in watchlist %}
-                            <tr>
-                                <td>
-                                    <a href="{{ url_for('stock_page', code=item.stock_code) }}" 
-                                       class="text-decoration-none fw-bold">
-                                        {{ item.stock_code }}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Name</th>
+                            <th class="text-right">Price</th>
+                            <th class="text-right">Change</th>
+                            <th class="text-right">Change %</th>
+                            <th class="text-right">Cost</th>
+                            <th class="text-right">P/L</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in watchlist %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('stock_page', code=item.stock_code) }}"
+                                    class="badge badge-brand font-mono hover:text-white">
+                                    {{ item.stock_code }}
+                                </a>
+                            </td>
+                            <td>{{ item.stock_name or 'Loading...' }}</td>
+                            <td class="text-right font-mono">
+                                {% if item.current_price and item.current_price != 'N/A' %}
+                                <span class="font-bold">{{ item.current_price|format_price }}</span>
+                                {% else %}
+                                <span class="text-secondary">Loading...</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-right font-mono">
+                                {% if item.change and item.change != 'N/A' %}
+                                <span class="{{ item.change|change_class }}">
+                                    {{ item.change }}
+                                </span>
+                                {% else %}
+                                <span class="text-secondary">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-right font-mono">
+                                {% if item.change_percent and item.change_percent != 'N/A' %}
+                                <span class="{{ item.change_percent|change_class }}">
+                                    {{ item.change_percent }}
+                                </span>
+                                {% else %}
+                                <span class="text-secondary">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-right font-mono text-secondary">
+                                {{ item.added_price|format_price if item.added_price else '-' }}
+                            </td>
+                            <td class="text-right font-mono">
+                                {% if item.current_price and item.added_price and item.current_price != 'N/A' %}
+                                {% set profit = item.current_price|float - item.added_price|float %}
+                                {% set profit_percent = (profit / item.added_price|float * 100) if
+                                item.added_price|float > 0 else 0 %}
+                                <span
+                                    class="{{ 'text-up' if profit > 0 else 'text-down' if profit < 0 else 'text-secondary' }}">
+                                    {{ '+' if profit > 0 else '' }}{{ profit|format_price }}
+                                    ({{ '+' if profit_percent > 0 else '' }}{{ "%.2f"|format(profit_percent) }}%)
+                                </span>
+                                {% else %}
+                                <span class="text-secondary">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-right">
+                                <div class="flex justify-end gap-sm">
+                                    <a href="{{ url_for('stock_page', code=item.stock_code) }}"
+                                        class="btn btn-sm btn-outline" title="View">
+                                        <i class="bi bi-eye"></i>
                                     </a>
-                                </td>
-                                <td>{{ item.stock_name or '載入中...' }}</td>
-                                <td>
-                                    {% if item.current_price and item.current_price != 'N/A' %}
-                                    <span class="fw-bold">{{ item.current_price|format_price }}</span>
-                                    {% else %}
-                                    <span class="text-muted">載入中...</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if item.change and item.change != 'N/A' %}
-                                    <span class="{{ item.change|change_class }}">
-                                        {{ item.change }}
-                                    </span>
-                                    {% else %}
-                                    <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if item.change_percent and item.change_percent != 'N/A' %}
-                                    <span class="{{ item.change_percent|change_class }}">
-                                        {{ item.change_percent }}
-                                    </span>
-                                    {% else %}
-                                    <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if item.added_price %}
-                                    <small class="text-muted">{{ item.added_price|format_price }}</small>
-                                    {% else %}
-                                    <small class="text-muted">-</small>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if item.current_price and item.added_price and item.current_price != 'N/A' %}
-                                    {% set profit = item.current_price|float - item.added_price|float %}
-                                    {% set profit_percent = (profit / item.added_price|float * 100) if item.added_price|float > 0 else 0 %}
-                                    <small class="{{ 'text-success' if profit > 0 else 'text-danger' if profit < 0 else 'text-muted' }}">
-                                        {{ '+' if profit > 0 else '' }}{{ profit|format_price }}
-                                        ({{ '+' if profit_percent > 0 else '' }}{{ "%.2f"|format(profit_percent) }}%)
-                                    </small>
-                                    {% else %}
-                                    <small class="text-muted">-</small>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <a href="{{ url_for('stock_page', code=item.stock_code) }}" 
-                                           class="btn btn-outline-primary btn-sm" title="查看詳情">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a href="{{ url_for('remove_from_watchlist', item_id=item.id) }}" 
-                                           class="btn btn-outline-danger btn-sm" 
-                                           onclick="return confirm('確定要移除此自選股嗎？')" title="移除">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                                    <a href="{{ url_for('remove_from_watchlist', item_id=item.id) }}"
+                                        class="btn btn-sm btn-outline hover:border-danger hover:text-down"
+                                        onclick="return confirm('Remove this stock?')" title="Remove">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
         {% else %}
-        <!-- 空狀態 -->
-        <div class="card">
-            <div class="card-body text-center py-5">
-                <i class="bi bi-bookmark display-1 text-muted opacity-25"></i>
-                <h4 class="mt-3 text-muted">尚未添加任何自選股</h4>
-                <p class="text-muted">開始建立您的個人股票投資組合</p>
-                <div class="mt-4">
-                    <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#addStockModal">
-                        <i class="bi bi-plus-circle me-1"></i>新增第一支自選股
-                    </button>
-                    <a href="{{ url_for('home') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-search me-1"></i>搜尋股票
-                    </a>
-                </div>
+        <div class="card text-center py-xl">
+            <i class="bi bi-bookmark text-secondary mb-md block" style="font-size: 4rem; opacity: 0.3;"></i>
+            <h3 class="h3 mb-sm">Your watchlist is empty</h3>
+            <p class="text-secondary mb-lg">Start building your portfolio by adding stocks</p>
+            <div class="flex justify-center gap-md">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStockModal">
+                    <i class="bi bi-plus-circle me-sm"></i>Add First Stock
+                </button>
+                <a href="{{ url_for('home') }}" class="btn btn-outline">
+                    <i class="bi bi-search me-sm"></i>Search Stocks
+                </a>
             </div>
         </div>
         {% endif %}
 
-        <!-- 會員限制提示 -->
+        <!-- Limit Warning -->
         {% if features.watchlist_limit and watchlist|length >= features.watchlist_limit %}
-        <div class="alert alert-warning mt-3">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            您已達到自選股數量上限（{{ features.watchlist_limit }} 支）。
-            {% if not current_user.is_premium() %}
-            <a href="#" class="alert-link">升級會員</a>以解鎖更多自選股位置。
-            {% endif %}
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- 新增自選股模態框 -->
-    <div class="modal fade" id="addStockModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="bi bi-plus-circle text-primary me-2"></i>新增自選股
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form method="POST" action="{{ url_for('add_to_watchlist') }}">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="stock_code" class="form-label fw-semibold">股票代號</label>
-                            <input type="text" class="form-control" id="stock_code" name="stock_code" 
-                                   placeholder="例如：2330, 0050" required 
-                                   pattern="[A-Za-z0-9]{3,10}" title="請輸入3-10位數字或字母">
-                            <div class="form-text">支援台股、ETF等各類代號</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="notes" class="form-label fw-semibold">備註 <small class="text-muted">(選填)</small></label>
-                            <textarea class="form-control" id="notes" name="notes" rows="3" 
-                                      placeholder="投資理由、目標價格等備註..."></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-bookmark-star me-1"></i>加入自選股
-                        </button>
-                    </div>
-                </form>
+        <div class="mt-lg p-md radius-md flex items-center gap-md"
+            style="background: rgba(255, 152, 0, 0.1); border: 1px solid var(--color-warning); color: var(--color-warning);">
+            <i class="bi bi-exclamation-triangle"></i>
+            <div>
+                Watchlist limit reached ({{ features.watchlist_limit }}).
+                {% if not current_user.is_premium() %}
+                <a href="#" class="text-white underline">Upgrade</a> to increase limit.
+                {% endif %}
             </div>
         </div>
+        {% endif %}
+
     </div>
+</section>
 
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        function refreshWatchlist() {
-            location.reload();
-        }
-
-        // 自動重新整理價格（每30秒）
-        setInterval(function() {
-            if (document.visibilityState === 'visible') {
-                refreshWatchlist();
-            }
-        }, 30000);
-    </script>
-</body>
-</html>
+<!-- Add Stock Modal -->
+<div class="modal fade" id="addStockModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border-color);">
+            <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title h4">Add Stock</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_to_watchlist') }}">
+                <div class="modal-body">
+                    <div class="mb-md">
+                        <label for="stock_code" class="text-secondary mb-xs block">Stock Code</label>
+                        <input type="text" class="input" id="stock_code" name="stock_code" placeholder="e.g. 2330, 0050"
+                            required pattern="[A-Za-z0-9]{3,10}">
+                        <div class="text-secondary text-xs mt-xs">Supports TWSE/TPEX codes</div>
+                    </div>
+                    <div class="mb-md">
+                        <label for="notes" class="text-secondary mb-xs block">Notes (Optional)</label>
+                        <textarea class="input" id="notes" name="notes" rows="3"
+                            placeholder="Investment thesis, target price..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                    <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add to Watchlist</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

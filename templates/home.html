@@ -1,538 +1,226 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>台股資訊 | 專業股票交易平台</title>
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Google Fonts - Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- JetBrains Mono Font -->
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- 主要樣式 -->
-    <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet">
-    
-    <!-- 增強跑馬燈樣式 -->
-    <style>
-        /* 專業跑馬燈效果 */
-        .bloomberg-market-banner {
-            background: linear-gradient(90deg, #000000 0%, #1a1a1a 50%, #000000 100%);
-            color: #ffffff;
-            padding: 0.75rem 0;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            font-weight: 500;
-            overflow: hidden;
-            white-space: nowrap;
-            position: relative;
-            border-top: 1px solid rgba(255, 152, 0, 0.2);
-            border-bottom: 1px solid rgba(255, 152, 0, 0.2);
-        }
-        
-        .bloomberg-market-ticker {
-            display: inline-block;
-            animation: bloomberg-scroll 45s linear infinite;
-            will-change: transform;
-        }
-        
-        .bloomberg-market-ticker:hover {
-            animation-play-state: paused;
-        }
-        
-        .bloomberg-market-item {
-            display: inline-block;
-            margin-right: 4rem;
-            color: #ffffff;
-            padding: 0 1rem;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        
-        .bloomberg-market-item::after {
-            content: '•';
-            position: absolute;
-            right: -2rem;
-            color: rgba(255, 152, 0, 0.6);
-            font-size: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        .bloomberg-market-item:last-child::after {
-            display: none;
-        }
-        
-        /* 漲跌顏色 */
-        .bloomberg-market-item.up {
-            color: #00d4aa;
-        }
-        
-        .bloomberg-market-item.down {
-            color: #ff6b6b;
-        }
-        
-        @keyframes bloomberg-scroll {
-            0% { 
-                transform: translateX(100vw); 
-            }
-            100% { 
-                transform: translateX(-100%); 
-            }
-        }
-        
-        /* 邊緣漸變效果 */
-        .bloomberg-market-banner::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100px;
-            height: 100%;
-            background: linear-gradient(90deg, #000000 0%, transparent 100%);
-            z-index: 10;
-            pointer-events: none;
-        }
-        
-        .bloomberg-market-banner::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100px;
-            height: 100%;
-            background: linear-gradient(-90deg, #000000 0%, transparent 100%);
-            z-index: 10;
-            pointer-events: none;
-        }
-        
-        /* Hero區域光暈效果 */
-        .hero-glow::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(255, 152, 0, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 50%, rgba(0, 123, 255, 0.08) 0%, transparent 50%);
-            pointer-events: none;
-        }
-        
-        /* 響應式設計 */
-        @media (max-width: 768px) {
-            .bloomberg-market-item {
-                margin-right: 2rem;
-                font-size: 12px;
-            }
-        }
-    </style>
-</head>
-<body>
-    
-    <!-- Bloomberg風格導航列 -->
-    <nav class="bloomberg-navbar">
-        <div class="bloomberg-navbar-content">
-            <!-- 品牌標識 -->
-            <a href="{{ url_for('home') }}" class="bloomberg-brand">
-                <div class="bloomberg-brand-logo">TS</div>
-                Taiwan Stock Terminal
-            </a>
-            
-            <!-- 導航項目 -->
-            <div class="bloomberg-nav-items d-none d-md-flex">
-                <a href="#markets" class="bloomberg-nav-link">Markets</a>
-                <a href="#stocks" class="bloomberg-nav-link">Stocks</a>
-                <a href="#news" class="bloomberg-nav-link">News</a>
-                <a href="#tools" class="bloomberg-nav-link">Tools</a>
-                
-                <!-- 搜尋框 -->
-                <div class="bloomberg-search-container">
-                    <form action="{{ url_for('stock_page') }}" method="GET">
-                        <input type="text" 
-                               name="code" 
-                               class="bloomberg-search-input" 
-                               placeholder="Search stocks..."
-                               autocomplete="off">
-                    </form>
+{% extends "layouts/base.html" %}
+
+{% block title %}Taiwan Stock Terminal | Market Intelligence{% endblock %}
+
+{% block content %}
+<!-- Market Ticker -->
+<div class="ticker-wrap">
+    <div class="ticker">
+        {% if market_info and not market_info.get('錯誤') %}
+        {% for key, value in market_info.items() %}
+        {% if key != '更新時間' %}
+        <div class="ticker-item">
+            {{ key }}: <span
+                class="{% if '+' in value|string %}text-up{% elif '-' in value|string %}text-down{% endif %}">{{ value
+                }}</span>
+        </div>
+        {% endif %}
+        {% endfor %}
+        <!-- Duplicate for seamless loop -->
+        {% for key, value in market_info.items() %}
+        {% if key != '更新時間' %}
+        <div class="ticker-item">
+            {{ key }}: <span
+                class="{% if '+' in value|string %}text-up{% elif '-' in value|string %}text-down{% endif %}">{{ value
+                }}</span>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% else %}
+        <div class="ticker-item">TSE: <span class="text-up">24,373.53 +39.05</span></div>
+        <div class="ticker-item">OTC: <span class="text-up">245.67 +2.45</span></div>
+        <div class="ticker-item">Futures: <span class="text-down">24,350 -15</span></div>
+        <div class="ticker-item">Vol: <span>2,847B</span></div>
+        <!-- Duplicate -->
+        <div class="ticker-item">TSE: <span class="text-up">24,373.53 +39.05</span></div>
+        <div class="ticker-item">OTC: <span class="text-up">245.67 +2.45</span></div>
+        <div class="ticker-item">Futures: <span class="text-down">24,350 -15</span></div>
+        <div class="ticker-item">Vol: <span>2,847B</span></div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Hero Section -->
+<section class="hero text-center">
+    <div class="container">
+        <h1 class="h1 mb-lg">
+            Market <span class="text-brand">Intelligence</span><br>
+            Redefined.
+        </h1>
+        <p class="text-secondary mb-lg"
+            style="font-size: 1.25rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+            Professional-grade data analysis and real-time insights for the Taiwan Stock Market.
+        </p>
+
+        <div style="max-width: 600px; margin: 0 auto; position: relative;">
+            <form action="{{ url_for('stock_page') }}" method="GET">
+                <div class="input-group">
+                    <span
+                        style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary);">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="code" class="input" placeholder="Search quote (e.g. 2330, TSMC)..."
+                        style="padding-left: 3rem; height: 3.5rem; font-size: 1.1rem; border-radius: var(--radius-full); background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(10px);"
+                        autocomplete="off" required>
                 </div>
-            </div>
-            
-            <!-- 用戶選單 -->
-            <div class="bloomberg-nav-items">
-                {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('dashboard') }}" class="bloomberg-nav-link">
-                        <i class="bi bi-person-circle"></i> {{ current_user.username }}
-                    </a>
-                    <a href="{{ url_for('logout') }}" class="bloomberg-nav-link">Logout</a>
-                {% else %}
-                    <a href="{{ url_for('login') }}" class="bloomberg-nav-link">Login</a>
-                    <a href="{{ url_for('register') }}" class="bloomberg-btn bloomberg-btn-orange">Sign Up</a>
-                {% endif %}
+            </form>
+
+            <div class="flex justify-center gap-md mt-lg flex-wrap">
+                <a href="{{ url_for('stock_page', code='2330') }}" class="badge badge-brand">2330 TSMC</a>
+                <a href="{{ url_for('stock_page', code='0050') }}" class="badge badge-brand">0050 0050 ETF</a>
+                <a href="{{ url_for('stock_page', code='2317') }}" class="badge badge-brand">2317 Foxconn</a>
             </div>
         </div>
-    </nav>
-    
-    <!-- 市場跑馬燈 -->
-    <div class="bloomberg-market-banner">
-        <div class="bloomberg-market-ticker">
+    </div>
+</section>
+
+<!-- Market Overview -->
+<section class="section" style="padding-top: 0;">
+    <div class="container">
+        <div class="grid grid-cols-4-md grid-cols-2">
             {% if market_info and not market_info.get('錯誤') %}
-                {% for key, value in market_info.items() %}
-                    {% if key != '更新時間' %}
-                        <span class="bloomberg-market-item {% if '+' in value|string %}up{% elif '-' in value|string %}down{% endif %}">{{ key }}: {{ value }}</span>
-                    {% endif %}
-                {% endfor %}
-                <!-- 重複數據形成無縫循環 -->
-                {% for key, value in market_info.items() %}
-                    {% if key != '更新時間' %}
-                        <span class="bloomberg-market-item {% if '+' in value|string %}up{% elif '-' in value|string %}down{% endif %}">{{ key }}: {{ value }}</span>
-                    {% endif %}
-                {% endfor %}
+            {% for key, value in market_info.items() %}
+            {% if key != '更新時間' %}
+            <div
+                class="card card-glass flex flex-col items-center justify-center p-xl hover:border-brand transition-all duration-300">
+                <div class="text-secondary font-mono text-sm uppercase tracking-wider mb-sm">{{ key }}</div>
+                <div
+                    class="h2 font-mono {% if '+' in value|string %}text-up{% elif '-' in value|string %}text-down{% endif %}">
+                    {{ value or 'N/A' }}
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
             {% else %}
-                <span class="bloomberg-market-item up">TSE加權指數: 24,373.53 +39.05 (+0.16%)</span>
-                <span class="bloomberg-market-item up">櫃買指數: 245.67 +2.45 (+1.01%)</span>
-                <span class="bloomberg-market-item down">台指期: 24,350 -15 (-0.06%)</span>
-                <span class="bloomberg-market-item up">成交金額: 2,847億</span>
-                <span class="bloomberg-market-item">成交量: 45.2萬張</span>
-                <span class="bloomberg-market-item up">外資: +85億</span>
-                <span class="bloomberg-market-item down">投信: -25億</span>
-                <span class="bloomberg-market-item up">自營商: +8億</span>
-                <!-- 重複數據形成無縫循環 -->
-                <span class="bloomberg-market-item up">TSE加權指數: 24,373.53 +39.05 (+0.16%)</span>
-                <span class="bloomberg-market-item up">櫃買指數: 245.67 +2.45 (+1.01%)</span>
-                <span class="bloomberg-market-item down">台指期: 24,350 -15 (-0.06%)</span>
-                <span class="bloomberg-market-item up">成交金額: 2,847億</span>
-                <span class="bloomberg-market-item">成交量: 45.2萬張</span>
-                <span class="bloomberg-market-item up">外資: +85億</span>
-                <span class="bloomberg-market-item down">投信: -25億</span>
-                <span class="bloomberg-market-item up">自營商: +8億</span>
+            <div class="card card-glass flex flex-col items-center justify-center p-xl">
+                <div class="text-secondary font-mono text-sm uppercase tracking-wider mb-sm">TAIEX</div>
+                <div class="h2 font-mono text-up">17,500.23</div>
+            </div>
+            <div class="card card-glass flex flex-col items-center justify-center p-xl">
+                <div class="text-secondary font-mono text-sm uppercase tracking-wider mb-sm">CHANGE</div>
+                <div class="h2 font-mono text-up">+125.45</div>
+            </div>
+            <div class="card card-glass flex flex-col items-center justify-center p-xl">
+                <div class="text-secondary font-mono text-sm uppercase tracking-wider mb-sm">VOLUME</div>
+                <div class="h2 font-mono">152.4B</div>
+            </div>
+            <div class="card card-glass flex flex-col items-center justify-center p-xl">
+                <div class="text-secondary font-mono text-sm uppercase tracking-wider mb-sm">FOREIGN</div>
+                <div class="h2 font-mono text-up">+8.5B</div>
+            </div>
             {% endif %}
         </div>
     </div>
+</section>
 
-    <!-- Bloomberg主要內容區域 -->
-    <div class="bloomberg-main">
-        
-        <!-- Hero區域 -->
-        <section class="hero-glow" style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #0f1419 100%); border-bottom: 3px solid var(--bloomberg-orange); padding: var(--space-3xl) 0; position: relative; overflow: hidden;">
-            <div class="bloomberg-container">
-                <div style="text-align: center; max-width: 800px; margin: 0 auto;">
-                    <h1 style="font-size: 42px; font-weight: 700; color: #ffffff; margin-bottom: var(--space-lg); letter-spacing: -0.02em; line-height: 1.1; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); position: relative; z-index: 2;">Taiwan Stock Market Intelligence</h1>
-                    <p style="font-size: 18px; color: rgba(255, 255, 255, 0.85); margin-bottom: var(--space-2xl); line-height: 1.4; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); position: relative; z-index: 2;">
-                        Professional-grade financial data, real-time market analysis, and comprehensive stock research tools
-                    </p>
-                    
-                    <!-- 主要搜尋框 -->
-                    <div class="bloomberg-search-box">
-                        <form action="{{ url_for('stock_page') }}" method="GET">
-                            <input type="text" 
-                                   name="code" 
-                                   class="bloomberg-search-main bloomberg-focus" 
-                                   placeholder="Enter stock code or company name (e.g., 2330, TSMC)"
-                                   autocomplete="off"
-                                   required>
-                        </form>
-                    </div>
-                    
-                    <!-- 快速連結 -->
-                    <div style="margin-top: var(--space-xl); display: flex; justify-content: center; gap: var(--space-md); flex-wrap: wrap;">
-                        <a href="{{ url_for('stock_page', code='2330') }}" class="bloomberg-btn">2330 台積電</a>
-                        <a href="{{ url_for('stock_page', code='0050') }}" class="bloomberg-btn">0050 元大台灣50</a>
-                        <a href="{{ url_for('stock_page', code='0056') }}" class="bloomberg-btn">0056 元大高股息</a>
-                        <a href="{{ url_for('stock_page', code='2317') }}" class="bloomberg-btn">2317 鴻海</a>
+<!-- Main Content Grid -->
+<section class="section">
+    <div class="container">
+        <div class="grid grid-cols-3-md gap-xl">
+
+            <!-- Most Active -->
+            <div class="col-span-2">
+                <div class="flex justify-between items-center mb-lg">
+                    <h2 class="h3">Most Active</h2>
+                    <a href="#" class="btn btn-ghost" style="font-size: 0.9rem;">View All <i
+                            class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>Name</th>
+                                    <th class="text-right">Price</th>
+                                    <th class="text-right">Change</th>
+                                    <th class="text-right">%</th>
+                                    <th class="text-right">Vol</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stock in popular_stocks %}
+                                <tr onclick="window.location.href='{{ url_for('stock_page', code=stock.code) }}'"
+                                    style="cursor: pointer;">
+                                    <td><span class="badge badge-brand font-mono">{{ stock.code }}</span></td>
+                                    <td style="font-weight: 500;">{{ stock.name }}</td>
+                                    <td class="text-right font-mono">{{ stock.price }}</td>
+                                    <td class="text-right font-mono">
+                                        <span
+                                            class="{% if '+' in stock.change %}text-up{% elif '-' in stock.change %}text-down{% endif %}">
+                                            {{ stock.change }}
+                                        </span>
+                                    </td>
+                                    <td class="text-right font-mono">
+                                        <span
+                                            class="{% if '+' in stock.change_percent %}text-up{% elif '-' in stock.change_percent %}text-down{% endif %}">
+                                            {{ stock.change_percent }}
+                                        </span>
+                                    </td>
+                                    <td class="text-right font-mono text-secondary">{{ stock.volume }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <!-- 市場概況 -->
-        <section style="padding: var(--space-3xl) 0;">
-            <div class="bloomberg-container">
-                <h2 class="bloomberg-section-title">Market Overview</h2>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-xl); margin: var(--space-2xl) 0;">
-                    {% if market_info and not market_info.get('錯誤') %}
-                        {% for key, value in market_info.items() %}
-                            {% if key != '更新時間' %}
-                            <div class="bloomberg-stat-card">
-                                <div class="bloomberg-stat-value">{{ value or 'N/A' }}</div>
-                                <div class="bloomberg-stat-label">{{ key }}</div>
-                            </div>
-                            {% endif %}
-                        {% endfor %}
-                    {% else %}
-                        <div class="bloomberg-stat-card">
-                            <div class="bloomberg-stat-value">17,500.23</div>
-                            <div class="bloomberg-stat-label">台股指數</div>
-                        </div>
-                        <div class="bloomberg-stat-card">
-                            <div class="bloomberg-stat-value">+125.45</div>
-                            <div class="bloomberg-stat-label">漲跌點數</div>
-                        </div>
-                        <div class="bloomberg-stat-card">
-                            <div class="bloomberg-stat-value">+0.72%</div>
-                            <div class="bloomberg-stat-label">漲跌幅</div>
-                        </div>
-                        <div class="bloomberg-stat-card">
-                            <div class="bloomberg-stat-value">152.4B</div>
-                            <div class="bloomberg-stat-label">成交金額</div>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </section>
+            <!-- Sidebar -->
+            <div class="flex" style="flex-direction: column; gap: var(--space-xl);">
 
-        <!-- 主要內容區域 -->
-        <section style="padding: var(--space-3xl) 0;">
-            <div class="bloomberg-container">
-                <div class="bloomberg-grid bloomberg-grid-main-sidebar">
-                    
-                    <!-- 熱門股票 -->
-                    <div>
-                        <h2 class="bloomberg-section-title">Most Active Stocks</h2>
-                        <div class="bloomberg-card">
-                            <div class="bloomberg-card-body">
-                                <table class="bloomberg-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Symbol</th>
-                                            <th>Name</th>
-                                            <th style="text-align: right;">Price</th>
-                                            <th style="text-align: right;">Change</th>
-                                            <th style="text-align: right;">Change %</th>
-                                            <th style="text-align: right;">Volume</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for stock in popular_stocks %}
-                                        <tr data-href="{{ url_for('stock_page', code=stock.code) }}" 
-                                            style="cursor: pointer;" class="clickable-row">
-                                            <td>
-                                                <span class="bloomberg-ticker">{{ stock.code }}</span>
-                                            </td>
-                                            <td>{{ stock.name }}</td>
-                                            <td style="text-align: right;">
-                                                {% if stock.price != 'N/A' %}
-                                                    {{ stock.price }}
-                                                {% else %}
-                                                    --
-                                                {% endif %}
-                                            </td>
-                                            <td style="text-align: right;">
-                                                {% if stock.change != 'N/A' %}
-                                                    <span class="bloomberg-data-change {% if stock.change.startswith('+') %}positive{% elif stock.change.startswith('-') %}negative{% else %}neutral{% endif %}">
-                                                        {{ stock.change }}
-                                                    </span>
-                                                {% else %}
-                                                    --
-                                                {% endif %}
-                                            </td>
-                                            <td style="text-align: right;">
-                                                {% if stock.change_percent != 'N/A' %}
-                                                    <span class="bloomberg-data-change {% if stock.change_percent.startswith('+') %}positive{% elif stock.change_percent.startswith('-') %}negative{% else %}neutral{% endif %}">
-                                                        {{ stock.change_percent }}
-                                                    </span>
-                                                {% else %}
-                                                    --
-                                                {% endif %}
-                                            </td>
-                                            <td style="text-align: right; color: var(--text-muted); font-size: 12px;">
-                                                {% if stock.volume != 'N/A' %}
-                                                    {{ stock.volume }}
-                                                {% else %}
-                                                    --
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                <!-- Market Status -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="bi bi-activity"></i> Market Status</h3>
                     </div>
-                    
-                    <!-- 側邊欄 -->
-                    <div>
-                        <!-- 市場狀態 -->
-                        <div class="bloomberg-card" style="margin-bottom: var(--space-xl);">
-                            <div class="bloomberg-card-header">
-                                <h3 class="bloomberg-card-title">Market Status</h3>
-                            </div>
-                            <div class="bloomberg-card-body">
-                                <div class="bloomberg-status live">
-                                    <div class="bloomberg-status-dot"></div>
-                                    <span>{{ '市場開盤' if market_open else '非交易時段' }}</span>
-                                </div>
-                                <div style="margin-top: var(--space-md); font-family: var(--font-data); font-size: 12px; color: var(--text-muted);">
-                                    Last updated: {{ current_time.strftime('%H:%M:%S') if current_time else 'N/A' }}
-                                </div>
-                            </div>
+                    <div class="flex items-center gap-md">
+                        <div
+                            style="width: 10px; height: 10px; border-radius: 50%; background: var(--market-up); box-shadow: 0 0 10px var(--market-up);">
                         </div>
-                        
-                        <!-- 最新消息 -->
-                        <div class="bloomberg-card">
-                            <div class="bloomberg-card-header">
-                                <h3 class="bloomberg-card-title">Latest News</h3>
-                            </div>
-                            <div class="bloomberg-card-body" style="padding: 0;">
-                                {% if market_news and market_news|length > 0 %}
-                                    {% for news in market_news[:5] %}
-                                        <a href="{{ news.link }}" target="_blank" class="bloomberg-news-item">
-                                            <div class="bloomberg-news-content">
-                                                <div class="bloomberg-news-title">{{ news.title }}</div>
-                                                <div class="bloomberg-news-meta">
-                                                    <span class="bloomberg-news-time">{{ news.relative_time or '最新' }}</span>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    {% endfor %}
-                                {% else %}
-                                    <div class="bloomberg-news-item">
-                                        <div class="bloomberg-news-content">
-                                            <div class="bloomberg-news-title">台股今日收盤上漲125點</div>
-                                            <div class="bloomberg-news-meta">
-                                                <span class="bloomberg-news-time">2小時前</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <!-- 投資工具 -->
-                        <div class="bloomberg-card" style="margin-top: var(--space-xl);">
-                            <div class="bloomberg-card-header">
-                                <h3 class="bloomberg-card-title">Investment Tools</h3>
-                            </div>
-                            <div class="bloomberg-card-body">
-                                <div style="display: flex; flex-direction: column; gap: var(--space-md);">
-                                    <a href="{{ url_for('dividend_calculator') }}" class="bloomberg-btn" style="justify-content: flex-start;">
-                                        <i class="bi bi-calculator"></i>
-                                        股息計算器
-                                    </a>
-                                    <a href="{{ url_for('technical_analysis_tool') }}" class="bloomberg-btn" style="justify-content: flex-start;">
-                                        <i class="bi bi-graph-up"></i>
-                                        技術分析
-                                    </a>
-                                    <a href="{{ url_for('allocation_tool') }}" class="bloomberg-btn" style="justify-content: flex-start;">
-                                        <i class="bi bi-pie-chart"></i>
-                                        資產配置
-                                    </a>
-                                    <a href="{{ url_for('stock_screener_tool') }}" class="bloomberg-btn" style="justify-content: flex-start;">
-                                        <i class="bi bi-funnel"></i>
-                                        智能選股
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                        <span class="font-mono" style="font-weight: 600;">{{ 'MARKET OPEN' if market_open else 'MARKET
+                            CLOSED' }}</span>
                     </div>
-                    
+                    <div class="text-secondary mt-lg font-mono" style="font-size: 0.8rem;">
+                        Last update: {{ current_time.strftime('%H:%M:%S') if current_time else 'N/A' }}
+                    </div>
                 </div>
-            </div>
-        </section>
-    </div>
 
-
-
-
-
-    <!-- Bloomberg風格頁尾 -->
-    <footer class="bloomberg-footer">
-        <div class="bloomberg-container">
-            <div class="bloomberg-footer-content">
-                <div>
-                    <div style="font-weight: 600; margin-bottom: var(--space-xs);">Taiwan Stock Terminal</div>
-                    <div style="color: rgba(255, 255, 255, 0.7);">© 2025 All rights reserved.</div>
+                <!-- Tools -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Tools</h3>
+                    </div>
+                    <div class="flex" style="flex-direction: column; gap: var(--space-sm);">
+                        <a href="{{ url_for('dividend_calculator') }}" class="btn btn-outline justify-between">
+                            <span><i class="bi bi-calculator"></i> Dividend Calc</span>
+                            <i class="bi bi-chevron-right" style="font-size: 0.8rem;"></i>
+                        </a>
+                        <a href="{{ url_for('technical_analysis_tool') }}" class="btn btn-outline justify-between">
+                            <span><i class="bi bi-graph-up"></i> Technical Analysis</span>
+                            <i class="bi bi-chevron-right" style="font-size: 0.8rem;"></i>
+                        </a>
+                        <a href="{{ url_for('allocation_tool') }}" class="btn btn-outline justify-between">
+                            <span><i class="bi bi-pie-chart"></i> Allocation</span>
+                            <i class="bi bi-chevron-right" style="font-size: 0.8rem;"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="bloomberg-footer-links">
-                    <a href="#" class="bloomberg-footer-link">Terms</a>
-                    <a href="#" class="bloomberg-footer-link">Privacy</a>
-                    <a href="#" class="bloomberg-footer-link">Contact</a>
-                    <a href="#" class="bloomberg-footer-link">Help</a>
-                </div>
+
             </div>
         </div>
-    </footer>
-    
+    </div>
+</section>
+{% endblock %}
 
-
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Bloomberg主題 JavaScript -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // === Bloomberg搜尋功能 ===
-            const searchInputs = document.querySelectorAll('.bloomberg-search-input, .bloomberg-search-main');
-            
-            searchInputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    // 轉換為大寫（股票代號）
-                    this.value = this.value.replace(/[a-z]/g, function(s) { 
-                        return s.toUpperCase(); 
-                    });
-                });
-                
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        const code = this.value.trim();
-                        if (code.length >= 1) {
-                            window.location.href = `/stock?code=${code}`;
-                        }
-                    }
-                });
-            });
-            
-
-            
-            // === 平滑滾動到錨點 ===
-            const navLinks = document.querySelectorAll('.bloomberg-nav-link[href^="#"]');
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        e.preventDefault();
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                });
-            });
-            
-            // === 鍵盤快捷鍵 ===
-            document.addEventListener('keydown', function(e) {
-                // Ctrl/Cmd + K 快速搜尋
-                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                    e.preventDefault();
-                    const searchMain = document.querySelector('.bloomberg-search-main');
-                    if (searchMain) {
-                        searchMain.focus();
-                        searchMain.select();
-                    }
-                }
-            });
-            
-            // === 市場狀態更新 ===
-            setInterval(function() {
-                const now = new Date();
-                // 這裡可以添加實時時間更新邏輯
-            }, 60000); // 每分鐘更新
-            
-            // 可點擊表格行
-            const clickableRows = document.querySelectorAll('.clickable-row');
-            clickableRows.forEach(row => {
-                row.addEventListener('click', function() {
-                    const href = this.getAttribute('data-href');
-                    if (href) {
-                        window.location.href = href;
-                    }
-                });
-            });
-            
-            console.log('Bloomberg Theme UI loaded successfully');
+{% block scripts %}
+<script>
+    // Auto-uppercase for stock search
+    document.querySelectorAll('input[name="code"]').forEach(input => {
+        input.addEventListener('input', function () {
+            this.value = this.value.toUpperCase();
         });
-    </script>
-</body>
-</html>
+    });
+</script>
+{% endblock %}
