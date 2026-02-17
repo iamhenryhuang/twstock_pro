@@ -1,10 +1,44 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 *.key
 *.pem
+build/
+dist/
+*.egg-info/
+
+# Environments
 .env
 .env.local
+venv/
+.venv/
+env/
+bin/
+lib/
+include/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Database & Instance
+instance/
+*.sqlite3
+*.db
+database/backups/
+
+# Logs
+*.log
+
+# OS & System
+.DS_Store
+Thumbs.db
+
+# Project Specific
+cache/
 config/secrets.json
 config/*key*
-cache/
