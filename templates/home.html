@@ -1,308 +1,161 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}Taiwan Stock Terminal | Professional Market Intelligence{% endblock %}
+{% block title %}首頁 - TWStock Pro{% endblock %}
 
 {% block content %}
-<!-- Market Ticker -->
-<div class="ticker-wrap">
-    <div class="ticker">
+<div class="container py-4">
+    <!-- Welcome Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-primary mb-2">台灣股市即時資訊</h1>
+        <p class="lead text-secondary">掌握即時行情，洞察市場趨勢，您的最佳投資夥伴</p>
+        <div class="mt-4">
+            <span class="badge bg-{{ 'success' if market_open else 'secondary' }} fs-6 px-3 py-2 rounded-pill">
+                <i class="bi bi-circle-fill me-2 small"></i>
+                {% if market_open %}市場開盤中{% else %}市場已收盤{% endif %}
+            </span>
+            <span class="text-secondary ms-3 small">
+                <i class="bi bi-clock me-1"></i>{{ current_time.strftime('%Y-%m-%d %H:%M:%S') }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Market Summary Cards -->
+    <div class="row g-4 mb-5">
         {% if market_info and not market_info.get('錯誤') %}
         {% for key, value in market_info.items() %}
-        {% if key != '更新時間' %}
-        <div class="ticker-item">
-            <span style="color: var(--text-tertiary);">{{ key }}</span>
-            <span class="{% if '+' in value|string %}text-up{% elif '-' in value|string %}text-down{% endif %}">
-                {{ value }}
-            </span>
+        <div class="col-md-3 col-6">
+            <div class="card h-100 border-0 shadow-sm hover-elevate">
+                <div class="card-body text-center">
+                    <h6 class="text-secondary text-uppercase small ls-1 mb-2">{{ key }}</h6>
+                    <div
+                        class="fs-4 fw-bold {{ 'text-danger' if '-' in value|string else 'text-success' if '+' in value|string else 'text-dark' }}">
+                        {{ value }}
+                    </div>
+                </div>
+            </div>
         </div>
-        {% endif %}
-        {% endfor %}
-        <!-- Duplicate for seamless loop -->
-        {% for key, value in market_info.items() %}
-        {% if key != '更新時間' %}
-        <div class="ticker-item">
-            <span style="color: var(--text-tertiary);">{{ key }}</span>
-            <span class="{% if '+' in value|string %}text-up{% elif '-' in value|string %}text-down{% endif %}">
-                {{ value }}
-            </span>
-        </div>
-        {% endif %}
         {% endfor %}
         {% else %}
-        <div class="ticker-item"><span style="color: var(--text-tertiary);">TSE</span> <span class="text-up">24,373.53
-                +39.05</span></div>
-        <div class="ticker-item"><span style="color: var(--text-tertiary);">OTC</span> <span class="text-up">245.67
-                +2.45</span></div>
-        <div class="ticker-item"><span style="color: var(--text-tertiary);">Futures</span> <span
-                class="text-down">24,350 -15</span></div>
-        <div class="ticker-item"><span style="color: var(--text-tertiary);">Vol</span> <span>2,847B</span></div>
-        <!-- Duplicate -->
-        <div class="ticker-item"><span style="color: var(--text-tertiary);">TSE</span> <span class="text-up">24,373.53
-                +39.05</span></div>
-        <div class="ticker-item"><span style="color: var(--text-tertiary);">OTC</span> <span class="text-up">245.67
-                +2.45</span></div>
-        <div class="ticker-item"><span style="color: var(--text-tertiary);">Futures</span> <span
-                class="text-down">24,350 -15</span></div>
-        <div class="ticker-item"><span style="color: var(--text-tertiary);">Vol</span> <span>2,847B</span></div>
+        <div class="col-12 text-center">
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle me-2"></i>暫時無法取得大盤資訊
+            </div>
+        </div>
         {% endif %}
+    </div>
+
+    <!-- Popular Stocks Section -->
+    <div class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold"><i class="bi bi-fire text-danger me-2"></i>熱門關注股票</h3>
+            <a href="#" class="btn btn-outline-primary btn-sm rounded-pill">查看更多 <i class="bi bi-arrow-right"></i></a>
+        </div>
+
+        <div class="row g-4">
+            {% for stock in popular_stocks %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{{ url_for('stock_page', code=stock.code) }}" class="text-decoration-none">
+                    <div class="card h-100 border-0 shadow-sm hover-scale transition-all">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge border">{{ stock.code }}</span>
+                                {% if stock.change_percent != 'N/A' %}
+                                <span class="badge {{ 'bg-danger' if '-' in stock.change_percent else 'bg-success' }}">
+                                    {{ stock.change_percent }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            <h5 class="fw-bold text-dark mb-1 text-truncate">{{ stock.name }}</h5>
+                            <div class="d-flex align-items-baseline gap-2">
+                                <span
+                                    class="fs-4 fw-bold {{ 'text-danger' if '-' in stock.change else 'text-success' }}">
+                                    ${{ stock.price }}
+                                </span>
+                                <small class="text-muted">{{ stock.change }}</small>
+                            </div>
+                            <div class="mt-3 text-secondary small">
+                                <i class="bi bi-bar-chart-fill me-1"></i>量: {{ stock.volume }}
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% else %}
+            <div class="col-12 text-center py-5">
+                <p class="text-secondary">目前沒有熱門股票資料</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Market News Section -->
+    <div class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold"><i class="bi bi-newspaper text-info me-2"></i>市場新聞</h3>
+            <a href="{{ url_for('news_page') }}" class="btn btn-outline-primary btn-sm rounded-pill">閱讀更多 <i
+                    class="bi bi-arrow-right"></i></a>
+        </div>
+
+        <div class="row g-4">
+            {% for news in market_news %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    {% if news.image_url %}
+                    <img src="{{ news.image_url }}" class="card-img-top" alt="{{ news.title }}"
+                        style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top text-center py-5"
+                        style="height: 200px; background-color: var(--color-surface);">
+                        <i class="bi bi-image text-secondary fs-1"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <small class="text-primary fw-bold mb-2 d-block">{{ news.source }}</small>
+                        <h5 class="card-title fw-bold mb-3">
+                            <a href="{{ news.link }}" target="_blank"
+                                class="text-dark text-decoration-none stretched-link">
+                                {{ news.title }}
+                            </a>
+                        </h5>
+                        <p class="card-text text-secondary small line-clamp-3">{{ news.summary }}</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pt-0">
+                        <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ news.published_at }}</small>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12 text-center py-5">
+                <div class="alert border">
+                    <i class="bi bi-info-circle me-2"></i>目前沒有相關新聞
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
 
-<!-- Hero Section -->
-<section class="hero text-center">
-    <div class="container">
-        <h1 class="h1 mb-lg animate-fade-in">
-            Professional <span class="text-brand">Market Intelligence</span><br>
-            for Taiwan Stocks
-        </h1>
-        <p class="text-secondary mb-lg"
-            style="font-size: 1.15rem; max-width: 650px; margin-left: auto; margin-right: auto; line-height: 1.7;">
-            Real-time data analysis, advanced screening tools, and comprehensive insights for the Taiwan Stock Exchange.
-        </p>
+<style>
+    .hover-elevate:hover {
+        transform: translateY(-5px);
+        transition: transform 0.3s ease;
+    }
 
-        <div style="max-width: 680px; margin: 0 auto; position: relative;">
-            <form action="{{ url_for('stock_page') }}" method="GET">
-                <div class="input-group">
-                    <span
-                        style="position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 1.25rem; z-index: 1;">
-                        <i class="bi bi-search"></i>
-                    </span>
-                    <input type="text" name="code" class="input"
-                        placeholder="Search stocks by code or name (e.g. 2330, TSMC)..."
-                        style="padding-left: 3.5rem; height: 3.75rem; font-size: 1.05rem; border-radius: var(--radius-lg); background: rgba(26, 26, 36, 0.6); backdrop-filter: blur(12px); border: 1px solid var(--border-color);"
-                        autocomplete="off" required>
-                </div>
-            </form>
+    .hover-scale:hover {
+        transform: scale(1.02);
+        transition: transform 0.2s ease;
+        box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
+    }
 
-            <div class="flex justify-center gap-md mt-lg flex-wrap">
-                <a href="{{ url_for('stock_page', code='2330') }}" class="badge badge-brand"
-                    style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-                    <i class="bi bi-star-fill" style="font-size: 0.75rem; margin-right: 0.35rem;"></i>
-                    2330 台積電
-                </a>
-                <a href="{{ url_for('stock_page', code='0050') }}" class="badge badge-brand"
-                    style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-                    <i class="bi bi-graph-up" style="font-size: 0.75rem; margin-right: 0.35rem;"></i>
-                    0050 元大台灣50
-                </a>
-                <a href="{{ url_for('stock_page', code='2317') }}" class="badge badge-brand"
-                    style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-                    <i class="bi bi-cpu" style="font-size: 0.75rem; margin-right: 0.35rem;"></i>
-                    2317 鴻海
-                </a>
-            </div>
-        </div>
-    </div>
-</section>
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
 
-<!-- Market Overview -->
-<section class="section" style="padding-top: 0;">
-    <div class="container">
-        <div class="flex justify-between items-center mb-lg">
-            <h2 class="h3">Market Overview</h2>
-            <div class="flex items-center gap-sm">
-                <div
-                    style="width: 8px; height: 8px; border-radius: 50%; background: {{ 'var(--market-up)' if market_open else 'var(--text-tertiary)' }}; box-shadow: 0 0 8px {{ 'var(--market-up)' if market_open else 'var(--text-tertiary)' }};">
-                </div>
-                <span class="text-secondary text-sm font-mono">{{ 'LIVE' if market_open else 'CLOSED' }}</span>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-3-md grid-cols-1" style="max-width: 1000px; margin: 0 auto;">
-            {% if market_info and not market_info.get('錯誤') %}
-            {% for key, value in market_info.items() %}
-            {% if key != '更新時間' %}
-            <div class="card card-glass flex flex-col items-center justify-center p-xl transition-all duration-300"
-                style="min-height: 140px;">
-                <div class="text-secondary font-mono text-xs uppercase tracking-wider mb-sm" style="opacity: 0.7;">{{
-                    key }}</div>
-                <div class="h2 font-mono {% if '+' in value|string %}text-up{% elif '-' in value|string %}text-down{% endif %}"
-                    style="font-size: 2rem;">
-                    {{ value or 'N/A' }}
-                </div>
-                {% if '+' in value|string or '-' in value|string %}
-                <div class="mt-xs"
-                    style="width: 40px; height: 3px; border-radius: var(--radius-full); background: {% if '+' in value|string %}var(--market-up){% else %}var(--market-down){% endif %}; opacity: 0.5;">
-                </div>
-                {% endif %}
-            </div>
-            {% endif %}
-            {% endfor %}
-            {% else %}
-            <div class="card card-glass flex flex-col items-center justify-center p-xl" style="min-height: 140px;">
-                <div class="text-secondary font-mono text-xs uppercase tracking-wider mb-sm">TAIEX</div>
-                <div class="h2 font-mono text-up" style="font-size: 2rem;">17,500.23</div>
-                <div class="mt-xs"
-                    style="width: 40px; height: 3px; border-radius: var(--radius-full); background: var(--market-up); opacity: 0.5;">
-                </div>
-            </div>
-            <div class="card card-glass flex flex-col items-center justify-center p-xl" style="min-height: 140px;">
-                <div class="text-secondary font-mono text-xs uppercase tracking-wider mb-sm">CHANGE</div>
-                <div class="h2 font-mono text-up" style="font-size: 2rem;">+125.45</div>
-                <div class="mt-xs"
-                    style="width: 40px; height: 3px; border-radius: var(--radius-full); background: var(--market-up); opacity: 0.5;">
-                </div>
-            </div>
-            <div class="card card-glass flex flex-col items-center justify-center p-xl" style="min-height: 140px;">
-                <div class="text-secondary font-mono text-xs uppercase tracking-wider mb-sm">VOLUME</div>
-                <div class="h2 font-mono" style="font-size: 2rem;">152.4B</div>
-            </div>
-            <div class="card card-glass flex flex-col items-center justify-center p-xl" style="min-height: 140px;">
-                <div class="text-secondary font-mono text-xs uppercase tracking-wider mb-sm">FOREIGN</div>
-                <div class="h2 font-mono text-up" style="font-size: 2rem;">+8.5B</div>
-                <div class="mt-xs"
-                    style="width: 40px; height: 3px; border-radius: var(--radius-full); background: var(--market-up); opacity: 0.5;">
-                </div>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</section>
-
-<!-- Main Content Grid -->
-<section class="section">
-    <div class="container">
-        <div class="grid grid-cols-3-md gap-xl">
-
-            <!-- Most Active -->
-            <div class="col-span-2">
-                <div class="flex justify-between items-center mb-lg">
-                    <h2 class="h3">
-                        <i class="bi bi-fire" style="color: var(--color-brand-primary); margin-right: 0.5rem;"></i>
-                        Most Active
-                    </h2>
-                    <a href="{{ url_for('stock_screener_tool') }}" class="btn btn-ghost text-sm">
-                        View All <i class="bi bi-arrow-right" style="margin-left: 0.25rem;"></i>
-                    </a>
-                </div>
-
-                <div class="card" style="padding: 0; overflow: hidden;">
-                    <div class="table-container">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Symbol</th>
-                                    <th>Name</th>
-                                    <th class="text-right">Price</th>
-                                    <th class="text-right">Change</th>
-                                    <th class="text-right">Change %</th>
-                                    <th class="text-right">Volume</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for stock in popular_stocks %}
-                                <tr onclick="window.location.href='{{ url_for('stock_page', code=stock.code) }}'"
-                                    style="cursor: pointer;">
-                                    <td>
-                                        <span class="badge badge-brand font-mono" style="font-size: 0.85rem;">{{
-                                            stock.code }}</span>
-                                    </td>
-                                    <td style="font-weight: 500;">{{ stock.name }}</td>
-                                    <td class="text-right font-mono" style="font-weight: 600;">{{ stock.price }}</td>
-                                    <td class="text-right font-mono">
-                                        <span
-                                            class="{% if '+' in stock.change|string %}text-up{% elif '-' in stock.change|string %}text-down{% endif %}">
-                                            {{ stock.change }}
-                                        </span>
-                                    </td>
-                                    <td class="text-right font-mono">
-                                        <span
-                                            class="badge {% if '+' in stock.change_percent|string %}badge-up{% elif '-' in stock.change_percent|string %}badge-down{% endif %}"
-                                            style="font-size: 0.8rem;">
-                                            {{ stock.change_percent }}
-                                        </span>
-                                    </td>
-                                    <td class="text-right font-mono text-secondary" style="font-size: 0.85rem;">{{
-                                        stock.volume }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="flex" style="flex-direction: column; gap: var(--space-xl);">
-
-                <!-- Market Status -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="bi bi-activity"></i>
-                            Market Status
-                        </h3>
-                    </div>
-                    <div class="flex items-center gap-md"
-                        style="padding: var(--space-md); background: rgba(0, 217, 255, 0.05); border-radius: var(--radius-sm); border: 1px solid rgba(0, 217, 255, 0.1);">
-                        <div
-                            style="width: 12px; height: 12px; border-radius: 50%; background: {{ 'var(--market-up)' if market_open else 'var(--text-tertiary)' }}; box-shadow: 0 0 12px {{ 'var(--market-up)' if market_open else 'var(--text-tertiary)' }};">
-                        </div>
-                        <span class="font-mono" style="font-weight: 600; font-size: 0.95rem;">
-                            {{ 'MARKET OPEN' if market_open else 'MARKET CLOSED' }}
-                        </span>
-                    </div>
-                    <div class="text-secondary mt-lg font-mono text-xs" style="opacity: 0.7;">
-                        <i class="bi bi-clock" style="margin-right: 0.35rem;"></i>
-                        Last update: {{ current_time.strftime('%H:%M:%S') if current_time else 'N/A' }}
-                    </div>
-                </div>
-
-                <!-- Tools -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="bi bi-tools"></i>
-                            Analysis Tools
-                        </h3>
-                    </div>
-                    <div class="flex" style="flex-direction: column; gap: var(--space-sm);">
-                        <a href="{{ url_for('dividend_calculator') }}" class="btn btn-outline justify-between">
-                            <span><i class="bi bi-calculator"></i> Dividend Calculator</span>
-                            <i class="bi bi-chevron-right" style="font-size: 0.75rem; opacity: 0.5;"></i>
-                        </a>
-                        <a href="{{ url_for('technical_analysis_tool') }}" class="btn btn-outline justify-between">
-                            <span><i class="bi bi-graph-up"></i> Technical Analysis</span>
-                            <i class="bi bi-chevron-right" style="font-size: 0.75rem; opacity: 0.5;"></i>
-                        </a>
-                        <a href="{{ url_for('allocation_tool') }}" class="btn btn-outline justify-between">
-                            <span><i class="bi bi-pie-chart"></i> Asset Allocation</span>
-                            <i class="bi bi-chevron-right" style="font-size: 0.75rem; opacity: 0.5;"></i>
-                        </a>
-                        <a href="{{ url_for('stock_screener_tool') }}" class="btn btn-outline justify-between">
-                            <span><i class="bi bi-funnel"></i> Stock Screener</span>
-                            <i class="bi bi-chevron-right" style="font-size: 0.75rem; opacity: 0.5;"></i>
-                        </a>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</section>
-{% endblock %}
-
-{% block scripts %}
-<script>
-    // Auto-uppercase for stock search
-    document.querySelectorAll('input[name="code"]').forEach(input => {
-        input.addEventListener('input', function () {
-            this.value = this.value.toUpperCase();
-        });
-    });
-
-    // Add entrance animations
-    document.addEventListener('DOMContentLoaded', function () {
-        const cards = document.querySelectorAll('.card');
-        cards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            setTimeout(() => {
-                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 50);
-        });
-    });
-</script>
+    .transition-all {
+        transition: all 0.3s ease;
+    }
+</style>
 {% endblock %}
