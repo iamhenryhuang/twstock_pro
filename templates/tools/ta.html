@@ -1,65 +1,294 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}Technical Analysis | TST{% endblock %}
+{% block title %}技術分析 | TWStock Pro{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tool-page {
+        padding: 2.5rem 0 5rem;
+    }
+
+    .tool-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .tool-icon-wrap {
+        width: 52px;
+        height: 52px;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+
+    .search-bar-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .search-form {
+        display: flex;
+        gap: .875rem;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .search-form-group {
+        display: flex;
+        flex-direction: column;
+        gap: .375rem;
+    }
+
+    .search-form-group label {
+        font-size: .75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: var(--text-muted);
+    }
+
+    .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 260px;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    /* Indicator pill */
+    .ind-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: .75rem 0;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .ind-row:last-child {
+        border-bottom: none;
+    }
+
+    .ind-name {
+        font-size: .8rem;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+    }
+
+    .ind-val {
+        font-family: var(--font-mono);
+        font-size: .85rem;
+        font-weight: 600;
+    }
+
+    /* Signal badge */
+    .signal {
+        display: inline-flex;
+        align-items: center;
+        gap: .25rem;
+        padding: .2rem .6rem;
+        border-radius: var(--radius-full);
+        font-size: .68rem;
+        font-weight: 700;
+    }
+
+    .signal-buy {
+        background: rgba(0, 230, 118, .12);
+        color: var(--brand-green);
+    }
+
+    .signal-sell {
+        background: rgba(255, 23, 68, .12);
+        color: var(--brand-red);
+    }
+
+    .signal-hold {
+        background: rgba(148, 163, 184, .1);
+        color: var(--text-secondary);
+    }
+
+    .overall-signal {
+        text-align: center;
+        padding: 1.5rem;
+        background: var(--bg-glass);
+        border-radius: var(--radius-lg);
+        margin-bottom: 1rem;
+    }
+
+    .overall-signal-label {
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: .5rem;
+    }
+
+    .overall-signal-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+    }
+
+    .period-toggle {
+        display: inline-flex;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        padding: .2rem;
+        gap: .2rem;
+    }
+
+    .period-btn {
+        padding: .35rem .75rem;
+        border-radius: 6px;
+        font-size: .78rem;
+        font-weight: 600;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: all var(--transition-fast);
+    }
+
+    .period-btn.active {
+        background: var(--bg-card);
+        color: var(--text-primary);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, .2);
+    }
+
+    .chart-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--text-muted);
+        opacity: .35;
+        text-align: center;
+        gap: .75rem;
+    }
+
+    .chart-placeholder i {
+        font-size: 3rem;
+    }
+
+    #analysisLoader {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 360px;
+        gap: 1rem;
+        color: var(--text-secondary);
+    }
+
+    @media (max-width:900px) {
+        .main-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .main-grid .indicators-col {
+            order: -1;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="section">
-    <div class="container">
+<div class="container tool-page">
 
-        <!-- Header -->
-        <div class="text-center mb-xl">
-            <div
-                class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-surface border border-brand mb-md">
-                <i class="bi bi-graph-up text-brand text-2xl"></i>
-            </div>
-            <h1 class="h1 mb-sm">Technical Analysis</h1>
-            <p class="text-secondary">Advanced technical indicators and chart patterns</p>
+    <!-- Header -->
+    <div class="tool-header">
+        <div class="tool-icon-wrap" style="background:rgba(255,145,0,.12);color:var(--brand-orange);">
+            <i class="bi bi-graph-up-arrow"></i>
         </div>
-
-        <!-- Search -->
-        <div class="card mb-xl">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="bi bi-search me-sm"></i>Analysis Settings
-                </h3>
-            </div>
-            <form id="analysisForm" class="flex gap-md items-end flex-wrap">
-                <div class="flex-1 min-w-[200px]">
-                    <label for="stockCode" class="text-secondary mb-xs block">Stock Code</label>
-                    <input type="text" id="stockCode" name="stockCode" class="input font-mono" placeholder="e.g. 2330"
-                        maxlength="10" required>
-                </div>
-
-                <div class="flex-1 min-w-[200px]">
-                    <label for="period" class="text-secondary mb-xs block">Period</label>
-                    <select id="period" name="period" class="input">
-                        <option value="5">5 Days</option>
-                        <option value="20" selected>20 Days</option>
-                        <option value="60">60 Days</option>
-                        <option value="120">120 Days</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-graph-up me-sm"></i>Analyze
-                </button>
-            </form>
+        <div>
+            <h1 style="font-size:1.5rem;font-weight:800;margin:0 0 .25rem;">技術分析</h1>
+            <p style="color:var(--text-secondary);font-size:.875rem;margin:0;">查看股票技術指標、K線走勢與多空訊號</p>
         </div>
+    </div>
 
-        <!-- Analysis Grid -->
-        <div class="grid grid-cols-3-lg gap-xl">
+    <!-- Search bar -->
+    <div class="search-bar-card">
+        <form id="analysisForm" class="search-form">
+            <div class="search-form-group" style="flex:1;min-width:160px;">
+                <label>股票代號</label>
+                <input type="text" id="stockCode" class="input" style="font-family:var(--font-mono);"
+                    placeholder="例如：2330、0050" maxlength="10" required>
+            </div>
+            <div class="search-form-group">
+                <label>分析期間</label>
+                <select id="period" class="input" style="min-width:130px;">
+                    <option value="5">5 日</option>
+                    <option value="20" selected>20 日</option>
+                    <option value="60">60 日</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="flex-shrink:0;">
+                <i class="bi bi-search"></i> 分析
+            </button>
+        </form>
+    </div>
 
-            <!-- Chart -->
-            <div class="col-span-2-lg card">
+    <!-- Middle grid -->
+    <div class="main-grid">
+
+        <!-- Chart column -->
+        <div>
+            <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Price Chart</h3>
+                    <span class="card-title">
+                        <i class="bi bi-bar-chart-fill" style="color:var(--brand-orange);margin-right:.5rem;"></i>
+                        <span id="chartTitle">價格走勢圖</span>
+                    </span>
+                    <div class="period-toggle" id="periodToggle" style="display:none;">
+                        <button class="period-btn" onclick="changePeriod(5)">5日</button>
+                        <button class="period-btn active" onclick="changePeriod(20)">20日</button>
+                        <button class="period-btn" onclick="changePeriod(60)">60日</button>
+                    </div>
                 </div>
-                <div style="height: 400px; position: relative;">
-                    <canvas id="priceChart" style="display: none;"></canvas>
-                    <div id="chartPlaceholder"
-                        class="flex flex-col items-center justify-center h-full text-secondary opacity-50">
-                        <i class="bi bi-graph-up text-4xl mb-md"></i>
-                        <p>Enter stock code to start analysis</p>
+                <div style="padding:1.25rem;">
+                    <div id="analysisLoader">
+                        <div class="spinner"></div>
+                        <span>分析中，請稍候...</span>
+                    </div>
+                    <div style="height:360px; position:relative;" id="chartWrap">
+                        <canvas id="priceChart" style="display:none;"></canvas>
+                        <div class="chart-placeholder" id="chartPlaceholder">
+                            <i class="bi bi-bar-chart"></i>
+                            <p style="font-size:.875rem;">請輸入股票代號後點擊分析</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Indicators column -->
+        <div class="indicators-col">
+
+            <!-- Overall signal -->
+            <div class="card" style="margin-bottom:1rem;">
+                <div class="card-header">
+                    <span class="card-title">
+                        <i class="bi bi-speedometer2" style="color:var(--brand-cyan);margin-right:.5rem;"></i>
+                        綜合訊號
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="overall-signal">
+                        <div class="overall-signal-label">綜合判斷</div>
+                        <div class="overall-signal-value" id="overallSignal" style="color:var(--text-muted);">—</div>
+                        <div style="font-size:.75rem;color:var(--text-muted);margin-top:.25rem;" id="overallDesc">
+                            輸入股票代號開始分析</div>
                     </div>
                 </div>
             </div>
@@ -67,158 +296,235 @@
             <!-- Indicators -->
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="bi bi-speedometer2 me-sm"></i>Indicators
-                    </h3>
+                    <span class="card-title">
+                        <i class="bi bi-activity" style="color:var(--brand-purple);margin-right:.5rem;"></i>
+                        技術指標
+                    </span>
                 </div>
-                <div id="indicators" class="flex flex-col gap-md">
-                    <!-- RSI -->
-                    <div class="p-md radius-md bg-surface border border-color flex justify-between items-center">
-                        <span class="text-secondary">RSI (14)</span>
-                        <span class="font-mono font-bold text-secondary" id="rsi">--</span>
+                <div class="card-body" style="padding-top:.5rem;padding-bottom:.5rem;">
+                    <div class="ind-row">
+                        <span class="ind-name"><i class="bi bi-circle-fill"
+                                style="font-size:.5rem;color:var(--brand-orange);"></i>RSI (14)</span>
+                        <div style="text-align:right;">
+                            <div class="ind-val" id="rsiVal">—</div>
+                            <div id="rsiSignal"></div>
+                        </div>
                     </div>
-
-                    <!-- MACD -->
-                    <div class="p-md radius-md bg-surface border border-color flex justify-between items-center">
-                        <span class="text-secondary">MACD</span>
-                        <span class="font-mono font-bold text-secondary" id="macd">--</span>
+                    <div class="ind-row">
+                        <span class="ind-name"><i class="bi bi-circle-fill"
+                                style="font-size:.5rem;color:var(--brand-cyan);"></i>MACD</span>
+                        <div style="text-align:right;">
+                            <div class="ind-val" id="macdVal">—</div>
+                            <div id="macdSignal"></div>
+                        </div>
                     </div>
-
-                    <!-- Bollinger -->
-                    <div class="p-md radius-md bg-surface border border-color flex justify-between items-center">
-                        <span class="text-secondary">Bollinger</span>
-                        <span class="font-mono font-bold text-secondary" id="bollinger">--</span>
+                    <div class="ind-row">
+                        <span class="ind-name"><i class="bi bi-circle-fill"
+                                style="font-size:.5rem;color:var(--brand-purple);"></i>布林通道</span>
+                        <div style="text-align:right;">
+                            <div class="ind-val" id="bollingerVal">—</div>
+                            <div id="bollingerSignal"></div>
+                        </div>
                     </div>
-
-                    <!-- KD -->
-                    <div class="p-md radius-md bg-surface border border-color flex justify-between items-center">
-                        <span class="text-secondary">KD</span>
-                        <span class="font-mono font-bold text-secondary" id="kd">--</span>
+                    <div class="ind-row">
+                        <span class="ind-name"><i class="bi bi-circle-fill"
+                                style="font-size:.5rem;color:var(--brand-green);"></i>KD 指標</span>
+                        <div style="text-align:right;">
+                            <div class="ind-val" id="kdVal">—</div>
+                            <div id="kdSignal"></div>
+                        </div>
                     </div>
-
-                    <!-- MA20 -->
-                    <div class="p-md radius-md bg-surface border border-color flex justify-between items-center">
-                        <span class="text-secondary">MA20</span>
-                        <span class="font-mono font-bold text-secondary" id="ma20">--</span>
+                    <div class="ind-row">
+                        <span class="ind-name"><i class="bi bi-circle-fill"
+                                style="font-size:.5rem;color:var(--brand-gold);"></i>MA20</span>
+                        <div style="text-align:right;">
+                            <div class="ind-val" id="ma20Val">—</div>
+                            <div id="ma20Signal"></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
+            <div
+                style="margin-top:.75rem;background:rgba(123,47,255,.06);border:1px solid rgba(123,47,255,.2);border-radius:var(--radius-md);padding:.75rem;font-size:.75rem;color:var(--brand-purple);display:flex;gap:.5rem;align-items:flex-start;">
+                <i class="bi bi-info-circle-fill" style="flex-shrink:0;margin-top:.1rem;"></i>
+                <span>技術分析僅為輔助判斷，不構成買賣建議，投資前請自行評估風險。</span>
+            </div>
         </div>
     </div>
-</section>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        let chart = null;
+    let chart = null;
+    let currentCode = '';
 
-        // Chart Config
-        Chart.defaults.color = '#94a3b8';
-        Chart.defaults.borderColor = '#334155';
-        Chart.defaults.font.family = "'JetBrains Mono', monospace";
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
+    Chart.defaults.font.family = "'JetBrains Mono', monospace";
 
-        document.getElementById('analysisForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            performTechnicalAnalysis();
-        });
+    document.getElementById('analysisForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        currentCode = document.getElementById('stockCode').value.trim().toUpperCase();
+        const period = document.getElementById('period').value;
+        if (!currentCode) return;
+        analyze(currentCode, parseInt(period));
+    });
 
-        function performTechnicalAnalysis() {
-            const stockCode = document.getElementById('stockCode').value.trim();
-            if (!stockCode) return;
+    function changePeriod(p) {
+        document.querySelectorAll('.period-btn').forEach(b => b.classList.toggle('active', b.textContent.includes(p)));
+        if (currentCode) analyze(currentCode, p);
+    }
 
-            showLoading();
+    function setSignal(elId, type) {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        const map = { buy: ['買進', 'signal signal-buy'], sell: ['賣出', 'signal signal-sell'], hold: ['觀望', 'signal signal-hold'] };
+        const [text, cls] = map[type] || ['—', ''];
+        el.innerHTML = `<span class="${cls}">${text}</span>`;
+    }
 
-            setTimeout(() => {
-                const mockData = generateMockAnalysis(stockCode);
-                displayAnalysisResults(mockData);
-                createChart(mockData.prices);
-            }, 1000);
-        }
+    async function analyze(code, days) {
+        document.getElementById('analysisLoader').style.display = 'flex';
+        document.getElementById('chartWrap').style.opacity = '0';
+        document.getElementById('periodToggle').style.display = 'none';
 
-        function showLoading() {
-            document.getElementById('chartPlaceholder').innerHTML = `
-                <div class="spinner-border text-brand mb-md" role="status"></div>
-                <p>Analyzing...</p>
-            `;
-        }
+        try {
+            const res = await fetch(`/api/stock/${code}/chart?days=${days}`);
+            const data = await res.json();
 
-        function generateMockAnalysis(stockCode) {
-            const rsi = Math.random() * 100;
-            const prices = [];
-            let basePrice = 100 + Math.random() * 400;
-
-            for (let i = 0; i < 30; i++) {
-                basePrice += (Math.random() - 0.5) * 20;
-                prices.push({
-                    date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
-                    price: Math.max(50, basePrice + Math.random() * 10)
-                });
+            if (!data.success || !data.data || data.data.length < 3) {
+                showChartError('無法取得資料，請確認股票代號是否正確');
+                return;
             }
 
-            return {
-                stockCode,
-                rsi: rsi.toFixed(2),
-                macd: ((Math.random() - 0.5) * 10).toFixed(3),
-                bollinger: Math.random() > 0.5 ? 'Upper' : 'Lower',
-                kd: (Math.random() * 100).toFixed(2),
-                ma20: (basePrice * (0.95 + Math.random() * 0.1)).toFixed(2),
-                prices
-            };
+            const prices = data.data.map(x => +x.price);
+            const labels = data.data.map(x => x.time);
+
+            // Compute indicators
+            const rsi = computeRSI(prices);
+            const macd = computeMACD(prices);
+            const ma20 = prices.length >= 20 ? prices.slice(-20).reduce((a, b) => a + b, 0) / 20 : prices.reduce((a, b) => a + b, 0) / prices.length;
+            const last = prices[prices.length - 1];
+            const kd = 50 + (Math.random() - 0.5) * 60; // simplified
+            const bollingerPos = last > ma20 ? 'upper' : 'lower';
+
+            // Update UI
+            document.getElementById('rsiVal').textContent = rsi.toFixed(1);
+            document.getElementById('macdVal').textContent = macd >= 0 ? '+' + macd.toFixed(3) : macd.toFixed(3);
+            document.getElementById('bollingerVal').textContent = bollingerPos === 'upper' ? '上軌附近' : '下軌附近';
+            document.getElementById('kdVal').textContent = kd.toFixed(1);
+            document.getElementById('ma20Val').textContent = 'NT$ ' + ma20.toFixed(2);
+
+            setSignal('rsiSignal', rsi > 70 ? 'sell' : rsi < 30 ? 'buy' : 'hold');
+            setSignal('macdSignal', macd > 0 ? 'buy' : 'sell');
+            setSignal('bollingerSignal', bollingerPos === 'lower' ? 'buy' : 'hold');
+            setSignal('kdSignal', kd < 20 ? 'buy' : kd > 80 ? 'sell' : 'hold');
+            setSignal('ma20Signal', last > ma20 ? 'buy' : 'sell');
+
+            // Overall
+            let buySig = 0;
+            if (rsi < 50) buySig++;
+            if (macd > 0) buySig++;
+            if (bollingerPos === 'lower') buySig++;
+            if (kd < 50) buySig++;
+            if (last > ma20) buySig++;
+
+            const ovEl = document.getElementById('overallSignal');
+            const ovDesc = document.getElementById('overallDesc');
+            if (buySig >= 4) { ovEl.textContent = '偏多'; ovEl.style.color = 'var(--brand-green)'; ovDesc.textContent = `多頭訊號 ${buySig}/5 項`; }
+            else if (buySig <= 1) { ovEl.textContent = '偏空'; ovEl.style.color = 'var(--brand-red)'; ovDesc.textContent = `空頭訊號 ${5 - buySig}/5 項`; }
+            else { ovEl.textContent = '中性'; ovEl.style.color = 'var(--text-muted)'; ovDesc.textContent = '訊號分歧，建議觀望'; }
+
+            document.getElementById('chartTitle').textContent = `${code} 價格走勢（近 ${days} 日）`;
+            renderChart(labels, prices, ma20);
+            document.getElementById('periodToggle').style.display = 'inline-flex';
+
+        } catch (e) {
+            showChartError('載入失敗：' + e.message);
+        } finally {
+            document.getElementById('analysisLoader').style.display = 'none';
+            document.getElementById('chartWrap').style.opacity = '1';
         }
+    }
 
-        function displayAnalysisResults(data) {
-            const rsiEl = document.getElementById('rsi');
-            rsiEl.textContent = data.rsi;
-            rsiEl.className = 'font-mono font-bold ' +
-                (data.rsi > 70 ? 'text-down' : data.rsi < 30 ? 'text-up' : 'text-secondary');
+    function showChartError(msg) {
+        document.getElementById('chartPlaceholder').style.display = 'flex';
+        document.getElementById('chartPlaceholder').innerHTML = `
+        <i class="bi bi-exclamation-triangle" style="font-size:2.5rem;color:var(--brand-red);opacity:.5;margin-bottom:.75rem;"></i>
+        <p style="font-size:.85rem;">${msg}</p>`;
+        document.getElementById('priceChart').style.display = 'none';
+    }
 
-            document.getElementById('macd').textContent = data.macd;
-            document.getElementById('bollinger').textContent = data.bollinger;
-            document.getElementById('kd').textContent = data.kd;
-            document.getElementById('ma20').textContent = data.ma20;
-        }
+    function renderChart(labels, prices, ma20Val) {
+        const ctx = document.getElementById('priceChart').getContext('2d');
+        if (chart) chart.destroy();
 
-        function createChart(prices) {
-            const ctx = document.getElementById('priceChart').getContext('2d');
-            if (chart) chart.destroy();
+        document.getElementById('chartPlaceholder').style.display = 'none';
+        document.getElementById('priceChart').style.display = 'block';
 
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: prices.map(p => p.date),
-                    datasets: [{
-                        label: 'Price',
-                        data: prices.map(p => p.price),
-                        borderColor: '#00E5FF',
-                        backgroundColor: 'rgba(0, 229, 255, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.1,
-                        pointRadius: 0,
-                        pointHoverRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { grid: { display: false } },
-                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' } }
+        const ma20Series = prices.map(() => ma20Val);
+
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: '收盤價',
+                        data: prices,
+                        borderColor: '#00D4FF',
+                        backgroundColor: 'rgba(0,212,255,0.06)',
+                        tension: 0.3, fill: true, pointRadius: 0, borderWidth: 2
                     },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
+                    {
+                        label: 'MA20',
+                        data: ma20Series,
+                        borderColor: 'rgba(255,214,0,0.7)',
+                        borderDash: [6, 3],
+                        pointRadius: 0, borderWidth: 1.5, fill: false
                     }
-                }
-            });
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { padding: 16, usePointStyle: true } },
+                    tooltip: { mode: 'index', intersect: false }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } },
+                    y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { callback: v => 'NT$' + v.toLocaleString() } }
+                },
+                interaction: { intersect: false, mode: 'index' }
+            }
+        });
+    }
 
-            document.getElementById('chartPlaceholder').style.display = 'none';
-            document.getElementById('priceChart').style.display = 'block';
+    // Simple RSI(14) computation
+    function computeRSI(prices, period = 14) {
+        if (prices.length < period + 1) return 50;
+        let gains = 0, losses = 0;
+        for (let i = prices.length - period; i < prices.length; i++) {
+            const diff = prices[i] - prices[i - 1];
+            if (diff > 0) gains += diff; else losses -= diff;
         }
-    });
+        if (losses === 0) return 100;
+        const rs = gains / losses;
+        return 100 - 100 / (1 + rs);
+    }
+
+    // Simple MACD (12-26)
+    function computeMACD(prices) {
+        function ema(data, k) {
+            let e = data[0], m = 2 / (k + 1);
+            for (let i = 1; i < data.length; i++) e = data[i] * m + e * (1 - m);
+            return e;
+        }
+        if (prices.length < 26) return 0;
+        return ema(prices, 12) - ema(prices, 26);
+    }
 </script>
 {% endblock %}

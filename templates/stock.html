@@ -1,295 +1,843 @@
 {% extends "layouts/base.html" %}
 
 {% block title %}
-{% if stock_info %}
-{{ stock_info['股票名稱'] }} ({{ stock_code }}) - TWStock Pro
-{% else %}
-Stock Not Found - TWStock Pro
-{% endif %}
+{% if stock_info %}{{ stock_info['股票名稱'] }} ({{ stock_code }}) — 個股分析 | TWStock Pro
+{% else %}個股查詢 | TWStock Pro{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============ Stock Page Styles ============ */
+    .stock-hero {
+        background: var(--bg-surface);
+        border-bottom: 1px solid var(--border-subtle);
+        padding: 2rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stock-hero::before {
+        content: '';
+        position: absolute;
+        right: -100px;
+        top: -100px;
+        width: 400px;
+        height: 400px;
+        border-radius: 50%;
+        background: radial-gradient(ellipse, rgba(0, 212, 255, 0.06) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+    }
+
+    .breadcrumb a {
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: color var(--transition-fast);
+    }
+
+    .breadcrumb a:hover {
+        color: var(--brand-cyan);
+    }
+
+    /* Price hero block */
+    .price-hero {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .price-hero-left {}
+
+    .stock-name-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.5rem;
+    }
+
+    .stock-full-name {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--text-primary);
+    }
+
+    .stock-meta-badges {
+        display: flex;
+        gap: 0.375rem;
+        flex-wrap: wrap;
+    }
+
+    .price-hero-right {
+        text-align: right;
+    }
+
+    .main-price {
+        font-family: var(--font-mono);
+        font-size: 3rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .main-price.up {
+        color: var(--brand-green);
+    }
+
+    .main-price.down {
+        color: var(--brand-red);
+    }
+
+    .main-price.neutral {
+        color: var(--text-primary);
+    }
+
+    .price-change-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        justify-content: flex-end;
+    }
+
+    .price-change {
+        font-family: var(--font-mono);
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .price-change.up {
+        color: var(--brand-green);
+    }
+
+    .price-change.down {
+        color: var(--brand-red);
+    }
+
+    .price-pct {
+        font-family: var(--font-mono);
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 0.2rem 0.625rem;
+        border-radius: var(--radius-sm);
+    }
+
+    .price-pct.up {
+        background: rgba(0, 230, 118, 0.12);
+        color: var(--brand-green);
+    }
+
+    .price-pct.down {
+        background: rgba(255, 61, 107, 0.12);
+        color: var(--brand-red);
+    }
+
+    /* Key stats bar */
+    .key-stats {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: 0;
+        margin: 1.5rem 0;
+        overflow: hidden;
+    }
+
+    .key-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        divide-color: var(--border-subtle);
+    }
+
+    .key-stat {
+        padding: 1.125rem 1rem;
+        border-right: 1px solid var(--border-subtle);
+        transition: background var(--transition-fast);
+    }
+
+    .key-stat:last-child {
+        border-right: none;
+    }
+
+    .key-stat:hover {
+        background: var(--bg-glass);
+    }
+
+    .key-stat-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 0.375rem;
+    }
+
+    .key-stat-value {
+        font-family: var(--font-mono);
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    /* Action buttons row */
+    .action-row {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    /* Chart section */
+    .chart-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .chart-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .chart-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .chart-period-btn {
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid var(--border-subtle);
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        font-family: var(--font-mono);
+    }
+
+    .chart-period-btn:hover,
+    .chart-period-btn.active {
+        background: var(--brand-cyan);
+        border-color: var(--brand-cyan);
+        color: white;
+    }
+
+    .chart-body {
+        padding: 1.25rem;
+        min-height: 340px;
+    }
+
+    #stockChart {
+        min-height: 300px;
+    }
+
+    /* Loading state for chart */
+    .chart-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+        gap: 1rem;
+        color: var(--text-muted);
+    }
+
+    /* Info sections */
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+    }
+
+    .info-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .info-table tr td {
+        padding: 0.625rem 0;
+        border-bottom: 1px solid var(--border-subtle);
+        font-size: 0.875rem;
+    }
+
+    .info-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .info-table td:first-child {
+        color: var(--text-muted);
+        width: 45%;
+    }
+
+    .info-table td:last-child {
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        font-weight: 500;
+        text-align: right;
+    }
+
+    /* Modal custom */
+    .modal-content {
+        background: var(--bg-surface) !important;
+    }
+
+    /* Error state */
+    .error-page {
+        text-align: center;
+        padding: 5rem 0;
+    }
+
+    .error-icon {
+        font-size: 4rem;
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+        opacity: 0.5;
+    }
+
+    @media (max-width: 640px) {
+        .main-price {
+            font-size: 2rem;
+        }
+
+        .price-hero {
+            flex-direction: column;
+        }
+
+        .price-hero-right {
+            text-align: left;
+        }
+
+        .price-change-row {
+            justify-content: flex-start;
+        }
+
+        .key-stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <!-- Error Message -->
-    {% if error %}
-    <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
-        <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2"></i>
-        <div>{{ error }}</div>
+<!-- Error State -->
+{% if error and not stock_info %}
+<div class="container" style="padding:2rem 0;">
+    <div class="error-page">
+        <div class="error-icon"><i class="bi bi-search"></i></div>
+        <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;">找不到股票資料</h2>
+        <p style="color:var(--text-secondary);margin-bottom:2rem;">{{ error }}</p>
+        <a href="{{ url_for('home') }}" class="btn btn-primary">
+            <i class="bi bi-house"></i> 返回首頁
+        </a>
     </div>
-    {% endif %}
-
-    <!-- Search Bar (if explicit search on this page) or Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('home') }}">首頁</a></li>
-            {% if stock_info %}
-            <li class="breadcrumb-item active" aria-current="page">{{ stock_info['股票名稱'] }} ({{ stock_code }})</li>
-            {% else %}
-            <li class="breadcrumb-item active" aria-current="page">搜尋結果</li>
-            {% endif %}
-        </ol>
-    </nav>
-
-    {% if stock_info and not stock_info.get('錯誤') %}
-    <div class="row g-4">
-        <!-- Stock Header Section -->
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                        <div>
-                            <div class="d-flex align-items-center gap-2 mb-1">
-                                <h2 class="fw-bold mb-0">{{ stock_info['股票名稱'] }}</h2>
-                                <span class="badge bg-secondary">{{ stock_code }}</span>
-                                <span class="badge border">{{ stock_info.get('產業別', '一般') }}</span>
-                            </div>
-                            <div class="text-secondary small">資料時間: {{ current_time.strftime('%Y-%m-%d %H:%M:%S') }}
-                            </div>
-                        </div>
-
-                        <div class="text-end">
-                            <div
-                                class="display-4 fw-bold {{ 'text-danger' if '-' in stock_info.get('漲跌價差', '') else 'text-success' }}">
-                                {{ stock_info.get('即時股價', stock_info.get('收盤價', 'N/A')) }}
-                            </div>
-                            <div class="d-flex align-items-center justify-content-end gap-3 fs-5">
-                                <span
-                                    class="{{ 'text-danger' if '-' in stock_info.get('漲跌價差', '') else 'text-success' }}">
-                                    <i
-                                        class="bi {{ 'bi-caret-down-fill' if '-' in stock_info.get('漲跌價差', '') else 'bi-caret-up-fill' }}"></i>
-                                    {{ stock_info.get('漲跌價差', 'N/A') }}
-                                </span>
-                                <span
-                                    class="{{ 'text-danger' if '-' in stock_info.get('漲跌幅', '') else 'text-success' }}">
-                                    ({{ stock_info.get('漲跌幅', 'N/A') }})
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <!-- Key Stats Grid -->
-                    <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-3 text-center">
-                        <div class="col">
-                            <small class="text-secondary d-block mb-1">開盤價</small>
-                            <span class="fw-bold">{{ stock_info.get('開盤價', '-') }}</span>
-                        </div>
-                        <div class="col">
-                            <small class="text-secondary d-block mb-1">最高價</small>
-                            <span class="fw-bold text-danger">{{ stock_info.get('最高價', '-') }}</span>
-                        </div>
-                        <div class="col">
-                            <small class="text-secondary d-block mb-1">最低價</small>
-                            <span class="fw-bold text-success">{{ stock_info.get('最低價', '-') }}</span>
-                        </div>
-                        <div class="col">
-                            <small class="text-secondary d-block mb-1">成交量</small>
-                            <span class="fw-bold">{{ stock_info.get('成交量', '-') }}</span>
-                        </div>
-                        <div class="col">
-                            <small class="text-secondary d-block mb-1">本益比</small>
-                            <span class="fw-bold">{{ stock_info.get('本益比', '-') }}</span>
-                        </div>
-                        <div class="col">
-                            <small class="text-secondary d-block mb-1">殖利率</small>
-                            <span class="fw-bold">{{ stock_info.get('殖利率', '-') }}%</span>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="d-flex gap-2 mt-4">
-                        {% if current_user.is_authenticated %}
-                        {% if in_watchlist %}
-                        <button class="btn btn-outline-danger" data-bs-toggle="modal"
-                            data-bs-target="#removeFromWatchlistModal">
-                            <i class="bi bi-bookmark-x-fill me-1"></i>移除自選
-                        </button>
-                        {% else %}
-                        <button class="btn btn-outline-primary" data-bs-toggle="modal"
-                            data-bs-target="#addToWatchlistModal">
-                            <i class="bi bi-bookmark-plus me-1"></i>加入自選
-                        </button>
-                        {% endif %}
-                        {% else %}
-                        <a href="{{ url_for('login', next=request.url) }}" class="btn btn-outline-primary">
-                            <i class="bi bi-bookmark-plus me-1"></i>登入後加入自選
-                        </a>
-                        {% endif %}
-
-                        <a href="https://tw.stock.yahoo.com/quote/{{ stock_code }}" target="_blank"
-                            class="btn btn-outline-secondary">
-                            <i class="bi bi-box-arrow-up-right me-1"></i>Yahoo股市
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Chart Section -->
-        <div class="col-12">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0 py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-graph-up me-2 text-primary"></i>股價走勢圖</h5>
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-secondary active"
-                            onclick="updateChart(7)">1週</button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="updateChart(30)">1月</button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div id="stockChart">
-                        <!-- Chart will be rendered here -->
-                        <div class="text-center py-5 text-secondary">
-                            <div class="spinner-border text-primary mb-3" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                            <p>載入圖表資料中...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modals -->
-    <!-- Add to Watchlist Modal -->
-    <div class="modal fade" id="addToWatchlistModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="{{ url_for('add_to_watchlist') }}" method="POST">
-                    <div class="modal-header">
-                        <h5 class="modal-title">加入自選股</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" name="stock_code" value="{{ stock_code }}">
-                        <p>確定要將 <strong>{{ stock_info['股票名稱'] }} ({{ stock_code }})</strong> 加入自選股嗎？</p>
-                        <div class="mb-3">
-                            <label for="notes" class="form-label">備註 (選填)</label>
-                            <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                        <button type="submit" class="btn btn-primary">確認加入</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {% endif %}
 </div>
+{% elif stock_info and not stock_info.get('錯誤') %}
+{% set change_val = stock_info.get('漲跌價差', '') %}
+{% set is_up = change_val and '-' not in change_val|string and change_val not in ['N/A', '', '0', '0.00'] and '+' not in
+change_val|string and change_val != 'N/A' %}
+{% set is_down = change_val and '-' in change_val|string %}
+{% set price_dir = 'up' if is_up or ('+' in change_val|string) else 'down' if is_down else 'neutral' %}
+
+<!-- Stock Hero -->
+<div class="stock-hero">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="{{ url_for('home') }}"><i class="bi bi-house me-1"></i>首頁</a>
+            <i class="bi bi-chevron-right"></i>
+            <span>{{ stock_info.get('股票名稱', '') }}</span>
+            <i class="bi bi-chevron-right"></i>
+            <span style="color:var(--brand-cyan);">{{ stock_code }}</span>
+        </div>
+
+        <!-- Price hero -->
+        <div class="price-hero">
+            <div class="price-hero-left">
+                <div class="stock-name-row">
+                    <span class="stock-full-name">{{ stock_info.get('股票名稱', '') }}</span>
+                    <div class="stock-meta-badges">
+                        <span class="badge badge-brand">{{ stock_code }}</span>
+                        {% if stock_info.get('產業別') %}
+                        <span class="badge badge-neutral">{{ stock_info.get('產業別') }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div style="color:var(--text-muted);font-size:0.8rem;">
+                    <i class="bi bi-clock me-1"></i>資料時間：{{ current_time.strftime('%Y-%m-%d %H:%M:%S') if current_time
+                    else '即時行情' }}
+                </div>
+            </div>
+
+            <div class="price-hero-right">
+                <div class="main-price {{ price_dir }}">
+                    {{ stock_info.get('即時股價', stock_info.get('收盤價', 'N/A')) }}
+                </div>
+                <div class="price-change-row">
+                    <span class="price-change {{ price_dir }}">
+                        <i
+                            class="bi bi-{{ 'caret-up-fill' if price_dir == 'up' else 'caret-down-fill' if price_dir == 'down' else 'dash' }}"></i>
+                        {{ stock_info.get('漲跌價差', 'N/A') }}
+                    </span>
+                    {% if stock_info.get('漲跌幅') %}
+                    <span class="price-pct {{ price_dir }}">
+                        {{ stock_info.get('漲跌幅', '') }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Stats -->
+        <div class="key-stats">
+            <div class="key-stats-grid">
+                <div class="key-stat">
+                    <div class="key-stat-label">開盤價</div>
+                    <div class="key-stat-value">{{ stock_info.get('開盤價', '—') }}</div>
+                </div>
+                <div class="key-stat">
+                    <div class="key-stat-label">最高價</div>
+                    <div class="key-stat-value" style="color:var(--brand-green);">{{ stock_info.get('最高價', '—') }}</div>
+                </div>
+                <div class="key-stat">
+                    <div class="key-stat-label">最低價</div>
+                    <div class="key-stat-value" style="color:var(--brand-red);">{{ stock_info.get('最低價', '—') }}</div>
+                </div>
+                <div class="key-stat">
+                    <div class="key-stat-label">成交量</div>
+                    <div class="key-stat-value">{{ stock_info.get('成交量', '—') }}</div>
+                </div>
+                <div class="key-stat">
+                    <div class="key-stat-label">本益比</div>
+                    <div class="key-stat-value">{{ stock_info.get('本益比', '—') }}</div>
+                </div>
+                <div class="key-stat">
+                    <div class="key-stat-label">殖利率</div>
+                    <div class="key-stat-value">
+                        {% if stock_info.get('殖利率') %}{{ stock_info.get('殖利率') }}%{% else %}—{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="action-row">
+            {% if current_user.is_authenticated %}
+            {% if in_watchlist %}
+            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#removeWatchlistModal">
+                <i class="bi bi-bookmark-x-fill"></i> 移除自選股
+            </button>
+            {% else %}
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addWatchlistModal">
+                <i class="bi bi-bookmark-plus-fill"></i> 加入自選股
+            </button>
+            {% endif %}
+            {% else %}
+            <a href="{{ url_for('login', next=request.url) }}" class="btn btn-outline btn-sm">
+                <i class="bi bi-bookmark-plus"></i> 登入後加入自選
+            </a>
+            {% endif %}
+
+            <a href="https://tw.stock.yahoo.com/quote/{{ stock_code }}" target="_blank" rel="noopener"
+                class="btn btn-outline btn-sm">
+                <i class="bi bi-yahoo"></i> Yahoo 股市
+            </a>
+            <a href="https://goodinfo.tw/tw/StockInfo.asp?STOCK_ID={{ stock_code }}" target="_blank" rel="noopener"
+                class="btn btn-outline btn-sm">
+                <i class="bi bi-box-arrow-up-right"></i> 好股網
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container" style="padding-top:2rem;padding-bottom:3rem;">
+    <div style="display:grid;grid-template-columns:1fr;gap:1.5rem;">
+
+        <!-- Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <i class="bi bi-graph-up" style="color:var(--brand-cyan);"></i>
+                    股價走勢圖
+                </div>
+                <div style="display:flex;gap:0.375rem;">
+                    <button class="chart-period-btn active" onclick="switchPeriod(7, this)" id="btn7d">7天</button>
+                    <button class="chart-period-btn" onclick="switchPeriod(14, this)" id="btn14d">14天</button>
+                    <button class="chart-period-btn" onclick="switchPeriod(30, this)" id="btn30d">1個月</button>
+                </div>
+            </div>
+            <div class="chart-body">
+                <div id="stockChart">
+                    <div class="chart-loading">
+                        <div class="spinner"></div>
+                        <span style="font-size:0.875rem;">載入圖表資料中...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="info-grid">
+            <!-- Fundamental Data -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="bi bi-clipboard-data me-2"
+                            style="color:var(--brand-cyan);"></i>基本面資料</span>
+                </div>
+                <div class="card-body">
+                    <table class="info-table">
+                        <tr>
+                            <td>股票名稱</td>
+                            <td>{{ stock_info.get('股票名稱', '—') }}</td>
+                        </tr>
+                        <tr>
+                            <td>股票代號</td>
+                            <td>{{ stock_code }}</td>
+                        </tr>
+                        <tr>
+                            <td>產業別</td>
+                            <td>{{ stock_info.get('產業別', '—') }}</td>
+                        </tr>
+                        <tr>
+                            <td>本益比</td>
+                            <td>{{ stock_info.get('本益比', '—') }}</td>
+                        </tr>
+                        <tr>
+                            <td>股價淨值比</td>
+                            <td>{{ stock_info.get('股價淨值比', '—') }}</td>
+                        </tr>
+                        <tr>
+                            <td>殖利率</td>
+                            <td>{% if stock_info.get('殖利率') %}{{ stock_info.get('殖利率') }}%{% else %}—{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td>每股盈餘</td>
+                            <td>{{ stock_info.get('每股盈餘', '—') }}</td>
+                        </tr>
+                        <tr>
+                            <td>市值</td>
+                            <td>{{ stock_info.get('市值', '—') }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Trading Data -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="bi bi-activity me-2"
+                            style="color:var(--brand-green);"></i>交易資訊</span>
+                </div>
+                <div class="card-body">
+                    <table class="info-table">
+                        <tr>
+                            <td>即時股價</td>
+                            <td>{{ stock_info.get('即時股價', stock_info.get('收盤價', '—')) }}</td>
+                        </tr>
+                        <tr>
+                            <td>收盤價</td>
+                            <td>{{ stock_info.get('收盤價', '—') }}</td>
+                        </tr>
+                        <tr>
+                            <td>開盤價</td>
+                            <td>{{ stock_info.get('開盤價', '—') }}</td>
+                        </tr>
+                        <tr>
+                            <td>最高價</td>
+                            <td style="color:var(--brand-green);">{{ stock_info.get('最高價', '—') }}</td>
+                        </tr>
+                        <tr>
+                            <td>最低價</td>
+                            <td style="color:var(--brand-red);">{{ stock_info.get('最低價', '—') }}</td>
+                        </tr>
+                        <tr>
+                            <td>漲跌價差</td>
+                            <td>{{ stock_info.get('漲跌價差', '—') }}</td>
+                        </tr>
+                        <tr>
+                            <td>漲跌幅</td>
+                            <td>{{ stock_info.get('漲跌幅', '—') }}</td>
+                        </tr>
+                        <tr>
+                            <td>成交量</td>
+                            <td>{{ stock_info.get('成交量', '—') }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modals -->
+<!-- Add to Watchlist -->
+<div class="modal fade" id="addWatchlistModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ url_for('add_to_watchlist') }}" method="POST">
+                <div class="modal-header">
+                    <h5 style="font-weight:600;display:flex;align-items:center;gap:0.5rem;">
+                        <i class="bi bi-bookmark-plus-fill" style="color:var(--brand-cyan);"></i>
+                        加入自選股
+                    </h5>
+                    <button type="button" data-bs-dismiss="modal"
+                        style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.2rem;">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding:1.5rem;">
+                    <input type="hidden" name="stock_code" value="{{ stock_code }}">
+                    <p style="color:var(--text-secondary);margin-bottom:1.25rem;">
+                        確定要將 <strong style="color:var(--text-primary);">{{ stock_info.get('股票名稱', '') }} ({{ stock_code
+                            }})</strong> 加入自選股清單？
+                    </p>
+                    <div>
+                        <label for="watchlist-notes" style="margin-bottom:0.5rem;display:block;">備註 <span
+                                style="color:var(--text-muted);font-size:0.8rem;">(選填)</span></label>
+                        <textarea class="input" id="watchlist-notes" name="notes" rows="3"
+                            placeholder="輸入投資理由、目標價格等..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline btn-sm" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="bi bi-bookmark-plus-fill"></i> 確認加入
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Remove from Watchlist -->
+{% if in_watchlist %}
+<div class="modal fade" id="removeWatchlistModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 style="font-weight:600;display:flex;align-items:center;gap:0.5rem;">
+                    <i class="bi bi-bookmark-x-fill" style="color:var(--brand-red);"></i>
+                    移除自選股
+                </h5>
+                <button type="button" data-bs-dismiss="modal"
+                    style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.2rem;">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="padding:1.5rem;">
+                <p style="color:var(--text-secondary);">確定要從自選股移除 <strong style="color:var(--text-primary);">{{
+                        stock_info.get('股票名稱', '') }} ({{ stock_code }})</strong>？</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline btn-sm" data-bs-dismiss="modal">取消</button>
+                <a href="{{ url_for('remove_from_watchlist_by_code', stock_code=stock_code) }}"
+                    class="btn btn-danger btn-sm">
+                    <i class="bi bi-trash"></i> 確認移除
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<!-- Empty state (no stock code entered) -->
+<div class="container" style="padding:5rem 0;text-align:center;">
+    <div style="font-size:4rem;color:var(--text-muted);margin-bottom:1.5rem;opacity:0.4;">
+        <i class="bi bi-search"></i>
+    </div>
+    <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;">請輸入股票代號</h2>
+    <p style="color:var(--text-secondary);margin-bottom:2rem;">在上方搜尋欄輸入台股代號（如 2330）或公司名稱</p>
+    <a href="{{ url_for('home') }}" class="btn btn-primary">
+        <i class="bi bi-house"></i> 返回首頁
+    </a>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.46.0/dist/apexcharts.min.js"></script>
 <script>
+    const stockCode = "{{ stock_code }}";
+    let currentChart = null;
+    let currentPeriodDays = 7;
+
     document.addEventListener('DOMContentLoaded', function () {
-        const stockCode = "{{ stock_code }}";
         if (stockCode) {
             fetchChartData(stockCode, 7);
         }
     });
 
-    function updateChart(days) {
-        // Update active button state
-        document.querySelectorAll('.btn-group .btn').forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
-
-        const stockCode = "{{ stock_code }}";
+    function switchPeriod(days, btn) {
+        document.querySelectorAll('.chart-period-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentPeriodDays = days;
         fetchChartData(stockCode, days);
     }
 
-    function fetchChartData(stockCode, days) {
-        const chartContainer = document.querySelector('#stockChart');
-        // chartContainer.innerHTML = '... loading ...'; // Keep existing spinner if possible or reset
+    function fetchChartData(code, days) {
+        const container = document.getElementById('stockChart');
+        container.innerHTML = `
+            <div class="chart-loading">
+                <div class="spinner"></div>
+                <span style="font-size:0.875rem;color:var(--text-muted);">載入 ${days} 天資料中...</span>
+            </div>`;
 
-        fetch(`/api/stock/${stockCode}/chart?days=${days}`)
-            .then(response => response.json())
+        fetch(`/api/stock/${code}/chart?days=${days}`)
+            .then(r => r.json())
             .then(data => {
-                if (data.success) {
+                if (data.success && data.data.length > 0) {
                     renderChart(data.data);
                 } else {
-                    chartContainer.innerHTML = `<div class="alert alert-warning text-center">${data.error || '無法載入圖表'}</div>`;
+                    container.innerHTML = `
+                        <div class="chart-loading">
+                            <i class="bi bi-exclamation-triangle" style="font-size:2rem;color:var(--brand-red);"></i>
+                            <span style="color:var(--text-muted);">${data.error || '無法取得圖表資料'}</span>
+                        </div>`;
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                chartContainer.innerHTML = `<div class="alert alert-danger text-center">圖表載入失敗</div>`;
+            .catch(() => {
+                container.innerHTML = `
+                    <div class="chart-loading">
+                        <i class="bi bi-wifi-off" style="font-size:2rem;color:var(--text-muted);"></i>
+                        <span style="color:var(--text-muted);">網路連線失敗，請稍後再試</span>
+                    </div>`;
             });
     }
 
-    function renderChart(chartData) {
-        // Format data for ApexCharts
-        // Assuming API returns { date: [], price: [], ... } or list of objects
-        // Let's adapt based on typical structure. 
-        // If we don't know the exact structure, we might need to debug. 
-        // But let's assume standard list of {date, close}
+    function renderChart(data) {
+        const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+        const dates = data.map(d => d.date || d.Date);
+        const prices = data.map(d => parseFloat(d.close || d.Close || d.price || 0));
 
-        // Simple adaptation if data is list of dicts
-        const dates = chartData.map(item => item.date || item.Date);
-        const prices = chartData.map(item => item.close || item.Close || item.price);
+        const firstPrice = prices[0] || 0;
+        const lastPrice = prices[prices.length - 1] || 0;
+        const isPositive = lastPrice >= firstPrice;
+        const chartColor = isPositive ? '#00E676' : '#FF3D6B';
 
-        var options = {
-            series: [{
-                name: '收盤價',
-                data: prices
-            }],
+        if (currentChart) {
+            currentChart.destroy();
+            currentChart = null;
+        }
+
+        document.getElementById('stockChart').innerHTML = '';
+
+        const options = {
+            series: [{ name: '收盤價', data: prices }],
             chart: {
                 type: 'area',
-                height: 350,
+                height: 300,
                 toolbar: { show: false },
-                zoom: { enabled: false }
+                zoom: { enabled: false },
+                background: 'transparent',
+                animations: { enabled: true, easing: 'easeinout', speed: 600 },
+                fontFamily: "'JetBrains Mono', monospace"
             },
             dataLabels: { enabled: false },
-            stroke: { curve: 'smooth', width: 2 },
-            xaxis: {
-                categories: dates,
-                labels: { show: false }, // Hide dense labels
-                tooltip: { enabled: false }
-            },
-            tooltip: {
-                x: { format: 'yyyy/MM/dd' },
-            },
-            colors: ['#0d6efd'],
-            theme: {
-                mode: document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'
+            stroke: {
+                curve: 'smooth',
+                width: 2,
+                colors: [chartColor]
             },
             fill: {
                 type: 'gradient',
                 gradient: {
                     shadeIntensity: 1,
-                    opacityFrom: 0.7,
-                    opacityTo: 0.3,
-                    stops: [0, 90, 100]
+                    opacityFrom: 0.35,
+                    opacityTo: 0.0,
+                    stops: [0, 90, 100],
+                    colorStops: [{
+                        offset: 0,
+                        color: chartColor,
+                        opacity: 0.35
+                    }, {
+                        offset: 100,
+                        color: chartColor,
+                        opacity: 0
+                    }]
+                }
+            },
+            markers: {
+                size: 0,
+                hover: { size: 5, strokeWidth: 2 }
+            },
+            xaxis: {
+                categories: dates,
+                labels: {
+                    show: true,
+                    style: {
+                        colors: isDark ? '#475569' : '#94A3B8',
+                        fontSize: '11px',
+                        fontFamily: "'JetBrains Mono', monospace"
+                    },
+                    formatter: (v) => {
+                        if (!v) return '';
+                        const parts = v.split('/');
+                        return parts.length >= 2 ? `${parts[1]}/${parts[2] || ''}` : v;
+                    }
+                },
+                axisBorder: { show: false },
+                axisTicks: { show: false },
+                crosshairs: { stroke: { color: isDark ? '#334155' : '#CBD5E1', width: 1, dashArray: 4 } }
+            },
+            yaxis: {
+                labels: {
+                    style: {
+                        colors: isDark ? '#475569' : '#94A3B8',
+                        fontSize: '11px',
+                        fontFamily: "'JetBrains Mono', monospace"
+                    },
+                    formatter: (v) => `$${v.toFixed(1)}`
                 }
             },
             grid: {
-                borderColor: 'var(--color-border)',
+                borderColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.05)',
                 strokeDashArray: 4,
+                xaxis: { lines: { show: false } }
             },
             tooltip: {
-                theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'
-            }
+                theme: isDark ? 'dark' : 'light',
+                x: { show: true },
+                y: { formatter: (v) => `NT$ ${v.toFixed(2)}` },
+                style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '12px' }
+            },
+            theme: { mode: isDark ? 'dark' : 'light' }
         };
 
-        document.querySelector("#stockChart").innerHTML = "";
-        var chart = new ApexCharts(document.querySelector("#stockChart"), options);
-        chart.render();
-
-        // Listen for theme changes to update chart (only if this script is active)
-        window.removeEventListener('themeChanged', handleThemeChange); // Prevent multiple listeners
-        window.addEventListener('themeChanged', handleThemeChange);
-
-        function handleThemeChange(e) {
-            const newTheme = e.detail.theme;
-            chart.updateOptions({
-                theme: { mode: newTheme === 'dark' ? 'dark' : 'light' },
-                tooltip: { theme: newTheme === 'dark' ? 'dark' : 'light' }
-            });
-        }
+        currentChart = new ApexCharts(document.getElementById('stockChart'), options);
+        currentChart.render();
     }
+
+    // Theme change listener
+    window.addEventListener('themeChanged', (e) => {
+        if (currentChart && currentPeriodDays) {
+            fetchChartData(stockCode, currentPeriodDays);
+        }
+    });
 </script>
 {% endblock %}

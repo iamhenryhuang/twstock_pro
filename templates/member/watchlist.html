@@ -1,193 +1,424 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}Watchlist | TST{% endblock %}
+{% block title %}自選股清單 | TWStock Pro{% endblock %}
+
+{% block extra_css %}
+<style>
+    .watchlist-page {
+        padding: 2.5rem 0 4rem;
+    }
+
+    .page-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+    }
+
+    /* Watchlist table */
+    .watchlist-card {
+        overflow: hidden;
+    }
+
+    .wl-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .wl-table th {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        border-bottom: 1px solid var(--border-subtle);
+        white-space: nowrap;
+    }
+
+    .wl-table td {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--border-subtle);
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        transition: background var(--transition-fast);
+        vertical-align: middle;
+    }
+
+    .wl-table tbody tr:hover td {
+        background: var(--bg-glass);
+    }
+
+    .wl-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .stock-code-link {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0.2rem 0.6rem;
+        background: rgba(0, 212, 255, 0.08);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: var(--radius-sm);
+        color: var(--brand-cyan);
+        text-decoration: none;
+        transition: all var(--transition-fast);
+    }
+
+    .stock-code-link:hover {
+        background: rgba(0, 212, 255, 0.15);
+        border-color: var(--border-brand);
+    }
+
+    .stock-name-link {
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color var(--transition-fast);
+    }
+
+    .stock-name-link:hover {
+        color: var(--brand-cyan);
+    }
+
+    .price-cell {
+        font-family: var(--font-mono);
+        font-weight: 500;
+    }
+
+    .change-up {
+        color: var(--brand-green);
+    }
+
+    .change-down {
+        color: var(--brand-red);
+    }
+
+    .date-cell {
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .notes-cell {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 5rem 2rem;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: var(--text-muted);
+        opacity: 0.25;
+        margin-bottom: 1.5rem;
+        display: block;
+    }
+
+    /* Add modal search */
+    .modal-search-list {
+        max-height: 280px;
+        overflow-y: auto;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        margin-top: 0.75rem;
+    }
+
+    .search-result-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border-subtle);
+        cursor: pointer;
+        transition: background var(--transition-fast);
+    }
+
+    .search-result-item:last-child {
+        border-bottom: none;
+    }
+
+    .search-result-item:hover {
+        background: var(--bg-glass);
+    }
+
+    .limit-banner {
+        background: rgba(255, 214, 0, 0.08);
+        border: 1px solid rgba(255, 214, 0, 0.2);
+        border-radius: var(--radius-md);
+        padding: 0.875rem 1.125rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.875rem;
+        color: var(--brand-gold);
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+
+        .wl-table th:nth-child(4),
+        .wl-table td:nth-child(4),
+        .wl-table th:nth-child(5),
+        .wl-table td:nth-child(5) {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="section">
-    <div class="container">
+<div class="container watchlist-page">
 
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-xl">
-            <div>
-                <h2 class="h2 mb-xs">My Watchlist</h2>
-                <p class="text-secondary">
-                    {{ watchlist|length }} stocks
-                    {% if features.watchlist_limit %}
-                    (Limit: {{ features.watchlist_limit }})
-                    {% endif %}
-                </p>
-            </div>
-            <div class="flex gap-md">
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStockModal">
-                    <i class="bi bi-plus-circle me-sm"></i>Add Stock
-                </button>
-                <button class="btn btn-outline" onclick="location.reload()">
-                    <i class="bi bi-arrow-clockwise me-sm"></i>Refresh
-                </button>
-            </div>
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-bookmark-star-fill" style="color:var(--brand-cyan);font-size:1.5rem;"></i>
+                自選股清單
+            </h1>
+            <p style="color:var(--text-secondary);font-size:0.875rem;margin-top:0.375rem;">
+                正在追蹤 <strong style="color:var(--text-primary);">{{ watchlist|length }}</strong> 支股票
+                {% if features.watchlist_limit %}
+                / 上限 {{ features.watchlist_limit }} 支
+                {% else %}
+                （無上限）
+                {% endif %}
+            </p>
         </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWatchlistModal">
+            <i class="bi bi-plus-lg"></i> 新增股票
+        </button>
+    </div>
 
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="mb-lg p-md radius-md"
-            style="background: {% if category == 'error' %}rgba(239, 68, 68, 0.1){% else %}rgba(34, 197, 94, 0.1){% endif %}; border: 1px solid {% if category == 'error' %}var(--color-danger){% else %}var(--color-success){% endif %}; color: {% if category == 'error' %}var(--color-danger){% else %}var(--color-success){% endif %};">
-            {{ message }}
+    <!-- Limit warning -->
+    {% if features.watchlist_limit and watchlist|length >= features.watchlist_limit %}
+    <div class="limit-banner">
+        <i class="bi bi-exclamation-triangle-fill" style="font-size:1.1rem;flex-shrink:0;"></i>
+        <div>
+            您已達到免費版自選股上限（{{ features.watchlist_limit }} 支）。
+            <a href="#" style="color:var(--brand-gold);font-weight:600;text-decoration:none;">升級 Pro 方案</a> 可追蹤最多 100
+            支股票。
         </div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
+    </div>
+    {% endif %}
 
-        <!-- Watchlist Table -->
+    <!-- Watchlist Table -->
+    <div class="card watchlist-card">
         {% if watchlist %}
-        <div class="card">
-            <div class="table-container">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Symbol</th>
-                            <th>Name</th>
-                            <th class="text-right">Price</th>
-                            <th class="text-right">Change</th>
-                            <th class="text-right">Change %</th>
-                            <th class="text-right">Cost</th>
-                            <th class="text-right">P/L</th>
-                            <th class="text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in watchlist %}
-                        <tr>
-                            <td>
-                                <a href="{{ url_for('stock_page', code=item.stock_code) }}"
-                                    class="badge badge-brand font-mono hover:text-white">
-                                    {{ item.stock_code }}
-                                </a>
-                            </td>
-                            <td>{{ item.stock_name or 'Loading...' }}</td>
-                            <td class="text-right font-mono">
-                                {% if item.current_price and item.current_price != 'N/A' %}
-                                <span class="font-bold">{{ item.current_price|format_price }}</span>
-                                {% else %}
-                                <span class="text-secondary">Loading...</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-right font-mono">
-                                {% if item.change and item.change != 'N/A' %}
-                                <span class="{{ item.change|change_class }}">
-                                    {{ item.change }}
-                                </span>
-                                {% else %}
-                                <span class="text-secondary">-</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-right font-mono">
-                                {% if item.change_percent and item.change_percent != 'N/A' %}
-                                <span class="{{ item.change_percent|change_class }}">
-                                    {{ item.change_percent }}
-                                </span>
-                                {% else %}
-                                <span class="text-secondary">-</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-right font-mono text-secondary">
-                                {{ item.added_price|format_price if item.added_price else '-' }}
-                            </td>
-                            <td class="text-right font-mono">
-                                {% if item.current_price and item.added_price and item.current_price != 'N/A' %}
-                                {% set profit = item.current_price|float - item.added_price|float %}
-                                {% set profit_percent = (profit / item.added_price|float * 100) if
-                                item.added_price|float > 0 else 0 %}
-                                <span
-                                    class="{{ 'text-up' if profit > 0 else 'text-down' if profit < 0 else 'text-secondary' }}">
-                                    {{ '+' if profit > 0 else '' }}{{ profit|format_price }}
-                                    ({{ '+' if profit_percent > 0 else '' }}{{ "%.2f"|format(profit_percent) }}%)
-                                </span>
-                                {% else %}
-                                <span class="text-secondary">-</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-right">
-                                <div class="flex justify-end gap-sm">
-                                    <a href="{{ url_for('stock_page', code=item.stock_code) }}"
-                                        class="btn btn-sm btn-outline" title="View">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <a href="{{ url_for('remove_from_watchlist', item_id=item.id) }}"
-                                        class="btn btn-sm btn-outline hover:border-danger hover:text-down"
-                                        onclick="return confirm('Remove this stock?')" title="Remove">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        <div class="table-container">
+            <table class="wl-table">
+                <thead>
+                    <tr>
+                        <th>代號</th>
+                        <th>股票名稱</th>
+                        <th>加入時股價</th>
+                        <th>加入日期</th>
+                        <th>備註</th>
+                        <th style="text-align:right;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in watchlist %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('stock_page', code=item.stock_code) }}" class="stock-code-link">
+                                {{ item.stock_code }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('stock_page', code=item.stock_code) }}" class="stock-name-link">
+                                {{ item.stock_name or '—' }}
+                            </a>
+                        </td>
+                        <td class="price-cell">
+                            {% if item.added_price %}
+                            NT$ {{ '%.2f'|format(item.added_price) }}
+                            {% else %}
+                            <span style="color:var(--text-muted);">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="date-cell">
+                            {{ item.created_at.strftime('%Y-%m-%d') if item.created_at else '—' }}
+                        </td>
+                        <td class="notes-cell" title="{{ item.notes or '' }}">
+                            {{ item.notes or '—' }}
+                        </td>
+                        <td style="text-align:right;white-space:nowrap;">
+                            <a href="{{ url_for('stock_page', code=item.stock_code) }}" class="btn btn-outline btn-sm"
+                                style="margin-right:0.375rem;">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ url_for('remove_from_watchlist_by_code', stock_code=item.stock_code) }}"
+                                class="btn btn-danger btn-sm"
+                                onclick="return confirm('確定移除 {{ item.stock_code }} 從自選股？')">
+                                <i class="bi bi-trash3"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
         {% else %}
-        <div class="card text-center py-xl">
-            <i class="bi bi-bookmark text-secondary mb-md block" style="font-size: 4rem; opacity: 0.3;"></i>
-            <h3 class="h3 mb-sm">Your watchlist is empty</h3>
-            <p class="text-secondary mb-lg">Start building your portfolio by adding stocks</p>
-            <div class="flex justify-center gap-md">
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStockModal">
-                    <i class="bi bi-plus-circle me-sm"></i>Add First Stock
-                </button>
-                <a href="{{ url_for('home') }}" class="btn btn-outline">
-                    <i class="bi bi-search me-sm"></i>Search Stocks
-                </a>
-            </div>
+        <div class="empty-state">
+            <i class="bi bi-bookmark-plus empty-icon"></i>
+            <h3 style="font-size:1.25rem;font-weight:700;margin-bottom:0.5rem;">你的自選股是空的</h3>
+            <p style="color:var(--text-secondary);margin-bottom:2rem;font-size:0.9rem;">
+                新增你感興趣的股票，隨時追蹤行情
+            </p>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWatchlistModal">
+                <i class="bi bi-plus-lg"></i> 新增第一支股票
+            </button>
         </div>
         {% endif %}
-
-        <!-- Limit Warning -->
-        {% if features.watchlist_limit and watchlist|length >= features.watchlist_limit %}
-        <div class="mt-lg p-md radius-md flex items-center gap-md"
-            style="background: rgba(255, 152, 0, 0.1); border: 1px solid var(--color-warning); color: var(--color-warning);">
-            <i class="bi bi-exclamation-triangle"></i>
-            <div>
-                Watchlist limit reached ({{ features.watchlist_limit }}).
-                {% if not current_user.is_premium() %}
-                <a href="#" class="text-white underline">Upgrade</a> to increase limit.
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
-
     </div>
-</section>
 
-<!-- Add Stock Modal -->
-<div class="modal fade" id="addStockModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border-color);">
-            <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
-                <h5 class="modal-title h4">Add Stock</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="POST" action="{{ url_for('add_to_watchlist') }}">
-                <div class="modal-body">
-                    <div class="mb-md">
-                        <label for="stock_code" class="text-secondary mb-xs block">Stock Code</label>
-                        <input type="text" class="input" id="stock_code" name="stock_code" placeholder="e.g. 2330, 0050"
-                            required pattern="[A-Za-z0-9]{3,10}">
-                        <div class="text-secondary text-xs mt-xs">Supports TWSE/TPEX codes</div>
+</div>
+
+<!-- Add Watchlist Modal -->
+<div class="modal fade" id="addWatchlistModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ url_for('add_to_watchlist') }}" method="POST" id="addForm">
+                <div class="modal-header">
+                    <h5 style="font-weight:700;display:flex;align-items:center;gap:0.5rem;">
+                        <i class="bi bi-bookmark-plus-fill" style="color:var(--brand-cyan);"></i>
+                        新增自選股
+                    </h5>
+                    <button type="button" data-bs-dismiss="modal"
+                        style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.2rem;">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding:1.5rem;">
+                    <div class="form-group" style="margin-bottom:1rem;">
+                        <label for="modal-search">搜尋股票代號 / 名稱</label>
+                        <div class="input-group" style="margin-top:0.5rem;">
+                            <input type="text" class="input" id="modal-search" placeholder="輸入代號（如 2330）或名稱..."
+                                autocomplete="off">
+                        </div>
+                        <div id="modal-search-results" class="modal-search-list" style="display:none;"></div>
                     </div>
-                    <div class="mb-md">
-                        <label for="notes" class="text-secondary mb-xs block">Notes (Optional)</label>
-                        <textarea class="input" id="notes" name="notes" rows="3"
-                            placeholder="Investment thesis, target price..."></textarea>
+
+                    <input type="hidden" name="stock_code" id="selected-stock-code">
+                    <div id="selected-stock-display" style="display:none;margin-bottom:1rem;">
+                        <div
+                            style="display:flex;align-items:center;gap:0.625rem;padding:0.75rem;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:var(--radius-md);">
+                            <i class="bi bi-check-circle-fill" style="color:var(--brand-green);"></i>
+                            <span id="selected-stock-text" style="font-weight:600;"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="watchlist-notes">備註 <span
+                                style="color:var(--text-muted);font-weight:400;font-size:0.8rem;">（選填）</span></label>
+                        <textarea class="input" name="notes" id="watchlist-notes" rows="2"
+                            placeholder="投資理由、目標價格等..."></textarea>
                     </div>
                 </div>
-                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
-                    <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add to Watchlist</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline btn-sm" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="submitBtn" disabled>
+                        <i class="bi bi-bookmark-plus-fill"></i> 加入自選股
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const searchInput = document.getElementById('modal-search');
+    const resultsDiv = document.getElementById('modal-search-results');
+    const selectedCode = document.getElementById('selected-stock-code');
+    const selectedDisplay = document.getElementById('selected-stock-display');
+    const selectedText = document.getElementById('selected-stock-text');
+    const submitBtn = document.getElementById('submitBtn');
+
+    let debounceTimer;
+
+    searchInput.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        const q = searchInput.value.trim();
+        if (q.length < 1) {
+            resultsDiv.style.display = 'none';
+            return;
+        }
+        debounceTimer = setTimeout(() => searchStocks(q), 350);
+    });
+
+    function searchStocks(q) {
+        fetch(`/api/search?q=${encodeURIComponent(q)}&limit=10`)
+            .then(r => r.json())
+            .then(data => {
+                if (!data.results || data.results.length === 0) {
+                    resultsDiv.style.display = 'block';
+                    resultsDiv.innerHTML = `<div style="padding:1rem;text-align:center;color:var(--text-muted);font-size:0.85rem;">
+                        找不到符合的股票
+                    </div>`;
+                    return;
+                }
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = data.results.map(s => `
+                    <div class="search-result-item" onclick="selectStock('${s.code}', '${s.name}')">
+                        <div style="display:flex;align-items:center;gap:0.625rem;">
+                            <span style="font-family:var(--font-mono);font-size:0.8rem;font-weight:600;
+                                         padding:0.15rem 0.5rem;background:rgba(0,212,255,0.08);
+                                         border:1px solid rgba(0,212,255,0.2);border-radius:4px;color:var(--brand-cyan);">
+                                ${s.code}
+                            </span>
+                            <span style="font-size:0.875rem;color:var(--text-primary);">${s.name}</span>
+                        </div>
+                        <i class="bi bi-plus-circle" style="color:var(--text-muted);"></i>
+                    </div>
+                `).join('');
+            })
+            .catch(() => {
+                resultsDiv.style.display = 'none';
+            });
+    }
+
+    function selectStock(code, name) {
+        selectedCode.value = code;
+        selectedText.textContent = `${name} (${code})`;
+        selectedDisplay.style.display = 'block';
+        resultsDiv.style.display = 'none';
+        searchInput.value = '';
+        submitBtn.disabled = false;
+    }
+
+    // Quick add: user enters code directly
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const v = searchInput.value.trim();
+            if (v.length >= 4) {
+                selectStock(v, v);
+            }
+        }
+    });
+</script>
 {% endblock %}

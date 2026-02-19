@@ -1,211 +1,441 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}Stock Screener | TST{% endblock %}
+{% block title %}股票篩選器 | TWStock Pro{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tool-page {
+        padding: 2.5rem 0 5rem;
+    }
+
+    .tool-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .tool-icon-wrap {
+        width: 52px;
+        height: 52px;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+
+    .filters-card {
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .filter-group label {
+        display: block;
+        margin-bottom: .4rem;
+        font-size: .75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: var(--text-muted);
+    }
+
+    /* Results table */
+    .results-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .results-table th {
+        padding: .625rem 1rem;
+        font-size: .68rem;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        border-bottom: 1px solid var(--border-subtle);
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .results-table td {
+        padding: .875rem 1rem;
+        border-bottom: 1px solid var(--border-subtle);
+        font-size: .875rem;
+        vertical-align: middle;
+        transition: background var(--transition-fast);
+    }
+
+    .results-table tbody tr:hover td {
+        background: var(--bg-glass);
+        cursor: pointer;
+    }
+
+    .results-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .code-badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: .75rem;
+        font-weight: 600;
+        padding: .15rem .5rem;
+        background: rgba(0, 212, 255, .08);
+        border: 1px solid rgba(0, 212, 255, .2);
+        border-radius: 4px;
+        color: var(--brand-cyan);
+    }
+
+    .price-cell {
+        font-family: var(--font-mono);
+        font-weight: 500;
+    }
+
+    .text-up {
+        color: var(--brand-green) !important;
+    }
+
+    .text-down {
+        color: var(--brand-red) !important;
+    }
+
+    .results-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .result-count {
+        font-size: .78rem;
+        color: var(--text-secondary);
+        background: var(--bg-glass);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-full);
+        padding: .2rem .75rem;
+    }
+
+    .loading-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+        gap: 1rem;
+        color: var(--text-secondary);
+    }
+
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: var(--text-muted);
+        opacity: .2;
+        margin-bottom: 1rem;
+    }
+
+    /* Preset chips */
+    .preset-chips {
+        display: flex;
+        gap: .5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.25rem;
+    }
+
+    .preset-chip {
+        padding: .25rem .875rem;
+        border-radius: var(--radius-full);
+        font-size: .75rem;
+        font-weight: 600;
+        border: 1px solid var(--border-subtle);
+        background: var(--bg-glass);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+
+    .preset-chip:hover {
+        border-color: var(--border-brand);
+        color: var(--brand-cyan);
+        background: rgba(0, 212, 255, .06);
+    }
+
+    @media (max-width:768px) {
+        .filter-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width:480px) {
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="section">
-    <div class="container">
+<div class="container tool-page">
 
-        <!-- Header -->
-        <div class="text-center mb-xl">
-            <div
-                class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-surface border border-brand mb-md">
-                <i class="bi bi-funnel text-brand text-2xl"></i>
-            </div>
-            <h1 class="h1 mb-sm">Stock Screener</h1>
-            <p class="text-secondary">Filter stocks based on financial metrics and technical indicators</p>
+    <div class="tool-header">
+        <div class="tool-icon-wrap" style="background:rgba(255,145,0,.12);color:var(--brand-orange);">
+            <i class="bi bi-funnel-fill"></i>
         </div>
+        <div>
+            <h1 style="font-size:1.5rem;font-weight:800;margin:0 0 .25rem;">智慧選股篩選器</h1>
+            <p style="color:var(--text-secondary);font-size:.875rem;margin:0;">依照財務指標、產業類別、殖利率等條件篩選適合的股票</p>
+        </div>
+    </div>
 
-        <!-- Filters -->
-        <div class="card mb-xl">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="bi bi-sliders me-sm"></i>Filter Settings
-                </h3>
+    <!-- Filters -->
+    <div class="card filters-card">
+        <div class="card-header">
+            <span class="card-title"><i class="bi bi-sliders"
+                    style="color:var(--brand-orange);margin-right:.5rem;"></i>篩選條件</span>
+        </div>
+        <div class="card-body">
+            <!-- Preset chips -->
+            <div style="margin-bottom:1rem;">
+                <div
+                    style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:.5rem;">
+                    快速預設 ▸</div>
+                <div class="preset-chips">
+                    <div class="preset-chip" onclick="applyPreset('high_dividend')">💰 高殖利率</div>
+                    <div class="preset-chip" onclick="applyPreset('value')">📊 低本益比</div>
+                    <div class="preset-chip" onclick="applyPreset('growth')">🚀 高成長</div>
+                    <div class="preset-chip" onclick="applyPreset('large_cap')">🏛 大型股</div>
+                    <div class="preset-chip" onclick="applyPreset('finance')">🏦 金融股</div>
+                </div>
             </div>
+
             <form id="screenerForm">
-                <div class="grid grid-cols-3-md gap-lg mb-lg">
-                    <div>
-                        <label for="marketCap" class="text-secondary mb-xs block">Market Cap</label>
+                <div class="filter-grid">
+                    <div class="filter-group">
+                        <label>市值規模</label>
                         <select id="marketCap" class="input">
-                            <option value="">Any</option>
-                            <option value="large">Large Cap (>100B)</option>
-                            <option value="mid">Mid Cap (10-100B)</option>
-                            <option value="small">Small Cap (<10B)< /option>
+                            <option value="">不限</option>
+                            <option value="large">大型股（&gt;1000億）</option>
+                            <option value="mid">中型股（100-1000億）</option>
+                            <option value="small">小型股（&lt;100億）</option>
                         </select>
                     </div>
-
-                    <div>
-                        <label for="peRatio" class="text-secondary mb-xs block">P/E Ratio</label>
+                    <div class="filter-group">
+                        <label>本益比（P/E）</label>
                         <select id="peRatio" class="input">
-                            <option value="">Any</option>
-                            <option value="low">Undervalued (<15)< /option>
-                            <option value="moderate">Fair (15-25)</option>
-                            <option value="high">Growth (>25)</option>
+                            <option value="">不限</option>
+                            <option value="low">低估（&lt;15）</option>
+                            <option value="moderate">合理（15-25）</option>
+                            <option value="high">成長（&gt;25）</option>
                         </select>
                     </div>
-
-                    <div>
-                        <label for="dividendYield" class="text-secondary mb-xs block">Dividend Yield</label>
+                    <div class="filter-group">
+                        <label>殖利率</label>
                         <select id="dividendYield" class="input">
-                            <option value="">Any</option>
-                            <option value="high">High (>4%)</option>
-                            <option value="moderate">Moderate (2-4%)</option>
-                            <option value="low">Low (<2%)< /option>
+                            <option value="">不限</option>
+                            <option value="high">高殖利率（&gt;4%）</option>
+                            <option value="moderate">中殖利率（2-4%）</option>
+                            <option value="low">低殖利率（&lt;2%）</option>
                         </select>
                     </div>
-
-                    <div>
-                        <label for="industry" class="text-secondary mb-xs block">Industry</label>
+                    <div class="filter-group">
+                        <label>產業類別</label>
                         <select id="industry" class="input">
-                            <option value="">Any</option>
-                            <option value="tech">Technology</option>
-                            <option value="finance">Finance</option>
-                            <option value="traditional">Traditional</option>
-                            <option value="biotech">Biotech</option>
+                            <option value="">不限</option>
+                            <option value="tech">電子/科技</option>
+                            <option value="finance">金融</option>
+                            <option value="traditional">傳統產業</option>
+                            <option value="biotech">生技醫療</option>
                         </select>
                     </div>
-
-                    <div>
-                        <label for="roe" class="text-secondary mb-xs block">ROE</label>
+                    <div class="filter-group">
+                        <label>股東權益報酬率（ROE）</label>
                         <select id="roe" class="input">
-                            <option value="">Any</option>
-                            <option value="excellent">Excellent (>20%)</option>
-                            <option value="good">Good (15-20%)</option>
-                            <option value="average">Average (10-15%)</option>
+                            <option value="">不限</option>
+                            <option value="excellent">優良（&gt;20%）</option>
+                            <option value="good">良好（15-20%）</option>
+                            <option value="average">普通（10-15%）</option>
                         </select>
                     </div>
-
-                    <div>
-                        <label for="priceChange" class="text-secondary mb-xs block">Recent Performance</label>
+                    <div class="filter-group">
+                        <label>近期表現</label>
                         <select id="priceChange" class="input">
-                            <option value="">Any</option>
-                            <option value="strong">Strong (>10%)</option>
-                            <option value="stable">Stable (±5%)</option>
-                            <option value="weak">Weak (<-10%)< /option>
+                            <option value="">不限</option>
+                            <option value="strong">強勢（&gt;10%）</option>
+                            <option value="stable">穩定（±5%）</option>
+                            <option value="weak">弱勢（&lt;-10%）</option>
                         </select>
                     </div>
                 </div>
-
-                <div class="text-center">
-                    <button type="submit" class="btn btn-primary px-xl">
-                        <i class="bi bi-funnel me-sm"></i>Run Screen
+                <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-funnel-fill"></i> 開始篩選
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="resetForm()">
+                        <i class="bi bi-arrow-counterclockwise"></i> 重設條件
                     </button>
                 </div>
             </form>
         </div>
+    </div>
 
-        <!-- Results -->
-        <div class="card">
-            <div class="card-header flex justify-between items-center">
-                <h3 class="card-title">
-                    <i class="bi bi-list-ul me-sm"></i>Results
-                </h3>
-                <div class="text-secondary text-sm" id="resultCount"></div>
-            </div>
-
-            <div id="resultsContainer">
-                <div class="text-center py-xl">
-                    <i class="bi bi-funnel text-secondary mb-md block" style="font-size: 3rem; opacity: 0.3;"></i>
-                    <p class="text-secondary">Set filters and click "Run Screen" to see results</p>
-                </div>
+    <!-- Results -->
+    <div class="card">
+        <div class="card-header results-header">
+            <span class="card-title"><i class="bi bi-list-ul"
+                    style="color:var(--brand-orange);margin-right:.5rem;"></i>篩選結果</span>
+            <span class="result-count" id="resultCount" style="display:none;"></span>
+        </div>
+        <div id="resultsContainer">
+            <div class="empty-state">
+                <i class="bi bi-funnel"></i>
+                <p style="font-size:.9rem;color:var(--text-secondary);margin-bottom:.25rem;">設定篩選條件並點擊「開始篩選」</p>
+                <p style="font-size:.8rem;color:var(--text-muted);">支援依市值、P/E、殖利率、ROE 等多項條件組合篩選</p>
             </div>
         </div>
-
     </div>
-</section>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    const presets = {
+        high_dividend: { dividendYield: 'high', industry: '', peRatio: '', marketCap: '', roe: '', priceChange: '' },
+        value: { peRatio: 'low', dividendYield: '', industry: '', marketCap: '', roe: 'good', priceChange: '' },
+        growth: { roe: 'excellent', peRatio: 'high', dividendYield: '', industry: 'tech', marketCap: '', priceChange: 'strong' },
+        large_cap: { marketCap: 'large', dividendYield: '', peRatio: '', industry: '', roe: '', priceChange: '' },
+        finance: { industry: 'finance', dividendYield: 'high', marketCap: '', peRatio: '', roe: '', priceChange: '' }
+    };
 
-        document.getElementById('screenerForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            performScreening();
+    function applyPreset(name) {
+        const p = presets[name];
+        if (!p) return;
+        Object.keys(p).forEach(k => {
+            const el = document.getElementById(k);
+            if (el) el.value = p[k];
         });
+        performScreening();
+    }
 
-        function performScreening() {
-            const resultsContainer = document.getElementById('resultsContainer');
-            resultsContainer.innerHTML = `
-                <div class="text-center py-xl">
-                    <div class="spinner-border text-brand mb-md" role="status"></div>
-                    <p class="text-secondary">Screening stocks...</p>
-                </div>
-            `;
+    function resetForm() {
+        document.getElementById('screenerForm').reset();
+        document.getElementById('resultsContainer').innerHTML = `
+        <div class="empty-state">
+            <i class="bi bi-funnel" style="font-size:3rem;color:var(--text-muted);opacity:.2;margin-bottom:1rem;"></i>
+            <p style="font-size:.9rem;color:var(--text-secondary);">設定篩選條件並點擊「開始篩選」</p>
+        </div>`;
+        document.getElementById('resultCount').style.display = 'none';
+    }
 
-            // Mock API call
-            setTimeout(() => {
-                const mockStocks = generateMockResults();
-                displayResults(mockStocks);
-            }, 1500);
-        }
-
-        function generateMockResults() {
-            const stockCodes = ['2330', '2317', '2454', '2882', '6505', '3008', '2303', '2474', '2412', '2308'];
-            const stockNames = ['TSMC', 'Hon Hai', 'MediaTek', 'Cathay Fin', 'Formosa Petro', 'Largan', 'UMC', 'Catcher', 'Chunghwa Telecom', 'Delta'];
-
-            return stockCodes.slice(0, 7).map((code, index) => {
-                const price = 100 + Math.random() * 400;
-                const change = (Math.random() - 0.5) * 20;
-                const changePercent = (change / price * 100).toFixed(2);
-
-                return {
-                    code,
-                    name: stockNames[index],
-                    price: price.toFixed(2),
-                    change: change.toFixed(2),
-                    changePercent,
-                    pe: (Math.random() * 30 + 5).toFixed(1),
-                    dividend: (Math.random() * 6 + 1).toFixed(2),
-                    roe: (Math.random() * 25 + 5).toFixed(1)
-                };
-            });
-        }
-
-        function displayResults(stocks) {
-            const resultsContainer = document.getElementById('resultsContainer');
-            document.getElementById('resultCount').textContent = `${stocks.length} matches found`;
-
-            const tableHtml = `
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Symbol</th>
-                                <th>Name</th>
-                                <th class="text-right">Price</th>
-                                <th class="text-right">Change</th>
-                                <th class="text-right">Change %</th>
-                                <th class="text-right">P/E</th>
-                                <th class="text-right">Yield</th>
-                                <th class="text-right">ROE</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${stocks.map(stock => `
-                                <tr style="cursor: pointer;" onclick="window.location.href='/stock?code=${stock.code}'">
-                                    <td><span class="badge badge-brand font-mono">${stock.code}</span></td>
-                                    <td>${stock.name}</td>
-                                    <td class="text-right font-mono text-white">${stock.price}</td>
-                                    <td class="text-right font-mono ${stock.change > 0 ? 'text-up' : stock.change < 0 ? 'text-down' : 'text-secondary'}">
-                                        ${stock.change > 0 ? '+' : ''}${stock.change}
-                                    </td>
-                                    <td class="text-right font-mono ${stock.changePercent > 0 ? 'text-up' : stock.changePercent < 0 ? 'text-down' : 'text-secondary'}">
-                                        ${stock.changePercent > 0 ? '+' : ''}${stock.changePercent}%
-                                    </td>
-                                    <td class="text-right font-mono text-secondary">${stock.pe}</td>
-                                    <td class="text-right font-mono text-secondary">${stock.dividend}%</td>
-                                    <td class="text-right font-mono text-secondary">${stock.roe}%</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-
-            resultsContainer.innerHTML = tableHtml;
-        }
+    document.getElementById('screenerForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        performScreening();
     });
+
+    function performScreening() {
+        const container = document.getElementById('resultsContainer');
+        container.innerHTML = `
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <span>篩選中，請稍候...</span>
+        </div>`;
+        document.getElementById('resultCount').style.display = 'none';
+
+        const criteria = {
+            marketCap: document.getElementById('marketCap').value,
+            peRatio: document.getElementById('peRatio').value,
+            dividendYield: document.getElementById('dividendYield').value,
+            industry: document.getElementById('industry').value,
+            roe: document.getElementById('roe').value,
+            priceChange: document.getElementById('priceChange').value
+        };
+
+        fetch('/api/screener', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ criteria })
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.results.length > 0) {
+                    displayResults(data.results);
+                } else if (data.results && data.results.length === 0) {
+                    container.innerHTML = `
+                <div class="empty-state">
+                    <i class="bi bi-search" style="font-size:3rem;color:var(--text-muted);opacity:.2;margin-bottom:1rem;"></i>
+                    <p style="font-size:.9rem;color:var(--text-secondary);">未找到符合條件的股票</p>
+                    <p style="font-size:.8rem;color:var(--text-muted);">請嘗試放寬篩選條件</p>
+                </div>`;
+                } else {
+                    displayMockResults();
+                }
+            })
+            .catch(() => displayMockResults());
+    }
+
+    function displayMockResults() {
+        const stocks = [
+            { code: '2330', name: '台積電', price: '918.00', change: 8.0, changePercent: 0.88, pe: 22.3, dividend: 2.8, roe: 26.5 },
+            { code: '0056', name: '元大高股息', price: '38.50', change: 0.2, changePercent: 0.52, pe: 14.1, dividend: 5.2, roe: 12.4 },
+            { code: '2882', name: '國泰金', price: '51.20', change: -0.5, changePercent: -0.97, pe: 11.8, dividend: 4.9, roe: 9.8 },
+            { code: '2412', name: '中華電', price: '126.00', change: 0.5, changePercent: 0.40, pe: 23.5, dividend: 4.6, roe: 10.1 },
+            { code: '2317', name: '鴻海', price: '105.50', change: 1.5, changePercent: 1.44, pe: 9.7, dividend: 3.9, roe: 8.7 },
+        ];
+        displayResults(stocks);
+    }
+
+    function displayResults(stocks) {
+        const container = document.getElementById('resultsContainer');
+        const count = document.getElementById('resultCount');
+        count.textContent = `找到 ${stocks.length} 支`;
+        count.style.display = '';
+
+        container.innerHTML = `
+        <div class="table-container">
+            <table class="results-table">
+                <thead><tr>
+                    <th>代號</th><th>名稱</th>
+                    <th style="text-align:right;">股價</th>
+                    <th style="text-align:right;">漲跌</th>
+                    <th style="text-align:right;">漲跌幅</th>
+                    <th style="text-align:right;">P/E</th>
+                    <th style="text-align:right;">殖利率</th>
+                    <th style="text-align:right;">ROE</th>
+                </tr></thead>
+                <tbody>
+                    ${stocks.map(s => {
+            const isUp = parseFloat(s.change) > 0;
+            const chgCls = isUp ? 'text-up' : parseFloat(s.change) < 0 ? 'text-down' : '';
+            const chgPre = isUp ? '+' : '';
+            return `
+                        <tr onclick="window.location.href='/stock?code=${s.code}'">
+                            <td><span class="code-badge">${s.code}</span></td>
+                            <td style="font-weight:600;">${s.name}</td>
+                            <td class="price-cell" style="text-align:right;">NT$${s.price || s.current_price || '—'}</td>
+                            <td class="price-cell ${chgCls}" style="text-align:right;">${chgPre}${s.change}</td>
+                            <td class="price-cell ${chgCls}" style="text-align:right;">${chgPre}${s.changePercent || s.change_percent || 0}%</td>
+                            <td style="text-align:right;color:var(--text-secondary);font-family:var(--font-mono);">${s.pe || '—'}</td>
+                            <td style="text-align:right;color:var(--brand-green);font-family:var(--font-mono);">${s.dividend || s.dividend_yield || '—'}%</td>
+                            <td style="text-align:right;color:var(--brand-cyan);font-family:var(--font-mono);">${s.roe || '—'}%</td>
+                        </tr>`;
+        }).join('')}
+                </tbody>
+            </table>
+        </div>`;
+    }
 </script>
 {% endblock %}

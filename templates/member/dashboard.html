@@ -1,291 +1,450 @@
 {% extends "layouts/base.html" %}
+{% block title %}控制台 | TWStock Pro{% endblock %}
 
-{% block title %}Dashboard | TST{% endblock %}
+{% block extra_css %}
+<style>
+    .dash-page {
+        padding: 32px 0 56px;
+    }
+
+    .dash-welcome {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--t-white);
+    }
+
+    .dash-welcome span {
+        color: var(--c-cyan);
+    }
+
+    .dash-time {
+        font-size: 11px;
+        color: var(--t-muted);
+        font-family: var(--mono);
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .stat-item {
+        background: var(--bg-panel);
+        border: 1px solid var(--b-default);
+        border-radius: var(--r-lg);
+        padding: 16px 20px;
+        position: relative;
+        overflow: hidden;
+        transition: border-color var(--ease-md);
+    }
+
+    .stat-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--accent, var(--c-cyan));
+    }
+
+    .stat-item:hover {
+        border-color: var(--b-brand);
+    }
+
+    .si-label {
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--t-muted);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .si-label i {
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+    }
+
+    .si-value {
+        font-family: var(--mono);
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--t-white);
+    }
+
+    .si-sub {
+        font-size: 11px;
+        color: var(--t-muted);
+        margin-top: 4px;
+    }
+
+    .dash-grid {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 16px;
+        align-items: start;
+    }
+
+    /* Quick action buttons */
+    .qa-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: var(--r-md);
+        text-decoration: none;
+        color: var(--t-secondary);
+        transition: background var(--ease), color var(--ease);
+        border: 1px solid transparent;
+    }
+
+    .qa-link:hover {
+        background: var(--bg-elevated);
+        color: var(--t-primary);
+        border-color: var(--b-default);
+    }
+
+    .qa-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: var(--r-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        flex-shrink: 0;
+    }
+
+    .qa-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--t-white);
+        margin-bottom: 2px;
+    }
+
+    .qa-desc {
+        font-size: 11px;
+        color: var(--t-muted);
+    }
+
+    /* History item */
+    .hist-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--b-default);
+    }
+
+    .hist-item:last-child {
+        border-bottom: none;
+    }
+
+    .hist-code {
+        display: inline-block;
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 4px;
+        background: rgba(33, 150, 243, 0.1);
+        color: var(--c-cyan);
+        text-decoration: none;
+        margin-right: 8px;
+    }
+
+    .hist-name {
+        font-size: 13px;
+        color: var(--t-primary);
+    }
+
+    .hist-time {
+        font-size: 11px;
+        color: var(--t-muted);
+        font-family: var(--mono);
+    }
+
+    @media (max-width: 900px) {
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .dash-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-row {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="section">
+<div class="dash-page">
     <div class="container">
-
-        <!-- Top Stats -->
-        <div class="grid grid-cols-4-md grid-cols-2 gap-lg mb-xl">
-            <div class="card">
-                <div class="text-secondary text-sm uppercase font-mono mb-xs">Total Assets</div>
-                <div class="h2 font-mono mb-xs">NT$ 1,250,000</div>
-                <div class="flex items-center gap-xs text-up text-sm">
-                    <i class="bi bi-trending-up"></i>
-                    <span>+15,000 (+1.22%)</span>
-                </div>
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6" style="flex-wrap:wrap;gap:12px;">
+            <div>
+                <div class="dash-welcome">歡迎回來，<span>{{ current_user.username }}</span></div>
+                <div class="dash-time mt-2"><i class="bi bi-clock"></i> {{ current_time.strftime('%Y/%m/%d %H:%M') if
+                    current_time else '' }}</div>
             </div>
-            <div class="card">
-                <div class="text-secondary text-sm uppercase font-mono mb-xs">Today's P/L</div>
-                <div class="h2 font-mono mb-xs text-up">NT$ +5,200</div>
-                <div class="flex items-center gap-xs text-up text-sm">
-                    <i class="bi bi-trending-up"></i>
-                    <span>+0.42%</span>
-                </div>
-            </div>
-            <div class="card">
-                <div class="text-secondary text-sm uppercase font-mono mb-xs">Holdings</div>
-                <div class="h2 font-mono mb-xs">{{ watchlist|length }}</div>
-                <div class="flex items-center gap-xs text-secondary text-sm">
-                    <i class="bi bi-info-circle"></i>
-                    <span>
-                        {% if features.watchlist_limit %}
-                        Limit {{ features.watchlist_limit }}
-                        {% else %}
-                        Unlimited
-                        {% endif %}
-                    </span>
-                </div>
-            </div>
-            <div class="card">
-                <div class="text-secondary text-sm uppercase font-mono mb-xs">Cash Balance</div>
-                <div class="h2 font-mono mb-xs">NT$ 150,000</div>
-                <div class="flex items-center gap-xs text-secondary text-sm">
-                    <i class="bi bi-wallet2"></i>
-                    <span>Available</span>
-                </div>
+            <div class="flex gap-2">
+                <a href="{{ url_for('watchlist') }}" class="btn btn-outline btn-sm">
+                    <i class="bi bi-bookmark-star"></i> 自選股
+                </a>
+                <a href="{{ url_for('profile') }}" class="btn btn-outline btn-sm">
+                    <i class="bi bi-person-gear"></i> 設定
+                </a>
             </div>
         </div>
 
-        <div class="grid grid-cols-3-md gap-xl">
-
-            <!-- Main Content -->
-            <div class="col-span-2 flex flex-col gap-xl">
-
-                <!-- Portfolio Chart -->
-                <div class="card">
-                    <div class="card-header flex justify-between items-center">
-                        <h3 class="card-title">Portfolio Performance</h3>
-                        <div class="flex gap-xs">
-                            <button class="btn btn-sm btn-outline">1D</button>
-                            <button class="btn btn-sm btn-primary">1W</button>
-                            <button class="btn btn-sm btn-outline">1M</button>
-                            <button class="btn btn-sm btn-outline">3M</button>
-                            <button class="btn btn-sm btn-outline">1Y</button>
-                        </div>
-                    </div>
-                    <div style="height: 300px; position: relative;">
-                        <canvas id="portfolioChart"></canvas>
-                    </div>
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-item" style="--accent:var(--c-cyan);">
+                <div class="si-label">
+                    <i class="bi bi-bookmark-star-fill"
+                        style="background:rgba(33,150,243,0.12);color:var(--c-cyan);"></i>
+                    自選股
                 </div>
+                <div class="si-value">{{ watchlist|length if watchlist else 0 }}</div>
+                <div class="si-sub">支追蹤股票</div>
+            </div>
+            <div class="stat-item" style="--accent:var(--c-green);">
+                <div class="si-label">
+                    <i class="bi bi-clock-history" style="background:rgba(38,166,154,0.12);color:var(--c-green);"></i>
+                    搜尋記錄
+                </div>
+                <div class="si-value">{{ recent_searches|length if recent_searches else 0 }}</div>
+                <div class="si-sub">筆歷史查詢</div>
+            </div>
+            <div class="stat-item" style="--accent:var(--c-purple);">
+                <div class="si-label">
+                    <i class="bi bi-person-badge" style="background:rgba(124,58,237,0.12);color:var(--c-purple);"></i>
+                    會員等級
+                </div>
+                <div class="si-value" style="font-size:16px;">
+                    {{ 'VIP' if current_user.is_vip() else 'Pro' if current_user.is_premium() else '免費版' }}
+                </div>
+                <div class="si-sub">目前方案</div>
+            </div>
+            <div class="stat-item" style="--accent:var(--c-gold);">
+                <div class="si-label">
+                    <i class="bi bi-bell-fill" style="background:rgba(255,179,0,0.12);color:var(--c-gold);"></i>
+                    價格提醒
+                </div>
+                <div class="si-value" style="font-size:16px;">
+                    {{ '已啟用' if features.price_alerts else '未啟用' }}
+                </div>
+                <div class="si-sub">{{ 'Pro 功能' if features.price_alerts else '升級解鎖' }}</div>
+            </div>
+        </div>
 
-                <!-- Holdings Table -->
+        <!-- Main grid -->
+        <div class="dash-grid">
+            <!-- Left: watchlist + history -->
+            <div style="display:flex;flex-direction:column;gap:16px;">
+
+                <!-- Watchlist -->
                 <div class="card">
-                    <div class="card-header flex justify-between items-center">
-                        <h3 class="card-title">Holdings</h3>
-                        <a href="{{ url_for('watchlist') }}" class="btn btn-sm btn-primary">Manage</a>
+                    <div class="card-head">
+                        <div class="card-title">
+                            <div class="card-title-dot" style="background:var(--c-cyan);"></div>
+                            自選股清單
+                        </div>
+                        <a href="{{ url_for('watchlist') }}" class="btn btn-outline btn-sm">
+                            管理 <i class="bi bi-arrow-right"></i>
+                        </a>
                     </div>
                     {% if watchlist %}
-                    <div class="table-container">
-                        <table class="table">
+                    <div class="table-scroll">
+                        <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Symbol</th>
-                                    <th>Name</th>
-                                    <th class="text-right">Price</th>
-                                    <th class="text-right">Change</th>
-                                    <th class="text-right">Change %</th>
-                                    <th class="text-right">Cost</th>
-                                    <th class="text-right">P/L</th>
+                                    <th>代號</th>
+                                    <th>名稱</th>
+                                    <th>加入股價</th>
+                                    <th>加入日期</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for item in watchlist[:8] %}
                                 <tr onclick="window.location.href='{{ url_for('stock_page', code=item.stock_code) }}'"
-                                    style="cursor: pointer;">
-                                    <td><span class="badge badge-brand font-mono">{{ item.stock_code }}</span></td>
-                                    <td>{{ item.stock_name or 'Loading...' }}</td>
-                                    <td class="text-right font-mono stock-price">{{ item.added_price or '--' }}</td>
-                                    <td class="text-right font-mono stock-change">--</td>
-                                    <td class="text-right font-mono stock-change">--</td>
-                                    <td class="text-right font-mono text-secondary">{{ item.added_price or '--' }}</td>
-                                    <td class="text-right font-mono stock-change">--</td>
+                                    style="cursor:pointer;">
+                                    <td><a href="{{ url_for('stock_page', code=item.stock_code) }}" class="hist-code">{{
+                                            item.stock_code }}</a></td>
+                                    <td style="font-size:13px;">{{ item.stock_name or '—' }}</td>
+                                    <td class="table-mono">{{ '$%.2f'|format(item.added_price) if item.added_price else
+                                        '—' }}</td>
+                                    <td class="table-mono txt-muted" style="font-size:12px;">{{
+                                        item.created_at.strftime('%Y-%m-%d') if item.created_at else '—' }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
+                    {% if watchlist|length > 8 %}
+                    <div class="card-footer text-center">
+                        <a href="{{ url_for('watchlist') }}" class="txt-brand" style="font-size:12px;">
+                            查看全部 {{ watchlist|length }} 支自選股 →
+                        </a>
+                    </div>
+                    {% endif %}
                     {% else %}
-                    <div class="text-center py-xl">
-                        <i class="bi bi-bookmark text-secondary mb-md block" style="font-size: 3rem; opacity: 0.5;"></i>
-                        <p class="text-secondary mb-md">No stocks in watchlist</p>
-                        <a href="{{ url_for('home') }}" class="btn btn-primary">Search Stocks</a>
+                    <div class="card-body" style="text-align:center;padding:48px;">
+                        <i class="bi bi-bookmark"
+                            style="font-size:32px;color:var(--t-muted);display:block;margin-bottom:12px;opacity:0.4;"></i>
+                        <p style="color:var(--t-secondary);font-size:13px;margin-bottom:16px;">你還沒有自選股，去新增一些吧！</p>
+                        <a href="{{ url_for('home') }}" class="btn btn-primary btn-sm"><i class="bi bi-search"></i>
+                            搜尋股票</a>
                     </div>
                     {% endif %}
                 </div>
 
-            </div>
-
-            <!-- Sidebar -->
-            <div class="flex flex-col gap-xl">
-
-                <!-- Allocation -->
+                <!-- Recent searches -->
+                {% if recent_searches %}
                 <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Asset Allocation</h3>
+                    <div class="card-head">
+                        <div class="card-title">
+                            <div class="card-title-dot" style="background:var(--c-green);"></div>
+                            最近搜尋
+                        </div>
                     </div>
-                    <div style="height: 200px; position: relative; margin-bottom: var(--space-md);">
-                        <canvas id="allocationChart"></canvas>
-                    </div>
-                    <div class="flex flex-col gap-sm">
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center gap-sm">
-                                <div
-                                    style="width: 12px; height: 12px; background: var(--color-brand-primary); border-radius: 2px;">
-                                </div>
-                                <span class="text-secondary text-sm">Tech</span>
+                    <div class="card-body">
+                        {% for s in recent_searches %}
+                        <div class="hist-item">
+                            <div class="flex items-center gap-3">
+                                <a href="{{ url_for('stock_page', code=s.stock_code) }}" class="hist-code">{{
+                                    s.stock_code }}</a>
+                                <span class="hist-name">{{ s.stock_name or '—' }}</span>
+                                {% if s.search_price %}
+                                <span class="table-mono txt-muted" style="font-size:12px;">${{
+                                    '%.2f'|format(s.search_price) }}</span>
+                                {% endif %}
                             </div>
-                            <span class="font-mono text-sm">45%</span>
+                            <span class="hist-time">{{ s.created_at.strftime('%m/%d %H:%M') if s.created_at else ''
+                                }}</span>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center gap-sm">
-                                <div
-                                    style="width: 12px; height: 12px; background: var(--color-success); border-radius: 2px;">
-                                </div>
-                                <span class="text-secondary text-sm">Finance</span>
-                            </div>
-                            <span class="font-mono text-sm">25%</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center gap-sm">
-                                <div
-                                    style="width: 12px; height: 12px; background: var(--color-brand-accent); border-radius: 2px;">
-                                </div>
-                                <span class="text-secondary text-sm">ETF</span>
-                            </div>
-                            <span class="font-mono text-sm">20%</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center gap-sm">
-                                <div style="width: 12px; height: 12px; background: #7B68EE; border-radius: 2px;"></div>
-                                <span class="text-secondary text-sm">Other</span>
-                            </div>
-                            <span class="font-mono text-sm">10%</span>
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
+                {% endif %}
 
-                <!-- Quick Actions -->
+            </div>
+
+            <!-- Right: sidebar -->
+            <div style="display:flex;flex-direction:column;gap:16px;">
+
+                <!-- Quick actions -->
                 <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Quick Actions</h3>
+                    <div class="card-head">
+                        <div class="card-title">
+                            <div class="card-title-dot" style="background:var(--c-gold);"></div>
+                            快速操作
+                        </div>
                     </div>
-                    <div class="flex flex-col gap-sm">
-                        <a href="{{ url_for('watchlist') }}" class="btn btn-outline text-left justify-start">
-                            <i class="bi bi-bookmark-star me-sm"></i>Manage Watchlist
+                    <div class="card-body" style="padding:var(--s2);">
+                        <a href="{{ url_for('watchlist') }}" class="qa-link">
+                            <div class="qa-icon" style="background:rgba(33,150,243,0.12);color:var(--c-cyan);"><i
+                                    class="bi bi-bookmark-star-fill"></i></div>
+                            <div>
+                                <div class="qa-name">管理自選股</div>
+                                <div class="qa-desc">查看所有追蹤股票</div>
+                            </div>
                         </a>
-                        <button class="btn btn-outline text-left justify-start" {% if not features.price_alerts
-                            %}disabled{% endif %}>
-                            <i class="bi bi-bell me-sm"></i>Price Alerts
-                            {% if not features.price_alerts %}
-                            <span class="badge badge-warning ml-auto text-xs">Upgrade</span>
-                            {% endif %}
-                        </button>
-                        <button class="btn btn-outline text-left justify-start" {% if not features.export_data
-                            %}disabled{% endif %}>
-                            <i class="bi bi-download me-sm"></i>Export Data
-                            {% if not features.export_data %}
-                            <span class="badge badge-warning ml-auto text-xs">Upgrade</span>
-                            {% endif %}
-                        </button>
+                        <a href="{{ url_for('stock_screener_tool') }}" class="qa-link">
+                            <div class="qa-icon" style="background:rgba(251,140,0,0.12);color:#FB8C00;"><i
+                                    class="bi bi-funnel-fill"></i></div>
+                            <div>
+                                <div class="qa-name">開始選股</div>
+                                <div class="qa-desc">用條件篩選好股票</div>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('dividend_calculator') }}" class="qa-link">
+                            <div class="qa-icon" style="background:rgba(38,166,154,0.12);color:var(--c-green);"><i
+                                    class="bi bi-calculator-fill"></i></div>
+                            <div>
+                                <div class="qa-name">股息計算</div>
+                                <div class="qa-desc">試算殖利率與收益</div>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('profile') }}" class="qa-link">
+                            <div class="qa-icon" style="background:rgba(124,58,237,0.12);color:var(--c-purple);"><i
+                                    class="bi bi-person-gear"></i></div>
+                            <div>
+                                <div class="qa-name">個人設定</div>
+                                <div class="qa-desc">修改資料與密碼</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Member info -->
+                <div class="card">
+                    <div class="card-head">
+                        <div class="card-title">
+                            <div class="card-title-dot" style="background:var(--c-cyan);"></div>
+                            會員資訊
+                        </div>
+                    </div>
+                    <div class="card-body" style="padding:0 var(--s6);">
+                        <table style="width:100%;border-collapse:collapse;">
+                            <tr>
+                                <td
+                                    style="padding:10px 0;color:var(--t-muted);font-size:12px;border-bottom:1px solid var(--b-default);">
+                                    帳戶名稱</td>
+                                <td
+                                    style="padding:10px 0;font-weight:600;font-size:13px;text-align:right;border-bottom:1px solid var(--b-default);">
+                                    {{ current_user.username }}</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="padding:10px 0;color:var(--t-muted);font-size:12px;border-bottom:1px solid var(--b-default);">
+                                    電子信箱</td>
+                                <td
+                                    style="padding:10px 0;font-size:12px;text-align:right;border-bottom:1px solid var(--b-default);color:var(--t-secondary);">
+                                    {{ current_user.email }}</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="padding:10px 0;color:var(--t-muted);font-size:12px;border-bottom:1px solid var(--b-default);">
+                                    會員等級</td>
+                                <td style="padding:10px 0;text-align:right;border-bottom:1px solid var(--b-default);">
+                                    <span
+                                        class="badge {% if current_user.is_vip() %}badge-warn{% elif current_user.is_premium() %}badge-info{% else %}badge-neu{% endif %}">
+                                        {{ 'VIP' if current_user.is_vip() else 'Pro' if current_user.is_premium() else
+                                        '免費' }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:10px 0;color:var(--t-muted);font-size:12px;">上次登入</td>
+                                <td
+                                    style="padding:10px 0;font-family:var(--mono);font-size:11px;text-align:right;color:var(--t-muted);">
+                                    {{ current_user.last_login.strftime('%Y-%m-%d') if current_user.last_login else '—'
+                                    }}
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
 
             </div>
-
         </div>
     </div>
-</section>
-{% endblock %}
-
-{% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Chart Config
-    Chart.defaults.color = '#94a3b8';
-    Chart.defaults.borderColor = '#334155';
-    Chart.defaults.font.family = "'JetBrains Mono', monospace";
-
-    // Portfolio Chart
-    const portfolioCtx = document.getElementById('portfolioChart').getContext('2d');
-    new Chart(portfolioCtx, {
-        type: 'line',
-        data: {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-            datasets: [{
-                label: 'Portfolio Value',
-                data: [1200000, 1215000, 1205000, 1235000, 1245000, 1250000, 1255000],
-                borderColor: '#00E5FF',
-                backgroundColor: 'rgba(0, 229, 255, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4,
-                pointRadius: 0,
-                pointHoverRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                x: { grid: { display: false } },
-                y: {
-                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                    ticks: {
-                        callback: function (value) {
-                            return 'NT$ ' + (value / 10000).toFixed(0) + 'W';
-                        }
-                    }
-                }
-            },
-            interaction: {
-                intersect: false,
-                mode: 'index'
-            }
-        }
-    });
-
-    // Allocation Chart
-    const allocationCtx = document.getElementById('allocationChart').getContext('2d');
-    new Chart(allocationCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Tech', 'Finance', 'ETF', 'Other'],
-            datasets: [{
-                data: [45, 25, 20, 10],
-                backgroundColor: ['#00E5FF', '#00C853', '#FFD700', '#7B68EE'],
-                borderWidth: 0,
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            cutout: '70%'
-        }
-    });
-
-    // Mock Data Update
-    function updateMarketData() {
-        document.querySelectorAll('.stock-price, .stock-change').forEach(el => {
-            if (el.textContent.includes('--')) {
-                const change = (Math.random() - 0.5) * 10;
-                if (el.classList.contains('stock-price')) {
-                    el.textContent = (Math.random() * 1000 + 100).toFixed(2);
-                } else if (el.classList.contains('stock-change')) {
-                    el.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
-                    el.className = 'text-right font-mono stock-change ' + (change >= 0 ? 'text-up' : 'text-down');
-                    // Update P/L cell as well if needed
-                }
-            }
-        });
-    }
-    setInterval(updateMarketData, 2000);
-    updateMarketData();
-</script>
+</div>
 {% endblock %}

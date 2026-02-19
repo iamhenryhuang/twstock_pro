@@ -1,142 +1,271 @@
 {% extends "layouts/base.html" %}
+{% block title %}免費註冊 | TWStock Pro{% endblock %}
 
-{% block title %}Register | TST{% endblock %}
+{% block extra_css %}
+<style>
+    .auth-page {
+        min-height: calc(100vh - var(--nav-h) - 80px);
+        display: flex;
+        align-items: center;
+        padding: 48px 0;
+    }
+
+    .register-wrap {
+        max-width: 640px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .auth-card {
+        background: var(--bg-panel);
+        border: 1px solid var(--b-medium);
+        border-radius: var(--r-xl);
+        padding: 40px;
+    }
+
+    .auth-icon {
+        width: 52px;
+        height: 52px;
+        background: linear-gradient(135deg, var(--c-cyan), #1565C0);
+        border-radius: var(--r-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        color: #fff;
+        margin: 0 auto 20px;
+    }
+
+    .auth-title {
+        font-size: 22px;
+        font-weight: 800;
+        text-align: center;
+        color: var(--t-white);
+        margin-bottom: 6px;
+    }
+
+    .auth-sub {
+        text-align: center;
+        color: var(--t-secondary);
+        font-size: 13px;
+        margin-bottom: 28px;
+        line-height: 1.6;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--s4);
+    }
+
+    .form-error {
+        font-size: 12px;
+        color: var(--c-red);
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .auth-submit {
+        width: 100%;
+        justify-content: center;
+        padding: 10px;
+        font-size: 14px;
+        margin-top: 8px;
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 13px;
+        color: var(--t-secondary);
+    }
+
+    .auth-footer a {
+        color: var(--c-cyan);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+
+    /* Tier table */
+    .tier-wrap {
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1px solid var(--b-default);
+    }
+
+    .tier-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--t-muted);
+        text-align: center;
+        margin-bottom: 16px;
+    }
+
+    .tier-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .tier-card {
+        padding: 14px 16px;
+        border-radius: var(--r-lg);
+        border: 1px solid var(--b-default);
+        text-align: center;
+    }
+
+    .tier-card.featured {
+        border-color: var(--c-cyan);
+        background: rgba(33, 150, 243, 0.04);
+    }
+
+    .tier-name {
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .tier-items {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        text-align: left;
+    }
+
+    .tier-items li {
+        font-size: 11.5px;
+        color: var(--t-secondary);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .tier-items li i {
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 640px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .tier-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="section">
-    <div class="container">
-        <div class="grid" style="grid-template-columns: 1fr; max-width: 800px; margin: 0 auto; gap: var(--space-xl);">
-
-            <!-- Register Card -->
-            <div class="card">
-                <div class="text-center mb-lg">
-                    <div class="mb-md">
-                        <i class="bi bi-person-plus-fill text-brand" style="font-size: 3rem;"></i>
-                    </div>
-                    <h2 class="h2 mb-sm">Create Account</h2>
-                    <p class="text-secondary">Join us to unlock professional features</p>
-                </div>
-
-                <!-- Flash Messages -->
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                {% for category, message in messages %}
-                <div class="mb-md p-md radius-md"
-                    style="background: {% if category == 'error' %}rgba(239, 68, 68, 0.1){% else %}rgba(34, 197, 94, 0.1){% endif %}; border: 1px solid {% if category == 'error' %}var(--color-danger){% else %}var(--color-success){% endif %}; color: {% if category == 'error' %}var(--color-danger){% else %}var(--color-success){% endif %};">
-                    {{ message }}
-                </div>
-                {% endfor %}
-                {% endif %}
-                {% endwith %}
+<section class="auth-page">
+    <div class="container-sm">
+        <div class="register-wrap">
+            <div class="auth-card">
+                <div class="auth-icon"><i class="bi bi-person-plus-fill"></i></div>
+                <h1 class="auth-title">建立免費帳戶</h1>
+                <p class="auth-sub">立即加入，解鎖自選股管理、個人控制台與更多專業功能</p>
 
                 <form method="POST">
                     {{ form.hidden_tag() }}
 
-                    <div class="grid grid-cols-2 gap-lg mb-lg">
-                        <div>
-                            {{ form.username.label(class="text-secondary mb-xs block") }}
-                            {{ form.username(class="input" + (" border-danger" if form.username.errors else "")) }}
-                            {% if form.username.errors %}
-                            <div class="text-down text-sm mt-xs">
-                                {% for error in form.username.errors %}{{ error }}{% endfor %}
-                            </div>
-                            {% endif %}
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">使用者名稱</label>
+                            {{ form.username(class="form-input", placeholder="請輸入使用者名稱") }}
+                            {% for e in form.username.errors %}
+                            <div class="form-error"><i class="bi bi-exclamation-circle"></i>{{ e }}</div>
+                            {% endfor %}
                         </div>
-
-                        <div>
-                            {{ form.email.label(class="text-secondary mb-xs block") }}
-                            {{ form.email(class="input" + (" border-danger" if form.email.errors else "")) }}
-                            {% if form.email.errors %}
-                            <div class="text-down text-sm mt-xs">
-                                {% for error in form.email.errors %}{{ error }}{% endfor %}
-                            </div>
-                            {% endif %}
+                        <div class="form-group">
+                            <label class="form-label">電子信箱</label>
+                            {{ form.email(class="form-input", placeholder="請輸入電子信箱") }}
+                            {% for e in form.email.errors %}
+                            <div class="form-error"><i class="bi bi-exclamation-circle"></i>{{ e }}</div>
+                            {% endfor %}
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-lg mb-lg">
-                        <div>
-                            {{ form.full_name.label(class="text-secondary mb-xs block") }}
-                            {{ form.full_name(class="input", placeholder="Optional") }}
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">真實姓名 <span
+                                    style="color:var(--t-muted);font-weight:400;">(選填)</span></label>
+                            {{ form.full_name(class="form-input", placeholder="選填") }}
                         </div>
-
-                        <div>
-                            {{ form.phone.label(class="text-secondary mb-xs block") }}
-                            {{ form.phone(class="input", placeholder="Optional") }}
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-lg mb-xl">
-                        <div>
-                            {{ form.password.label(class="text-secondary mb-xs block") }}
-                            {{ form.password(class="input" + (" border-danger" if form.password.errors else "")) }}
-                            {% if form.password.errors %}
-                            <div class="text-down text-sm mt-xs">
-                                {% for error in form.password.errors %}{{ error }}{% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-
-                        <div>
-                            {{ form.password2.label(class="text-secondary mb-xs block") }}
-                            {{ form.password2(class="input" + (" border-danger" if form.password2.errors else "")) }}
-                            {% if form.password2.errors %}
-                            <div class="text-down text-sm mt-xs">
-                                {% for error in form.password2.errors %}{{ error }}{% endfor %}
-                            </div>
-                            {% endif %}
+                        <div class="form-group">
+                            <label class="form-label">手機號碼 <span
+                                    style="color:var(--t-muted);font-weight:400;">(選填)</span></label>
+                            {{ form.phone(class="form-input", placeholder="選填") }}
                         </div>
                     </div>
 
-                    {{ form.submit(class="btn btn-primary w-full mb-lg") }}
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">設定密碼</label>
+                            {{ form.password(class="form-input", placeholder="至少 8 個字元") }}
+                            {% for e in form.password.errors %}
+                            <div class="form-error"><i class="bi bi-exclamation-circle"></i>{{ e }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">確認密碼</label>
+                            {{ form.password2(class="form-input", placeholder="再次輸入密碼") }}
+                            {% for e in form.password2.errors %}
+                            <div class="form-error"><i class="bi bi-exclamation-circle"></i>{{ e }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    {{ form.submit(class="btn btn-primary auth-submit") }}
                 </form>
 
-                <div class="text-center">
-                    <p class="text-secondary mb-0">
-                        Already have an account?
-                        <a href="{{ url_for('login') }}" class="text-brand hover:text-white">Login Now</a>
-                    </p>
+                <div class="auth-footer">
+                    已有帳戶？<a href="{{ url_for('login') }}">立即登入</a>
                 </div>
-            </div>
 
-            <!-- Membership Levels -->
-            <div class="card bg-surface">
-                <h6 class="text-center text-brand mb-lg font-mono uppercase tracking-wide">
-                    <i class="bi bi-award-fill me-sm"></i>Membership Levels
-                </h6>
-                <div class="grid grid-cols-3 gap-md text-center">
-                    <div class="p-md radius-md" style="background: rgba(255,255,255,0.03);">
-                        <i class="bi bi-person-badge text-secondary mb-sm block text-xl"></i>
-                        <h6 class="text-white mb-sm">Free</h6>
-                        <ul class="text-secondary text-sm text-left" style="list-style: none; padding: 0;">
-                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>Basic Info</li>
-                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>10 Watchlist</li>
-                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>7D History</li>
-                        </ul>
-                    </div>
-                    <div class="p-md radius-md"
-                        style="background: rgba(0, 229, 255, 0.05); border: 1px solid var(--color-brand-primary);">
-                        <i class="bi bi-person-badge-fill text-brand mb-sm block text-xl"></i>
-                        <h6 class="text-brand mb-sm">Pro</h6>
-                        <ul class="text-secondary text-sm text-left" style="list-style: none; padding: 0;">
-                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>Advanced</li>
-                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>100 Watchlist</li>
-                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>Alerts</li>
-                        </ul>
-                    </div>
-                    <div class="p-md radius-md"
-                        style="background: rgba(255, 152, 0, 0.05); border: 1px solid var(--color-brand-accent);">
-                        <i class="bi bi-award-fill text-warning mb-sm block text-xl"></i>
-                        <h6 class="text-warning mb-sm">VIP</h6>
-                        <ul class="text-secondary text-sm text-left" style="list-style: none; padding: 0;">
-                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>API Access</li>
-                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>Unlimited</li>
-                            <li class="mb-xs"><i class="bi bi-check text-success me-xs"></i>Priority</li>
-                        </ul>
+                <!-- Tier comparison -->
+                <div class="tier-wrap">
+                    <div class="tier-label"><i class="bi bi-award" style="margin-right:4px;"></i>會員方案比較</div>
+                    <div class="tier-grid">
+                        <div class="tier-card">
+                            <div class="tier-name" style="color:var(--t-secondary);"><i class="bi bi-person-badge"></i>
+                                免費版</div>
+                            <ul class="tier-items">
+                                <li><i class="bi bi-check2 txt-up"></i>基本股票查詢</li>
+                                <li><i class="bi bi-check2 txt-up"></i>10 支自選股</li>
+                                <li><i class="bi bi-check2 txt-up"></i>7天歷史K線</li>
+                                <li><i class="bi bi-x txt-down"></i>價格提醒</li>
+                            </ul>
+                        </div>
+                        <div class="tier-card featured">
+                            <div class="tier-name txt-brand"><i class="bi bi-person-badge-fill"></i> Pro 版</div>
+                            <ul class="tier-items">
+                                <li><i class="bi bi-check2 txt-up"></i>進階分析工具</li>
+                                <li><i class="bi bi-check2 txt-up"></i>100 支自選股</li>
+                                <li><i class="bi bi-check2 txt-up"></i>365天歷史K線</li>
+                                <li><i class="bi bi-check2 txt-up"></i>價格提醒</li>
+                            </ul>
+                        </div>
+                        <div class="tier-card">
+                            <div class="tier-name txt-gold"><i class="bi bi-award-fill"></i> VIP 版</div>
+                            <ul class="tier-items">
+                                <li><i class="bi bi-check2 txt-up"></i>API 存取</li>
+                                <li><i class="bi bi-check2 txt-up"></i>無限自選股</li>
+                                <li><i class="bi bi-check2 txt-up"></i>優先客服支援</li>
+                                <li><i class="bi bi-check2 txt-up"></i>自訂指標</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </section>

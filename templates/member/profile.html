@@ -1,178 +1,260 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}Profile | TST{% endblock %}
+{% block title %}個人資料 | TWStock Pro{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-page {
+        padding: 2.5rem 0 4rem;
+    }
+
+    .profile-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+
+    .form-error {
+        font-size: 0.78rem;
+        color: var(--brand-red);
+        margin-top: 0.375rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .form-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .readonly-input {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .membership-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+        text-align: center;
+    }
+
+    .usage-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.625rem 0;
+        border-bottom: 1px solid var(--border-subtle);
+        font-size: 0.875rem;
+    }
+
+    .usage-row:last-child {
+        border-bottom: none;
+    }
+
+    .usage-row-label {
+        color: var(--text-muted);
+    }
+
+    .usage-row-value {
+        font-family: var(--font-mono);
+        font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-grid-2 {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="section">
-    <div class="container">
+<div class="container profile-page">
 
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="mb-lg p-md radius-md"
-            style="background: {% if category == 'error' %}rgba(239, 68, 68, 0.1){% else %}rgba(34, 197, 94, 0.1){% endif %}; border: 1px solid {% if category == 'error' %}var(--color-danger){% else %}var(--color-success){% endif %}; color: {% if category == 'error' %}var(--color-danger){% else %}var(--color-success){% endif %};">
-            {{ message }}
-        </div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
+    <div style="margin-bottom:2rem;">
+        <h1
+            style="font-size:1.75rem;font-weight:800;color:var(--text-primary);display:flex;align-items:center;gap:0.625rem;">
+            <i class="bi bi-person-gear" style="color:var(--brand-cyan);"></i>
+            個人資料
+        </h1>
+        <p style="color:var(--text-secondary);font-size:0.875rem;margin-top:0.375rem;">管理您的帳號資訊與偏好設定</p>
+    </div>
 
-        <div class="grid" style="grid-template-columns: 2fr 1fr; gap: var(--space-xl);">
+    <div class="profile-grid">
 
-            <!-- Profile Edit -->
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="bi bi-person-circle me-sm"></i>Profile Settings
-                    </h3>
-                </div>
+        <!-- Left: Edit Form -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">
+                    <i class="bi bi-pencil-square" style="color:var(--brand-cyan);margin-right:0.5rem;"></i>
+                    編輯資料
+                </span>
+            </div>
+            <div class="card-body">
                 <form method="POST">
                     {{ form.hidden_tag() }}
 
-                    <div class="grid grid-cols-2 gap-lg mb-lg">
-                        <div>
-                            <label class="text-secondary mb-xs block">Username</label>
-                            <input type="text" class="input bg-surface" value="{{ current_user.username }}" readonly>
-                            <div class="text-secondary text-xs mt-xs">Cannot be changed</div>
-                        </div>
-
-                        <div>
-                            {{ form.email.label(class="text-secondary mb-xs block") }}
-                            {{ form.email(class="input" + (" border-danger" if form.email.errors else "")) }}
-                            {% if form.email.errors %}
-                            <div class="text-down text-sm mt-xs">
-                                {% for error in form.email.errors %}{{ error }}{% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-lg mb-lg">
-                        <div>
-                            {{ form.full_name.label(class="text-secondary mb-xs block") }}
-                            {{ form.full_name(class="input", placeholder="Full Name") }}
-                        </div>
-
-                        <div>
-                            {{ form.phone.label(class="text-secondary mb-xs block") }}
-                            {{ form.phone(class="input", placeholder="Phone Number") }}
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-lg mb-lg">
-                        <div>
-                            <label class="text-secondary mb-xs block">Membership</label>
-                            <div class="input-group">
-                                <input type="text" class="input bg-surface"
-                                    value="{% if current_user.is_vip() %}VIP Member{% elif current_user.is_premium() %}Pro Member{% else %}Free Member{% endif %}"
-                                    readonly>
-                                {% if current_user.is_vip() %}
-                                <span class="input-group-text bg-warning text-black font-bold">VIP</span>
-                                {% elif current_user.is_premium() %}
-                                <span class="input-group-text bg-brand text-white font-bold">PRO</span>
-                                {% else %}
-                                <span class="input-group-text bg-surface text-secondary">FREE</span>
-                                {% endif %}
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label>使用者名稱</label>
+                            <input type="text" class="input readonly-input" value="{{ current_user.username }}"
+                                readonly>
+                            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">
+                                <i class="bi bi-lock"></i> 無法修改
                             </div>
                         </div>
-
-                        <div>
-                            <label class="text-secondary mb-xs block">Joined</label>
-                            <input type="text" class="input bg-surface"
-                                value="{{ current_user.created_at.strftime('%Y-%m-%d %H:%M') }}" readonly>
+                        <div class="form-group">
+                            {{ form.email.label }}
+                            {{ form.email(class="input" + (" error" if form.email.errors else "")) }}
+                            {% for error in form.email.errors %}
+                            <div class="form-error"><i class="bi bi-exclamation-circle"></i>{{ error }}</div>
+                            {% endfor %}
                         </div>
                     </div>
 
-                    <div class="mb-xl">
-                        <label class="text-secondary mb-xs block">Last Login</label>
-                        <input type="text" class="input bg-surface"
-                            value="{% if current_user.last_login %}{{ current_user.last_login.strftime('%Y-%m-%d %H:%M') }}{% else %}Never{% endif %}"
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            {{ form.full_name.label }}
+                            {{ form.full_name(class="input", placeholder="真實姓名（選填）") }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.phone.label }}
+                            {{ form.phone(class="input", placeholder="手機號碼（選填）") }}
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label>帳號等級</label>
+                            <input type="text" class="input readonly-input"
+                                value="{{ 'VIP 會員' if current_user.is_vip() else 'Pro 會員' if current_user.is_premium() else '免費會員' }}"
+                                readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>加入日期</label>
+                            <input type="text" class="input readonly-input"
+                                value="{{ current_user.created_at.strftime('%Y-%m-%d %H:%M') if current_user.created_at else '—' }}"
+                                readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>上次登入</label>
+                        <input type="text" class="input readonly-input"
+                            value="{{ current_user.last_login.strftime('%Y-%m-%d %H:%M') if current_user.last_login else '—' }}"
                             readonly>
                     </div>
 
-                    <div class="flex justify-between items-center">
+                    <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
                         {{ form.submit(class="btn btn-primary") }}
                         <a href="{{ url_for('change_password') }}" class="btn btn-outline">
-                            <i class="bi bi-key me-sm"></i>Change Password
+                            <i class="bi bi-key"></i> 修改密碼
                         </a>
                     </div>
                 </form>
             </div>
+        </div>
 
-            <!-- Account Info -->
-            <div class="flex flex-col gap-xl">
+        <!-- Right: Sidebar -->
+        <div style="display:flex;flex-direction:column;gap:1.25rem;">
 
-                <!-- Status Card -->
-                <div class="card text-center">
-                    <div class="card-header">
-                        <h3 class="card-title justify-center">Membership Status</h3>
-                    </div>
-                    <div class="py-lg">
-                        {% if current_user.is_vip() %}
-                        <i class="bi bi-gem text-warning mb-md block" style="font-size: 3rem;"></i>
-                        <h4 class="h3 text-warning mb-sm">VIP Member</h4>
-                        <p class="text-secondary text-sm">Highest tier access</p>
-                        {% elif current_user.is_premium() %}
-                        <i class="bi bi-star-fill text-brand mb-md block" style="font-size: 3rem;"></i>
-                        <h4 class="h3 text-brand mb-sm">Pro Member</h4>
-                        <p class="text-secondary text-sm">Advanced features unlocked</p>
-                        {% else %}
-                        <i class="bi bi-person text-secondary mb-md block" style="font-size: 3rem;"></i>
-                        <h4 class="h3 text-secondary mb-sm">Free Member</h4>
-                        <p class="text-secondary text-sm mb-md">Basic access</p>
-                        <button class="btn btn-sm btn-primary">Upgrade Now</button>
-                        {% endif %}
-                    </div>
+            <!-- Membership card -->
+            <div class="card" style="text-align:center;padding:1.5rem;">
+                {% if current_user.is_vip() %}
+                <i class="bi bi-gem membership-icon" style="color:var(--brand-gold);"></i>
+                <div style="font-size:1.125rem;font-weight:700;color:var(--brand-gold);margin-bottom:0.25rem;">VIP 會員
                 </div>
-
-                <!-- Stats Card -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Usage Stats</h3>
-                    </div>
-                    <div class="flex flex-col gap-md">
-                        <div class="flex justify-between items-center">
-                            <span class="text-secondary">Watchlist Items</span>
-                            <span class="font-mono font-bold">{{ current_user.watchlists|length }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-secondary">Search History</span>
-                            <span class="font-mono font-bold">{{ current_user.search_history|length }}</span>
-                        </div>
-                        {% if current_user.is_premium() %}
-                        <div class="flex justify-between items-center">
-                            <span class="text-secondary">Price Alerts</span>
-                            <span class="font-mono font-bold">{{ current_user.price_alerts|length }}</span>
-                        </div>
-                        {% endif %}
-
-                        <div style="height: 1px; background: var(--border-color); margin: var(--space-sm) 0;"></div>
-
-                        {% set features = current_user.get_membership_features() %}
-                        <div class="text-sm text-secondary flex flex-col gap-sm">
-                            <div class="flex items-center gap-sm">
-                                <i class="bi bi-bookmark-star text-warning"></i>
-                                <span>Limit: {% if features.watchlist_limit %}{{ features.watchlist_limit }}{% else
-                                    %}Unlimited{% endif %}</span>
-                            </div>
-                            <div class="flex items-center gap-sm">
-                                <i class="bi bi-clock-history text-info"></i>
-                                <span>History: {% if features.history_days %}{{ features.history_days }} Days{% else
-                                    %}Unlimited{% endif %}</span>
-                            </div>
-                            {% if features.price_alerts %}
-                            <div class="flex items-center gap-sm">
-                                <i class="bi bi-bell text-brand"></i>
-                                <span>Alerts: Active</span>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
+                <div style="font-size:0.8rem;color:var(--text-muted);">最高等級 · 無限制存取</div>
+                {% elif current_user.is_premium() %}
+                <i class="bi bi-star-fill membership-icon" style="color:var(--brand-cyan);"></i>
+                <div style="font-size:1.125rem;font-weight:700;color:var(--brand-cyan);margin-bottom:0.25rem;">Pro 會員
                 </div>
-
+                <div style="font-size:0.8rem;color:var(--text-muted);">進階功能已解鎖</div>
+                {% else %}
+                <i class="bi bi-person membership-icon" style="color:var(--text-muted);"></i>
+                <div style="font-size:1.125rem;font-weight:700;margin-bottom:0.25rem;">免費會員</div>
+                <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;">基礎功能</div>
+                <button class="btn btn-primary btn-sm">升級方案</button>
+                {% endif %}
             </div>
+
+            <!-- Usage stats -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">
+                        <i class="bi bi-bar-chart" style="color:var(--brand-green);margin-right:0.5rem;"></i>
+                        使用統計
+                    </span>
+                </div>
+                <div class="card-body" style="padding-top:0.5rem;padding-bottom:0.5rem;">
+                    <div class="usage-row">
+                        <span class="usage-row-label"><i class="bi bi-bookmark-star me-1"
+                                style="color:var(--brand-cyan);"></i> 自選股</span>
+                        <span class="usage-row-value">{{ current_user.watchlists|length }}</span>
+                    </div>
+                    <div class="usage-row">
+                        <span class="usage-row-label"><i class="bi bi-clock-history me-1"
+                                style="color:var(--brand-green);"></i> 搜尋歷史</span>
+                        <span class="usage-row-value">{{ current_user.search_history|length }}</span>
+                    </div>
+                    {% if current_user.is_premium() %}
+                    <div class="usage-row">
+                        <span class="usage-row-label"><i class="bi bi-bell me-1" style="color:var(--brand-gold);"></i>
+                            價格提醒</span>
+                        <span class="usage-row-value">{{ current_user.price_alerts|length }}</span>
+                    </div>
+                    {% endif %}
+
+                    <div style="height:1px;background:var(--border-subtle);margin:0.75rem 0;"></div>
+
+                    {% set features = current_user.get_membership_features() %}
+                    <div class="usage-row">
+                        <span class="usage-row-label">自選股上限</span>
+                        <span class="usage-row-value" style="color:var(--text-secondary);">
+                            {% if features.watchlist_limit %}{{ features.watchlist_limit }}{% else %}無上限{% endif %}
+                        </span>
+                    </div>
+                    <div class="usage-row">
+                        <span class="usage-row-label">歷史天數</span>
+                        <span class="usage-row-value" style="color:var(--text-secondary);">
+                            {% if features.history_days %}{{ features.history_days }} 天{% else %}無限制{% endif %}
+                        </span>
+                    </div>
+                    <div class="usage-row">
+                        <span class="usage-row-label">價格提醒</span>
+                        <span class="usage-row-value">
+                            {% if features.price_alerts %}
+                            <span style="color:var(--brand-green);">已啟用</span>
+                            {% else %}
+                            <span style="color:var(--text-muted);">未啟用</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
-</section>
+
+</div>
 {% endblock %}

@@ -1,0 +1,204 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}市場新聞 | TWStock Pro{% endblock %}
+
+{% block extra_css %}
+<style>
+    .news-page {
+        padding: 2.5rem 0 4rem;
+    }
+
+    .page-header {
+        margin-bottom: 2.5rem;
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+    }
+
+    .news-feed {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .news-item {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        transition: all var(--transition-base);
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .news-item:hover {
+        border-color: var(--border-medium);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .news-item-img {
+        background: var(--bg-surface);
+        overflow: hidden;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    .news-item-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform var(--transition-slow);
+    }
+
+    .news-item:hover .news-item-img img {
+        transform: scale(1.05);
+    }
+
+    .news-item-img-placeholder {
+        width: 100%;
+        height: 100%;
+        min-height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-glass);
+        color: var(--text-muted);
+        font-size: 2rem;
+    }
+
+    .news-item-body {
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .news-item-source {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--brand-cyan);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .news-item-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        line-height: 1.5;
+        margin-bottom: 0.625rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .news-item-summary {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .news-item-footer {
+        margin-top: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .news-item-time {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-family: var(--font-mono);
+    }
+
+    @media (max-width: 640px) {
+        .news-item {
+            grid-template-columns: 1fr;
+        }
+
+        .news-item-img {
+            height: 160px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container news-page">
+
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="bi bi-newspaper" style="color:var(--brand-cyan);"></i>
+            市場新聞
+        </h1>
+        <p style="color:var(--text-secondary);font-size:0.875rem;margin-top:0.375rem;">
+            來自 Yahoo 財經的最新台股相關資訊
+            <span style="color:var(--text-muted);font-family:var(--font-mono);margin-left:0.5rem;">
+                {{ current_time.strftime('%m/%d %H:%M 更新') }}
+            </span>
+        </p>
+    </div>
+
+    {% if news_list %}
+    <div class="news-feed">
+        {% for news in news_list %}
+        <a href="{{ news.link }}" target="_blank" rel="noopener" class="news-item">
+            <div class="news-item-img">
+                {% if news.image_url %}
+                <img src="{{ news.image_url }}" alt="{{ news.title }}" loading="lazy">
+                {% else %}
+                <div class="news-item-img-placeholder">
+                    <i class="bi bi-newspaper"></i>
+                </div>
+                {% endif %}
+            </div>
+            <div class="news-item-body">
+                <div class="news-item-source">
+                    <i class="bi bi-rss-fill"></i> {{ news.source }}
+                </div>
+                <div class="news-item-title">{{ news.title }}</div>
+                <div class="news-item-summary">{{ news.summary }}</div>
+                <div class="news-item-footer">
+                    <span class="news-item-time">
+                        <i class="bi bi-clock"></i> {{ news.published_at }}
+                    </span>
+                    <span style="font-size:0.75rem;color:var(--brand-cyan);">
+                        閱讀全文 <i class="bi bi-arrow-up-right"></i>
+                    </span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="text-align:center;padding:4rem 2rem;">
+        <i class="bi bi-newspaper"
+            style="font-size:3rem;color:var(--text-muted);opacity:0.25;display:block;margin-bottom:1rem;"></i>
+        <h3 style="font-size:1.25rem;font-weight:700;margin-bottom:0.5rem;">暫無新聞資料</h3>
+        <p style="color:var(--text-secondary);">目前無法取得市場新聞，請稍後再試</p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

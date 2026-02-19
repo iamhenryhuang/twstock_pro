@@ -1,72 +1,273 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}AI Price Prediction | TST{% endblock %}
+{% block title %}AI 價格預測 | TWStock Pro{% endblock %}
+
+{% block extra_css %}
+<style>
+  .tool-page {
+    padding: 2.5rem 0 5rem;
+  }
+
+  .tool-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .tool-icon-wrap {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+
+  .ai-beta-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    padding: .25rem .75rem;
+    border-radius: var(--radius-full);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    background: rgba(123, 47, 255, .1);
+    color: var(--brand-purple);
+    border: 1px solid rgba(123, 47, 255, .3);
+  }
+
+  .input-form-card {
+    max-width: 700px;
+    margin: 0 auto 1.5rem;
+  }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: .875rem;
+    align-items: end;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: .4rem;
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-muted);
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .875rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    text-align: center;
+  }
+
+  .stat-box-label {
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: .5rem;
+  }
+
+  .stat-box-value {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .confidence-bar-wrap {
+    padding: 1rem 0;
+  }
+
+  .confidence-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: .78rem;
+    margin-bottom: .5rem;
+    color: var(--text-secondary);
+  }
+
+  .confidence-track {
+    height: 6px;
+    background: var(--bg-surface);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .confidence-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width .8s cubic-bezier(.4, 0, .2, 1);
+  }
+
+  .model-info {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-size: .78rem;
+    color: var(--text-muted);
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .model-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+  }
+
+  .model-tag i {
+    color: var(--brand-purple);
+  }
+
+  @media (max-width:600px) {
+    .input-row {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .input-row>button {
+      grid-column: span 2;
+    }
+
+    .stat-row {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
+<div class="container tool-page">
 
-    <!-- Header -->
-    <div class="text-center mb-xl">
-      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-surface border border-brand mb-md">
-        <i class="bi bi-cpu-fill text-brand text-2xl"></i>
+  <!-- Header -->
+  <div style="text-align:center;margin-bottom:2.5rem;">
+    <div style="display:flex;align-items:center;justify-content:center;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap;">
+      <div class="tool-icon-wrap" style="background:rgba(123,47,255,.12);color:var(--brand-purple);">
+        <i class="bi bi-cpu-fill"></i>
       </div>
-      <h1 class="h1 mb-sm">AI Price Prediction</h1>
-      <p class="text-secondary">Experimental price forecasting using statistical models</p>
+      <h1 style="font-size:1.75rem;font-weight:800;margin:0;">AI 股價預測分析</h1>
+      <span class="ai-beta-badge"><i class="bi bi-flask"></i> BETA</span>
     </div>
+    <p style="color:var(--text-secondary);font-size:.9rem;max-width:560px;margin:0 auto;">
+      以對數線性回歸模型為基礎，結合歷史走勢分析未來股價趨勢<br>
+      <span style="color:var(--text-muted);font-size:.8rem;">⚠️ 僅供學術研究參考，不構成任何投資建議</span>
+    </p>
+  </div>
 
-    <!-- Prediction Form -->
-    <div class="card mb-xl" style="max-width: 800px; margin: 0 auto;">
-      <div class="card-header">
-        <h3 class="card-title">
-          <i class="bi bi-sliders me-sm"></i>Prediction Settings
-        </h3>
-      </div>
-      <form onsubmit="event.preventDefault(); runPrediction();" class="grid grid-cols-3-md gap-lg items-end">
-        <div>
-          <label class="text-secondary mb-xs block">Stock Code</label>
-          <input id="ai-code" type="text" class="input font-mono" placeholder="e.g. 2330" required />
+  <!-- Input form -->
+  <div class="card input-form-card">
+    <div class="card-header">
+      <span class="card-title"><i class="bi bi-sliders"
+          style="color:var(--brand-purple);margin-right:.5rem;"></i>預測設定</span>
+    </div>
+    <div class="card-body">
+      <form onsubmit="event.preventDefault(); runPrediction();" class="input-row">
+        <div class="form-group" style="margin:0;">
+          <label>股票代號</label>
+          <input id="ai-code" type="text" class="input" style="font-family:var(--font-mono);" placeholder="例如：2330"
+            required>
         </div>
-        <div>
-          <label class="text-secondary mb-xs block">Forecast Days (1-180)</label>
-          <input id="ai-days" type="number" min="1" max="180" value="30" class="input font-mono" />
+        <div class="form-group" style="margin:0;">
+          <label>預測天數（1-180）</label>
+          <input id="ai-days" type="number" min="1" max="180" value="30" class="input"
+            style="font-family:var(--font-mono);">
         </div>
-        <div>
-          <button class="btn btn-primary w-full" type="submit">
-            <i class="bi bi-play-circle me-sm"></i>Generate
-          </button>
-        </div>
+        <button class="btn btn-primary" type="submit" style="flex-shrink:0;white-space:nowrap;">
+          <i class="bi bi-play-circle-fill"></i> 開始預測
+        </button>
       </form>
     </div>
-
-    <!-- Results -->
-    <div class="grid grid-cols-3-md gap-lg mb-xl">
-      <div class="card text-center">
-        <div class="text-secondary text-sm uppercase font-mono mb-xs">Last Close</div>
-        <div class="h2 font-mono mb-0" id="ai-last">--</div>
-      </div>
-      <div class="card text-center">
-        <div class="text-secondary text-sm uppercase font-mono mb-xs">Forecast End</div>
-        <div class="h2 font-mono mb-0 text-brand" id="ai-forecast-end">--</div>
-      </div>
-      <div class="card text-center">
-        <div class="text-secondary text-sm uppercase font-mono mb-xs">Expected Change</div>
-        <div class="h2 font-mono mb-0" id="ai-forecast-change">--</div>
-      </div>
-    </div>
-
-    <!-- Chart -->
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">Forecast Chart</h3>
-      </div>
-      <div style="height: 400px; position: relative;">
-        <canvas id="aiChart"></canvas>
-      </div>
-    </div>
-
   </div>
-</section>
+
+  <!-- Stats row -->
+  <div class="stat-row" id="statsRow" style="max-width:700px;margin:0 auto 1.5rem;">
+    <div class="stat-box">
+      <div class="stat-box-label">最後收盤價</div>
+      <div class="stat-box-value" id="ai-last" style="color:var(--text-secondary);">—</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-label" id="ai-forecast-label">預測終值</div>
+      <div class="stat-box-value" id="ai-forecast-end" style="color:var(--brand-cyan);">—</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-label">預期漲跌幅</div>
+      <div class="stat-box-value" id="ai-forecast-change">—</div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="card" style="max-width:900px;margin:0 auto;">
+    <div class="card-header">
+      <span class="card-title">
+        <i class="bi bi-graph-up" style="color:var(--brand-purple);margin-right:.5rem;"></i>
+        預測走勢圖
+      </span>
+      <span id="ai-chart-subtitle"
+        style="font-size:.75rem;color:var(--text-muted);font-family:var(--font-mono);"></span>
+    </div>
+    <div style="padding:1.25rem;">
+      <div style="height:380px;position:relative;">
+        <canvas id="aiChart"></canvas>
+        <div id="aiPlaceholder"
+          style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;color:var(--text-muted);">
+          <i class="bi bi-cpu" style="font-size:3rem;opacity:.15;margin-bottom:1rem;"></i>
+          <p style="font-size:.875rem;">輸入股票代號後開始 AI 預測</p>
+        </div>
+        <div id="aiLoader"
+          style="display:none;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:1rem;color:var(--brand-purple);">
+          <div class="spinner" style="border-top-color:var(--brand-purple);"></div>
+          <span style="font-size:.875rem;">模型運算中...</span>
+        </div>
+      </div>
+
+      <!-- Confidence & model info -->
+      <div id="aiDetails"
+        style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-subtle);">
+        <div class="confidence-bar-wrap">
+          <div class="confidence-label">
+            <span>模型信心度</span>
+            <span id="confidenceVal"
+              style="font-family:var(--font-mono);font-weight:600;color:var(--brand-purple);">—</span>
+          </div>
+          <div class="confidence-track">
+            <div class="confidence-fill" id="confidenceFill"
+              style="width:0%;background:linear-gradient(90deg,var(--brand-purple),var(--brand-cyan));"></div>
+          </div>
+        </div>
+        <div class="model-info">
+          <span class="model-tag"><i class="bi bi-gear-fill"></i> 模型：對數線性回歸</span>
+          <span class="model-tag"><i class="bi bi-database-fill"></i> 歷史資料點：<span id="dataPoints">—</span></span>
+          <span class="model-tag"><i class="bi bi-calendar3"></i> 預測期間：<span id="forecastPeriod">—</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    style="max-width:900px;margin:1rem auto 0;background:rgba(123,47,255,.06);border:1px solid rgba(123,47,255,.2);border-radius:var(--radius-md);padding:.875rem 1rem;font-size:.78rem;color:var(--brand-purple);display:flex;gap:.5rem;align-items:flex-start;">
+    <i class="bi bi-shield-exclamation" style="flex-shrink:0;margin-top:.1rem;"></i>
+    <span>AI 預測功能使用統計模型，預測結果具有不確定性，僅供輔助分析參考。請勿依賴此工具進行實際投資決策。過去表現不代表未來績效。</span>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -74,139 +275,158 @@
 <script>
   let aiChart = null;
 
-  // Chart Config
   Chart.defaults.color = '#94a3b8';
-  Chart.defaults.borderColor = '#334155';
+  Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
   Chart.defaults.font.family = "'JetBrains Mono', monospace";
 
   async function runPrediction() {
-    const code = document.getElementById('ai-code').value.trim();
+    const code = document.getElementById('ai-code').value.trim().toUpperCase();
     const days = +document.getElementById('ai-days').value || 30;
-
     if (!code) return;
 
-    const baseDays = Math.min(180, Math.max(days, 30));
+    document.getElementById('aiPlaceholder').style.display = 'none';
+    document.getElementById('aiLoader').style.display = 'flex';
+    document.getElementById('aiDetails').style.display = 'none';
+
+    const baseDays = Math.max(60, Math.min(180, days * 3));
 
     try {
       const res = await fetch(`/api/stock/${code}/chart?days=${baseDays}`);
       const data = await res.json();
 
       if (!data.success || !data.data || data.data.length < 5) {
-        alert('Insufficient data');
+        showError('資料不足，請確認股票代號');
         return;
       }
 
       const labels = data.data.map(x => x.time);
-      const prices = data.data.map(x => x.price);
+      const prices = data.data.map(x => +x.price);
+      const n = prices.length;
 
-      // Simple Log-Linear Regression
+      // Log-linear regression
       const ln = prices.map(p => Math.log(p));
-      const n = ln.length;
       const xs = [...Array(n).keys()];
-      const meanX = xs.reduce((a, b) => a + b, 0) / n;
-      const meanY = ln.reduce((a, b) => a + b, 0) / n;
-
+      const meanX = xs.reduce((a, b) => a + b) / n;
+      const meanY = ln.reduce((a, b) => a + b) / n;
       let num = 0, den = 0;
       for (let i = 0; i < n; i++) {
         num += (xs[i] - meanX) * (ln[i] - meanY);
         den += (xs[i] - meanX) * (xs[i] - meanX);
       }
-
       const slope = den === 0 ? 0 : num / den;
       const intercept = meanY - slope * meanX;
+
       const fitted = xs.map(x => intercept + slope * x);
       const residuals = ln.map((y, i) => y - fitted[i]);
       const std = Math.sqrt(residuals.reduce((a, b) => a + b * b, 0) / Math.max(1, n - 2));
 
-      const futureLabels = [];
-      const futurePrices = [];
+      // R² confidence
+      const ssRes = residuals.reduce((a, b) => a + b * b, 0);
+      const ssTot = ln.map(y => (y - meanY) ** 2).reduce((a, b) => a + b, 0);
+      const r2 = ssTot > 0 ? Math.max(0, 1 - ssRes / ssTot) : 0;
 
+      const futureLabels = [], futurePrices = [], upperBand = [], lowerBand = [];
       for (let i = 1; i <= days; i++) {
         const x = n - 1 + i;
         const y = intercept + slope * x;
-        futureLabels.push(`+${i}d`);
+        futureLabels.push(`+${i}天`);
         futurePrices.push(Math.exp(y));
+        upperBand.push(Math.exp(y + 1.5 * std));
+        lowerBand.push(Math.exp(y - 1.5 * std));
       }
 
-      const allLabels = labels.concat(futureLabels);
       const last = prices[prices.length - 1];
       const end = futurePrices[futurePrices.length - 1];
       const change = last > 0 ? ((end / last - 1) * 100) : 0;
 
-      document.getElementById('ai-last').textContent = last.toFixed(2);
-      document.getElementById('ai-forecast-end').textContent = end.toFixed(2);
+      document.getElementById('ai-last').textContent = 'NT$ ' + last.toFixed(2);
+      document.getElementById('ai-forecast-end').textContent = 'NT$ ' + end.toFixed(2);
+      document.getElementById('ai-forecast-label').textContent = `+${days} 日預測`;
 
-      const changeEl = document.getElementById('ai-forecast-change');
-      changeEl.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
-      changeEl.className = `h2 font-mono mb-0 ${change >= 0 ? 'text-up' : 'text-down'}`;
+      const chEl = document.getElementById('ai-forecast-change');
+      chEl.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+      chEl.style.color = change >= 0 ? 'var(--brand-green)' : 'var(--brand-red)';
 
-      const upper = allLabels.map((_, idx) => idx < labels.length ? null : futurePrices[idx - labels.length] * Math.exp(std));
-      const lower = allLabels.map((_, idx) => idx < labels.length ? null : futurePrices[idx - labels.length] / Math.exp(std));
+      // Confidence
+      const conf = Math.round(r2 * 100);
+      document.getElementById('confidenceVal').textContent = conf + '%';
+      document.getElementById('confidenceFill').style.width = conf + '%';
+      document.getElementById('dataPoints').textContent = n + ' 筆';
+      document.getElementById('forecastPeriod').textContent = days + ' 個交易日';
+      document.getElementById('ai-chart-subtitle').textContent = `${code}  預測 ${days} 天`;
 
-      renderChart(allLabels, prices, futurePrices, upper, lower, labels.length);
+      renderChart(labels, prices, futureLabels, futurePrices, upperBand, lowerBand);
+      document.getElementById('aiDetails').style.display = 'block';
 
     } catch (e) {
-      console.error(e);
-      alert('Error fetching data');
+      showError('載入失敗：' + e.message);
+    } finally {
+      document.getElementById('aiLoader').style.display = 'none';
     }
   }
 
-  function renderChart(labels, hist, forecast, upper, lower, split) {
+  function showError(msg) {
+    document.getElementById('aiLoader').style.display = 'none';
+    document.getElementById('aiPlaceholder').style.display = 'flex';
+    document.getElementById('aiPlaceholder').innerHTML = `
+        <i class="bi bi-exclamation-triangle" style="font-size:2.5rem;color:var(--brand-red);opacity:.5;margin-bottom:.75rem;"></i>
+        <p style="font-size:.85rem;">${msg}</p>`;
+  }
+
+  function renderChart(histLabels, histPrices, futLabels, futPrices, upper, lower) {
     const ctx = document.getElementById('aiChart').getContext('2d');
     if (aiChart) aiChart.destroy();
 
-    const all = hist.concat(forecast);
+    const split = histLabels.length;
+    const allLabels = [...histLabels, ...futLabels];
+    const histFull = histPrices.concat(new Array(futLabels.length).fill(null));
+    const futFull = new Array(histLabels.length - 1).fill(null).concat([histPrices[histPrices.length - 1]]).concat(futPrices);
+    const upperFull = new Array(histLabels.length).fill(null).concat(upper);
+    const lowerFull = new Array(histLabels.length).fill(null).concat(lower);
 
     aiChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels,
+        labels: allLabels,
         datasets: [
           {
-            label: 'Historical',
-            data: labels.map((_, i) => i < split ? all[i] : null),
+            label: '歷史股價',
+            data: histFull,
             borderColor: '#94a3b8',
-            backgroundColor: 'rgba(148, 163, 184, 0.1)',
-            tension: 0.4,
-            pointRadius: 0
+            backgroundColor: 'rgba(148,163,184,0.04)',
+            tension: 0.3, fill: true, pointRadius: 0, borderWidth: 2
           },
           {
-            label: 'Forecast',
-            data: labels.map((_, i) => i >= split ? all[i] : null),
-            borderColor: '#00E5FF',
-            backgroundColor: 'rgba(0, 229, 255, 0.1)',
-            tension: 0.4,
-            pointRadius: 0
+            label: 'AI 預測',
+            data: futFull,
+            borderColor: '#7B2FFF',
+            backgroundColor: 'rgba(123,47,255,0.06)',
+            tension: 0.4, fill: true, pointRadius: 0, borderWidth: 2, borderDash: []
           },
           {
-            label: 'Upper Bound',
-            data: upper,
-            borderColor: 'rgba(0, 200, 83, 0.5)',
-            borderDash: [5, 5],
-            pointRadius: 0,
-            fill: false
+            label: '上限信賴帶',
+            data: upperFull,
+            borderColor: 'rgba(0,230,118,0.35)',
+            borderDash: [4, 4],
+            fill: false, pointRadius: 0, borderWidth: 1
           },
           {
-            label: 'Lower Bound',
-            data: lower,
-            borderColor: 'rgba(255, 23, 68, 0.5)',
-            borderDash: [5, 5],
-            pointRadius: 0,
-            fill: false
+            label: '下限信賴帶',
+            data: lowerFull,
+            borderColor: 'rgba(255,23,68,0.35)',
+            borderDash: [4, 4],
+            fill: false, pointRadius: 0, borderWidth: 1
           }
         ]
       },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-          intersect: false,
-          mode: 'index'
-        },
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top', labels: { padding: 16, usePointStyle: true } } },
         scales: {
-          x: { grid: { display: false } },
-          y: { grid: { color: 'rgba(255, 255, 255, 0.05)' } }
-        }
+          x: { grid: { display: false }, ticks: { maxTicksLimit: 10 } },
+          y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { callback: v => 'NT$' + v.toLocaleString() } }
+        },
+        interaction: { intersect: false, mode: 'index' }
       }
     });
   }

@@ -1,64 +1,35 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}Error {{ error_code }} | TST{% endblock %}
+{% block title %}{{ error_code }} 錯誤 | TWStock Pro{% endblock %}
 
 {% block content %}
-<section class="section flex items-center justify-center" style="min-height: 60vh;">
-    <div class="container text-center">
-        <div class="card"
-            style="max-width: 600px; margin: 0 auto; border-color: {% if error_code == 404 %}var(--color-warning){% else %}var(--color-danger){% endif %};">
-            <div class="mb-lg">
-                {% if error_code == 404 %}
-                <i class="bi bi-exclamation-triangle" style="font-size: 4rem; color: var(--color-warning);"></i>
-                {% else %}
-                <i class="bi bi-x-circle" style="font-size: 4rem; color: var(--color-danger);"></i>
-                {% endif %}
-            </div>
-
-            <h1 class="h1 mb-md">{{ error_code }}</h1>
-
-            <h3 class="h3 mb-lg">
-                {% if error_code == 404 %}
-                Page Not Found
-                {% elif error_code == 500 %}
-                Internal Server Error
-                {% else %}
-                An Error Occurred
-                {% endif %}
-            </h3>
-
-            <p class="text-secondary mb-xl">{{ error_message }}</p>
-
-            <div class="card bg-surface mb-xl text-left">
-                <div class="card-body">
-                    <h5 class="h4 mb-md text-brand">
-                        <i class="bi bi-lightbulb me-sm"></i>Suggestions
-                    </h5>
-                    <ul class="text-secondary" style="list-style: none; padding: 0;">
-                        {% if error_code == 404 %}
-                        <li class="mb-sm"><i class="bi bi-arrow-right me-sm text-brand"></i>Check if the URL is correct
-                        </li>
-                        <li class="mb-sm"><i class="bi bi-arrow-right me-sm text-brand"></i>Return to the homepage</li>
-                        <li class="mb-sm"><i class="bi bi-arrow-right me-sm text-brand"></i>Use the search bar to find
-                            stocks</li>
-                        {% else %}
-                        <li class="mb-sm"><i class="bi bi-arrow-right me-sm text-brand"></i>Refresh the page</li>
-                        <li class="mb-sm"><i class="bi bi-arrow-right me-sm text-brand"></i>Try again later</li>
-                        <li class="mb-sm"><i class="bi bi-arrow-right me-sm text-brand"></i>Return to the homepage</li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
-
-            <div class="flex justify-center gap-md">
-                <a href="{{ url_for('home') }}" class="btn btn-primary">
-                    <i class="bi bi-house me-sm"></i>Home
-                </a>
-                <button onclick="history.back()" class="btn btn-outline">
-                    <i class="bi bi-arrow-left me-sm"></i>Back
-                </button>
-            </div>
+<div style="min-height:60vh;display:flex;align-items:center;justify-content:center;padding:4rem 0;text-align:center;">
+    <div>
+        <div style="font-size:6rem;font-weight:800;font-family:var(--font-mono);
+                    background:var(--grad-brand);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+                    background-clip:text;line-height:1;margin-bottom:1rem;">
+            {{ error_code }}
+        </div>
+        <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:0.75rem;">
+            {% if error_code == 404 %}頁面不存在{% elif error_code == 500 %}伺服器發生錯誤{% else %}發生錯誤{% endif %}
+        </h1>
+        <p style="color:var(--text-secondary);max-width:380px;margin:0 auto 2rem;font-size:0.9rem;line-height:1.7;">
+            {% if error_code == 404 %}
+            您要找的頁面不存在或已被移除，請確認網址是否正確。
+            {% elif error_code == 500 %}
+            服務暫時出現問題，我們的工程師正在處理中，請稍後再試。
+            {% else %}
+            {{ error_message }}
+            {% endif %}
+        </p>
+        <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+            <a href="{{ url_for('home') }}" class="btn btn-primary">
+                <i class="bi bi-house"></i> 返回首頁
+            </a>
+            <button onclick="history.back()" class="btn btn-outline">
+                <i class="bi bi-arrow-left"></i> 上一頁
+            </button>
         </div>
     </div>
-</section>
+</div>
 {% endblock %}

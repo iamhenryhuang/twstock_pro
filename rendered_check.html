@@ -1,0 +1,2969 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TWStock Pro - 台灣股市專業分析平台，即時行情、技術分析、選股工具一站搞定">
+    <title>TWStock Pro｜台灣股市即時行情與分析平台</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* ============================================
+           TWSTOCK PRO - DESIGN SYSTEM v2.0
+           Dark-first, premium glassmorphism theme
+        ============================================ */
+        :root {
+            /* Brand Colors */
+            --brand-cyan: #00D4FF;
+            --brand-blue: #1A6BFF;
+            --brand-purple: #7B2FFF;
+            --brand-green: #00E676;
+            --brand-red: #FF3D6B;
+            --brand-orange: #FF9100;
+            --brand-gold: #FFD600;
+
+            /* Semantic Colors */
+            --color-up: var(--brand-green);
+            --color-down: var(--brand-red);
+            --color-neutral: #94A3B8;
+
+            /* Dark Theme Surfaces */
+            --bg-base: #070B14;
+            --bg-surface: #0D1421;
+            --bg-card: rgba(15, 23, 42, 0.85);
+            --bg-glass: rgba(255, 255, 255, 0.03);
+            --bg-glass-hover: rgba(255, 255, 255, 0.06);
+            --bg-input: rgba(15, 23, 42, 0.8);
+
+            /* Borders */
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-medium: rgba(255, 255, 255, 0.10);
+            --border-strong: rgba(255, 255, 255, 0.18);
+            --border-brand: rgba(0, 212, 255, 0.35);
+
+            /* Text */
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --text-muted: #475569;
+            --text-brand: var(--brand-cyan);
+
+            /* Glow Effects */
+            --glow-cyan: 0 0 20px rgba(0, 212, 255, 0.25);
+            --glow-blue: 0 0 20px rgba(26, 107, 255, 0.25);
+            --glow-green: 0 0 20px rgba(0, 230, 118, 0.25);
+            --glow-red: 0 0 20px rgba(255, 61, 107, 0.25);
+
+            /* Gradients */
+            --grad-brand: linear-gradient(135deg, var(--brand-cyan), var(--brand-blue));
+            --grad-up: linear-gradient(135deg, #00E676, #00B248);
+            --grad-down: linear-gradient(135deg, #FF3D6B, #C2185B);
+            --grad-card: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(7, 11, 20, 0.95));
+
+            /* Spacing */
+            --space-2xs: 0.25rem;
+            --space-xs: 0.5rem;
+            --space-sm: 0.75rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            --space-3xl: 4rem;
+
+            /* Typography */
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+            /* Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.625rem;
+            --radius-lg: 1rem;
+            --radius-xl: 1.5rem;
+            --radius-full: 9999px;
+
+            /* Transitions */
+            --transition-fast: 150ms ease;
+            --transition-base: 250ms ease;
+            --transition-slow: 400ms ease;
+
+            /* Navbar */
+            --navbar-height: 64px;
+        }
+
+        /* Light mode overrides */
+        [data-theme="light"] {
+            --bg-base: #F0F4FF;
+            --bg-surface: #FFFFFF;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --bg-glass: rgba(0, 0, 0, 0.02);
+            --bg-glass-hover: rgba(0, 0, 0, 0.04);
+            --bg-input: rgba(255, 255, 255, 0.9);
+            --border-subtle: rgba(0, 0, 0, 0.06);
+            --border-medium: rgba(0, 0, 0, 0.10);
+            --border-strong: rgba(0, 0, 0, 0.16);
+            --border-brand: rgba(0, 100, 200, 0.35);
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --text-brand: #0052CC;
+            --brand-cyan: #0052CC;
+            --glow-cyan: 0 0 20px rgba(0, 82, 204, 0.15);
+        }
+
+        /* =========== RESET & BASE =========== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+            transition: background-color var(--transition-slow), color var(--transition-slow);
+        }
+
+        /* Background grid pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--border-subtle) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* =========== TYPOGRAPHY =========== */
+        .font-mono {
+            font-family: var(--font-mono);
+        }
+
+        .text-xs {
+            font-size: 0.75rem;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+        }
+
+        .text-base {
+            font-size: 1rem;
+        }
+
+        .text-lg {
+            font-size: 1.125rem;
+        }
+
+        .text-xl {
+            font-size: 1.25rem;
+        }
+
+        .text-2xl {
+            font-size: 1.5rem;
+        }
+
+        .text-3xl {
+            font-size: 1.875rem;
+        }
+
+        .text-4xl {
+            font-size: 2.25rem;
+        }
+
+        .font-medium {
+            font-weight: 500;
+        }
+
+        .font-semibold {
+            font-weight: 600;
+        }
+
+        .font-bold {
+            font-weight: 700;
+        }
+
+        .font-extrabold {
+            font-weight: 800;
+        }
+
+        .text-primary-color {
+            color: var(--text-primary);
+        }
+
+        .text-secondary-color {
+            color: var(--text-secondary);
+        }
+
+        .text-muted-color {
+            color: var(--text-muted);
+        }
+
+        .text-brand-color {
+            color: var(--text-brand);
+        }
+
+        .text-up {
+            color: var(--color-up) !important;
+        }
+
+        .text-down {
+            color: var(--color-down) !important;
+        }
+
+        .text-neutral {
+            color: var(--color-neutral) !important;
+        }
+
+        .gradient-text {
+            background: var(--grad-brand);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* =========== LAYOUT =========== */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 var(--space-lg);
+            width: 100%;
+        }
+
+        main {
+            flex: 1;
+        }
+
+        .section {
+            padding: var(--space-2xl) 0;
+        }
+
+        /* =========== CARD =========== */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
+            overflow: hidden;
+        }
+
+        .card:hover {
+            border-color: var(--border-medium);
+        }
+
+        .card-hover:hover {
+            border-color: var(--border-brand);
+            box-shadow: var(--glow-cyan);
+            transform: translateY(-2px);
+        }
+
+        .card-body {
+            padding: var(--space-lg);
+        }
+
+        .card-header {
+            padding: var(--space-md) var(--space-lg);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        /* Glass card variant */
+        .glass-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: background var(--transition-base), border-color var(--transition-base);
+        }
+
+        .glass-card:hover {
+            background: var(--bg-glass-hover);
+            border-color: var(--border-medium);
+        }
+
+        /* =========== BUTTONS =========== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.5rem 1.125rem;
+            border-radius: var(--radius-md);
+            font-family: var(--font-sans);
+            font-weight: 500;
+            font-size: 0.875rem;
+            border: 1px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all var(--transition-base);
+            white-space: nowrap;
+            user-select: none;
+            line-height: 1.4;
+        }
+
+        .btn:focus-visible {
+            outline: 2px solid var(--brand-cyan);
+            outline-offset: 2px;
+        }
+
+        /* Primary */
+        .btn-primary {
+            background: var(--grad-brand);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 1px 3px rgba(0, 212, 255, 0.2);
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.12);
+            box-shadow: var(--glow-cyan), 0 4px 12px rgba(0, 212, 255, 0.25);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        /* Outline */
+        .btn-outline {
+            background: transparent;
+            color: var(--text-secondary);
+            border-color: var(--border-medium);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg-glass);
+            border-color: var(--border-strong);
+            color: var(--text-primary);
+        }
+
+        /* Ghost */
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border-color: transparent;
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-glass);
+            color: var(--text-primary);
+        }
+
+        /* Danger */
+        .btn-danger {
+            background: rgba(255, 61, 107, 0.12);
+            color: var(--brand-red);
+            border-color: rgba(255, 61, 107, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 61, 107, 0.2);
+            box-shadow: var(--glow-red);
+        }
+
+        /* Sizes */
+        .btn-sm {
+            padding: 0.3rem 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-lg {
+            padding: 0.65rem 1.5rem;
+            font-size: 1rem;
+        }
+
+        .btn-xl {
+            padding: 0.875rem 2rem;
+            font-size: 1.0625rem;
+        }
+
+        /* =========== BADGE =========== */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: var(--font-mono);
+            line-height: 1.4;
+        }
+
+        .badge-brand {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--brand-cyan);
+            border: 1px solid rgba(0, 212, 255, 0.25);
+        }
+
+        .badge-up {
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--brand-green);
+            border: 1px solid rgba(0, 230, 118, 0.25);
+        }
+
+        .badge-down {
+            background: rgba(255, 61, 107, 0.1);
+            color: var(--brand-red);
+            border: 1px solid rgba(255, 61, 107, 0.25);
+        }
+
+        .badge-neutral {
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--color-neutral);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .badge-warning {
+            background: rgba(255, 214, 0, 0.1);
+            color: var(--brand-gold);
+            border: 1px solid rgba(255, 214, 0, 0.25);
+        }
+
+        /* =========== FORM INPUTS =========== */
+        .input,
+        .form-control,
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.6rem 0.875rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+            outline: none;
+        }
+
+        .input:focus,
+        .form-control:focus,
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--brand-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.12);
+            background: var(--bg-card);
+        }
+
+        .input::placeholder,
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
+
+        select option {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0;
+        }
+
+        .input-group .input {
+            border-radius: 0;
+        }
+
+        .input-group .input:first-child {
+            border-radius: var(--radius-md) 0 0 var(--radius-md);
+        }
+
+        .input-group .input:last-child {
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        }
+
+        .input-group-text {
+            display: flex;
+            align-items: center;
+            padding: 0 0.875rem;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-medium);
+            border-right: none;
+            border-radius: var(--radius-md) 0 0 var(--radius-md);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .input-group .btn {
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        }
+
+        label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* =========== TABLE =========== */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        .table th {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-subtle);
+            white-space: nowrap;
+        }
+
+        .table td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            transition: background var(--transition-fast);
+        }
+
+        .table tbody tr:hover td {
+            background: var(--bg-glass);
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        /* =========== ALERT =========== */
+        .alert {
+            padding: 0.875rem var(--space-md);
+            border-radius: var(--radius-md);
+            border: 1px solid transparent;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-success {
+            background: rgba(0, 230, 118, 0.08);
+            border-color: rgba(0, 230, 118, 0.25);
+            color: var(--brand-green);
+        }
+
+        .alert-danger,
+        .alert-error {
+            background: rgba(255, 61, 107, 0.08);
+            border-color: rgba(255, 61, 107, 0.25);
+            color: var(--brand-red);
+        }
+
+        .alert-warning {
+            background: rgba(255, 214, 0, 0.08);
+            border-color: rgba(255, 214, 0, 0.25);
+            color: var(--brand-gold);
+        }
+
+        .alert-info {
+            background: rgba(0, 212, 255, 0.08);
+            border-color: rgba(0, 212, 255, 0.25);
+            color: var(--brand-cyan);
+        }
+
+        /* =========== MODAL =========== */
+        .modal-content {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-xl);
+            backdrop-filter: blur(20px);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--border-subtle);
+            padding: var(--space-md) var(--space-lg);
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--border-subtle);
+            padding: var(--space-md) var(--space-lg);
+        }
+
+        /* =========== NAVBAR =========== */
+        .navbar {
+            height: var(--navbar-height);
+            background: rgba(7, 11, 20, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: background var(--transition-base), border-color var(--transition-base);
+        }
+
+        [data-theme="light"] .navbar {
+            background: rgba(255, 255, 255, 0.88);
+        }
+
+        .navbar-inner {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-md);
+        }
+
+        /* Logo */
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .navbar-logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--grad-brand);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            box-shadow: var(--glow-cyan);
+            flex-shrink: 0;
+        }
+
+        .navbar-brand-text {
+            font-size: 1.125rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+        }
+
+        .navbar-brand-text span {
+            color: var(--brand-cyan);
+        }
+
+        /* Nav links */
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.45rem 0.75rem;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: color var(--transition-fast), background var(--transition-fast);
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--text-primary);
+            background: var(--bg-glass);
+        }
+
+        /* Dropdown */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 200px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-lg);
+            padding: 0.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity var(--transition-fast), transform var(--transition-fast), visibility var(--transition-fast);
+            transform: translateX(-50%) translateY(-4px);
+            z-index: 200;
+        }
+
+        .dropdown:hover .dropdown-menu,
+        .dropdown.open .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.55rem 0.875rem;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-decoration: none;
+            transition: background var(--transition-fast), color var(--transition-fast);
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-glass);
+            color: var(--text-primary);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border-subtle);
+            margin: 0.375rem 0;
+        }
+
+        .dropdown-item.text-danger {
+            color: var(--brand-red);
+        }
+
+        .dropdown-item.text-danger:hover {
+            background: rgba(255, 61, 107, 0.08);
+        }
+
+        /* Navbar search */
+        .navbar-search {
+            flex: 1;
+            max-width: 320px;
+        }
+
+        .navbar-search .input-group {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .navbar-search input {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.85rem;
+            border-radius: var(--radius-md) 0 0 var(--radius-md);
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-right: none;
+            color: var(--text-primary);
+            transition: all var(--transition-fast);
+        }
+
+        .navbar-search input:focus {
+            background: var(--bg-card);
+            border-color: var(--brand-cyan);
+            box-shadow: none;
+        }
+
+        .navbar-search-btn {
+            padding: 0.4rem 0.75rem;
+            background: var(--grad-brand);
+            border: none;
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: filter var(--transition-fast);
+        }
+
+        .navbar-search-btn:hover {
+            filter: brightness(1.1);
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            width: 36px;
+            height: 36px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            transition: all var(--transition-base);
+            flex-shrink: 0;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-glass-hover);
+            color: var(--brand-cyan);
+            border-color: var(--border-brand);
+        }
+
+        /* User avatar button */
+        .user-menu-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.3rem 0.5rem 0.3rem 0.3rem;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all var(--transition-base);
+            color: var(--text-primary);
+        }
+
+        .user-menu-btn:hover {
+            border-color: var(--border-brand);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            background: var(--grad-brand);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        /* Mobile hamburger */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--text-secondary);
+            border-radius: 999px;
+            transition: all var(--transition-base);
+        }
+
+        /* =========== FOOTER =========== */
+        footer {
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border-subtle);
+            padding: var(--space-2xl) 0 var(--space-lg);
+            margin-top: auto;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: var(--space-2xl);
+            margin-bottom: var(--space-xl);
+        }
+
+        .footer-desc {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            line-height: 1.7;
+            margin-top: 0.75rem;
+        }
+
+        .footer-heading {
+            font-weight: 600;
+            font-size: 0.8rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.875rem;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color var(--transition-fast);
+        }
+
+        .footer-links a:hover {
+            color: var(--text-brand);
+        }
+
+        .footer-bottom {
+            padding-top: var(--space-lg);
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .footer-copyright {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .footer-disclaimer {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            max-width: 500px;
+            line-height: 1.5;
+        }
+
+        /* =========== FLASH MESSAGES =========== */
+        .flash-container {
+            padding: var(--space-md) 0 0;
+        }
+
+        .flash-container .alert {
+            margin-bottom: 0.5rem;
+        }
+
+        /* =========== UTILITIES =========== */
+        .d-flex {
+            display: flex;
+        }
+
+        .d-grid {
+            display: grid;
+        }
+
+        .d-none {
+            display: none !important;
+        }
+
+        .d-block {
+            display: block;
+        }
+
+        .d-inline-flex {
+            display: inline-flex;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .items-start {
+            align-items: flex-start;
+        }
+
+        .items-end {
+            align-items: flex-end;
+        }
+
+        .justify-center {
+            justify-content: center;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .justify-end {
+            justify-content: flex-end;
+        }
+
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+
+        .flex-col {
+            flex-direction: column;
+        }
+
+        .flex-1 {
+            flex: 1;
+        }
+
+        .flex-shrink-0 {
+            flex-shrink: 0;
+        }
+
+        .gap-xs {
+            gap: var(--space-xs);
+        }
+
+        .gap-sm {
+            gap: var(--space-sm);
+        }
+
+        .gap-md {
+            gap: var(--space-md);
+        }
+
+        .gap-lg {
+            gap: var(--space-lg);
+        }
+
+        .gap-xl {
+            gap: var(--space-xl);
+        }
+
+        .w-full {
+            width: 100%;
+        }
+
+        .h-full {
+            height: 100%;
+        }
+
+        .m-0 {
+            margin: 0;
+        }
+
+        .mt-xs {
+            margin-top: var(--space-xs);
+        }
+
+        .mt-sm {
+            margin-top: var(--space-sm);
+        }
+
+        .mt-md {
+            margin-top: var(--space-md);
+        }
+
+        .mt-lg {
+            margin-top: var(--space-lg);
+        }
+
+        .mt-xl {
+            margin-top: var(--space-xl);
+        }
+
+        .mb-xs {
+            margin-bottom: var(--space-xs);
+        }
+
+        .mb-sm {
+            margin-bottom: var(--space-sm);
+        }
+
+        .mb-md {
+            margin-bottom: var(--space-md);
+        }
+
+        .mb-lg {
+            margin-bottom: var(--space-lg);
+        }
+
+        .mb-xl {
+            margin-bottom: var(--space-xl);
+        }
+
+        .p-xs {
+            padding: var(--space-xs);
+        }
+
+        .p-sm {
+            padding: var(--space-sm);
+        }
+
+        .p-md {
+            padding: var(--space-md);
+        }
+
+        .p-lg {
+            padding: var(--space-lg);
+        }
+
+        .px-md {
+            padding-left: var(--space-md);
+            padding-right: var(--space-md);
+        }
+
+        .py-md {
+            padding-top: var(--space-md);
+            padding-bottom: var(--space-md);
+        }
+
+        .py-lg {
+            padding-top: var(--space-lg);
+            padding-bottom: var(--space-lg);
+        }
+
+        .py-xl {
+            padding-top: var(--space-xl);
+            padding-bottom: var(--space-xl);
+        }
+
+        .py-2xl {
+            padding-top: var(--space-2xl);
+            padding-bottom: var(--space-2xl);
+        }
+
+        .rounded {
+            border-radius: var(--radius-md);
+        }
+
+        .rounded-lg {
+            border-radius: var(--radius-lg);
+        }
+
+        .rounded-full {
+            border-radius: var(--radius-full);
+        }
+
+        .border-bottom {
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .block {
+            display: block;
+        }
+
+        .inline {
+            display: inline;
+        }
+
+        .truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: var(--border-subtle);
+            margin: var(--space-md) 0;
+        }
+
+        /* Stat numbers */
+        .stat-value {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        /* Loading spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-medium);
+            border-top-color: var(--brand-cyan);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Pulse dot */
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .pulse-dot.green {
+            background: var(--brand-green);
+            box-shadow: 0 0 6px var(--brand-green);
+            animation: pulse 2s infinite;
+        }
+
+        .pulse-dot.red {
+            background: var(--brand-red);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 6px var(--brand-green);
+            }
+
+            50% {
+                opacity: 0.6;
+                box-shadow: 0 0 12px var(--brand-green);
+            }
+        }
+
+        /* Market status badge */
+        .market-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.625rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .market-open {
+            background: rgba(0, 230, 118, 0.12);
+            color: var(--brand-green);
+            border: 1px solid rgba(0, 230, 118, 0.3);
+        }
+
+        .market-closed {
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--color-neutral);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-medium);
+            border-radius: 999px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-strong);
+        }
+
+        /* =========== MOBILE NAV =========== */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            inset: 0;
+            top: var(--navbar-height);
+            background: rgba(7, 11, 20, 0.97);
+            backdrop-filter: blur(20px);
+            z-index: 999;
+            padding: var(--space-lg);
+            flex-direction: column;
+            gap: 0.5rem;
+            overflow-y: auto;
+        }
+
+        .mobile-nav.open {
+            display: flex;
+        }
+
+        .mobile-nav .nav-link {
+            width: 100%;
+            padding: 0.875rem var(--space-md);
+            font-size: 1rem;
+        }
+
+        /* =========== RESPONSIVE =========== */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 var(--space-md);
+            }
+
+            .navbar-search,
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: var(--space-lg);
+            }
+
+            .footer-grid> :first-child {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Bootstrap overrides (keep compat) */
+        .dropdown-menu.show {
+            display: block;
+        }
+    </style>
+
+    <script>
+        // Prevent FOUC: apply theme immediately
+        (function () {
+            const t = localStorage.getItem('twstock_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+    
+<style>
+    /* Hero Section */
+    .hero {
+        padding: 5rem 0 3rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 700px;
+        height: 400px;
+        background: radial-gradient(ellipse, rgba(0, 212, 255, 0.12) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(0, 212, 255, 0.08);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: var(--radius-full);
+        padding: 0.35rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--brand-cyan);
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.05em;
+    }
+
+    .hero-title {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        line-height: 1.1;
+        margin-bottom: 1.25rem;
+        color: var(--text-primary);
+    }
+
+    .hero-subtitle {
+        font-size: 1.125rem;
+        color: var(--text-secondary);
+        max-width: 500px;
+        margin: 0 auto 2.5rem;
+        line-height: 1.7;
+    }
+
+    /* Hero search */
+    .hero-search {
+        max-width: 560px;
+        margin: 0 auto 2rem;
+    }
+
+    .hero-search-wrap {
+        display: flex;
+        background: var(--bg-card);
+        border: 1px solid var(--border-medium);
+        border-radius: var(--radius-xl);
+        padding: 0.375rem;
+        gap: 0.375rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        transition: border-color var(--transition-base), box-shadow var(--transition-base);
+    }
+
+    .hero-search-wrap:focus-within {
+        border-color: var(--border-brand);
+        box-shadow: var(--glow-cyan), 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-search input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        padding: 0.5rem 0.875rem;
+        font-size: 1rem;
+        color: var(--text-primary);
+        font-family: var(--font-sans);
+    }
+
+    .hero-search input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .hero-search-btn {
+        background: var(--grad-brand);
+        border: none;
+        border-radius: var(--radius-lg);
+        padding: 0.65rem 1.5rem;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: filter var(--transition-fast), box-shadow var(--transition-fast);
+        white-space: nowrap;
+    }
+
+    .hero-search-btn:hover {
+        filter: brightness(1.1);
+        box-shadow: var(--glow-cyan);
+    }
+
+    /* Quick tags */
+    .quick-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+
+    .quick-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        background: var(--bg-glass);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-full);
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: all var(--transition-fast);
+    }
+
+    .quick-tag:hover {
+        background: var(--bg-glass-hover);
+        border-color: var(--border-brand);
+        color: var(--brand-cyan);
+    }
+
+    /* Market ticker strip */
+    .ticker-strip {
+        background: var(--bg-surface);
+        border-top: 1px solid var(--border-subtle);
+        border-bottom: 1px solid var(--border-subtle);
+        overflow: hidden;
+        padding: 0.625rem 0;
+        position: relative;
+    }
+
+    .ticker-strip::before,
+    .ticker-strip::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 80px;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .ticker-strip::before {
+        left: 0;
+        background: linear-gradient(to right, var(--bg-base), transparent);
+    }
+
+    .ticker-strip::after {
+        right: 0;
+        background: linear-gradient(to left, var(--bg-base), transparent);
+    }
+
+    .ticker-inner {
+        display: flex;
+        gap: 2.5rem;
+        animation: tickerScroll 40s linear infinite;
+        white-space: nowrap;
+    }
+
+    .ticker-inner:hover {
+        animation-play-state: paused;
+    }
+
+    @keyframes tickerScroll {
+        from {
+            transform: translateX(0);
+        }
+
+        to {
+            transform: translateX(-50%);
+        }
+    }
+
+    .ticker-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        font-family: var(--font-mono);
+    }
+
+    .ticker-name {
+        color: var(--text-muted);
+    }
+
+    .ticker-price {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    .ticker-change.up {
+        color: var(--brand-green);
+    }
+
+    .ticker-change.down {
+        color: var(--brand-red);
+    }
+
+    /* Section layouts */
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+    }
+
+    /* Market index cards */
+    .index-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 3rem;
+    }
+
+    .index-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        transition: all var(--transition-base);
+        cursor: default;
+    }
+
+    .index-card:hover {
+        border-color: var(--border-medium);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .index-card-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 0.625rem;
+    }
+
+    .index-card-value {
+        font-family: var(--font-mono);
+        font-size: 1.375rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .index-card-change {
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .index-card-change.up {
+        color: var(--brand-green);
+    }
+
+    .index-card-change.down {
+        color: var(--brand-red);
+    }
+
+    .index-card-change.neutral {
+        color: var(--text-muted);
+    }
+
+    /* Stock cards grid */
+    .stocks-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .stock-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: 1.125rem;
+        text-decoration: none;
+        display: block;
+        transition: all var(--transition-base);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stock-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--grad-brand);
+        transform: scaleX(0);
+        transition: transform var(--transition-base);
+        transform-origin: left;
+    }
+
+    .stock-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .stock-card:hover {
+        border-color: var(--border-brand);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2), var(--glow-cyan);
+    }
+
+    .stock-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+    }
+
+    .stock-card-code {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.2rem 0.5rem;
+        background: rgba(0, 212, 255, 0.08);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: var(--radius-sm);
+        color: var(--brand-cyan);
+    }
+
+    .stock-card-pct {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.2rem 0.5rem;
+        border-radius: var(--radius-sm);
+    }
+
+    .stock-card-pct.up {
+        background: rgba(0, 230, 118, 0.1);
+        color: var(--brand-green);
+    }
+
+    .stock-card-pct.down {
+        background: rgba(255, 61, 107, 0.1);
+        color: var(--brand-red);
+    }
+
+    .stock-card-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .stock-card-price {
+        font-family: var(--font-mono);
+        font-size: 1.375rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .stock-card-price.up {
+        color: var(--brand-green);
+    }
+
+    .stock-card-price.down {
+        color: var(--brand-red);
+    }
+
+    .stock-card-price.neutral {
+        color: var(--text-primary);
+    }
+
+    .stock-card-change {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .stock-card-vol {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        margin-top: 0.75rem;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        border-top: 1px solid var(--border-subtle);
+        padding-top: 0.625rem;
+    }
+
+    /* News cards */
+    .news-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .news-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        transition: all var(--transition-base);
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .news-card:hover {
+        border-color: var(--border-medium);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .news-card-img {
+        height: 160px;
+        background: var(--bg-surface);
+        overflow: hidden;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    .news-card-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform var(--transition-slow);
+    }
+
+    .news-card:hover .news-card-img img {
+        transform: scale(1.05);
+    }
+
+    .news-card-img-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--bg-glass), var(--bg-surface));
+        color: var(--text-muted);
+        font-size: 2rem;
+    }
+
+    .news-card-body {
+        padding: 1.125rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .news-card-source {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--brand-cyan);
+        margin-bottom: 0.5rem;
+    }
+
+    .news-card-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        line-height: 1.5;
+        margin-bottom: 0.625rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .news-card-summary {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex: 1;
+    }
+
+    .news-card-footer {
+        margin-top: 0.875rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .news-card-time {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    /* Feature strips */
+    .features-strip {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 2.5rem;
+        margin: 3rem 0;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .feature-item {
+        text-align: center;
+    }
+
+    .feature-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        margin: 0 auto 0.75rem;
+    }
+
+    .feature-name {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .feature-desc {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    @media (max-width: 640px) {
+        .hero {
+            padding: 3rem 0 2rem;
+        }
+
+        .hero-title {
+            font-size: 2rem;
+        }
+
+        .stocks-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .news-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .index-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+
+</head>
+
+<body>
+    <!-- =========== NAVBAR =========== -->
+    <nav class="navbar">
+        <div class="container navbar-inner">
+
+            <!-- Logo -->
+            <a href="/" class="navbar-brand">
+                <div class="navbar-logo-icon">
+                    <i class="bi bi-graph-up-arrow" style="color:white;font-size:1.1rem;"></i>
+                </div>
+                <span class="navbar-brand-text">TWStock<span> Pro</span></span>
+            </a>
+
+            <!-- Desktop Nav Links -->
+            <div class="nav-links" id="desktopNav">
+                <a href="/" class="nav-link active">
+                    <i class="bi bi-house"></i> 首頁
+                </a>
+                <a href="/news"
+                    class="nav-link ">
+                    <i class="bi bi-newspaper"></i> 新聞
+                </a>
+
+                <!-- Tools dropdown -->
+                <div class="dropdown">
+                    <a href="#" class="nav-link" id="toolsDropdown">
+                        <i class="bi bi-tools"></i> 工具 <i class="bi bi-chevron-down" style="font-size:0.65rem;"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="/tools/dividend">
+                            <i class="bi bi-calculator" style="color:var(--brand-cyan);"></i> 股息計算器
+                        </a>
+                        <a class="dropdown-item" href="/tools/allocation">
+                            <i class="bi bi-pie-chart" style="color:var(--brand-purple);"></i> 資產配置
+                        </a>
+                        <a class="dropdown-item" href="/tools/ta">
+                            <i class="bi bi-graph-up" style="color:var(--brand-blue);"></i> 技術分析
+                        </a>
+                        <a class="dropdown-item" href="/tools/dca">
+                            <i class="bi bi-calendar-check" style="color:var(--brand-green);"></i> 定期定額
+                        </a>
+                        <a class="dropdown-item" href="/tools/ai">
+                            <i class="bi bi-cpu" style="color:var(--brand-gold);"></i> AI 預測
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="/tools/screener">
+                            <i class="bi bi-funnel" style="color:var(--brand-orange);"></i> 選股器
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search bar -->
+            <form action="/search" method="GET" class="navbar-search">
+                <div class="input-group">
+                    <input type="text" name="q" id="navbar-search-input" placeholder="輸入股票代號或名稱..." autocomplete="off">
+                    <button type="submit" class="navbar-search-btn">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Right actions -->
+            <div class="d-flex items-center gap-sm">
+                <!-- Theme toggle -->
+                <button class="theme-toggle" id="themeToggle" title="切換主題">
+                    <i class="bi bi-sun-fill" id="themeIconLight" style="display:none;"></i>
+                    <i class="bi bi-moon-fill" id="themeIconDark"></i>
+                </button>
+
+                <!-- Auth -->
+                
+                <a href="/login" class="btn btn-outline btn-sm">登入</a>
+                <a href="/register" class="btn btn-primary btn-sm">
+                    <i class="bi bi-person-plus"></i> 註冊
+                </a>
+                
+
+                <!-- Mobile hamburger -->
+                <button class="hamburger" id="hamburger" aria-label="選單">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="/" class="nav-link">
+            <i class="bi bi-house"></i> 首頁
+        </a>
+        <a href="/news" class="nav-link">
+            <i class="bi bi-newspaper"></i> 新聞
+        </a>
+        <div class="divider"></div>
+        <div
+            style="padding: 0.5rem 0.75rem; font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted);">
+            工具</div>
+        <a href="/tools/dividend" class="nav-link"><i class="bi bi-calculator"></i> 股息計算器</a>
+        <a href="/tools/allocation" class="nav-link"><i class="bi bi-pie-chart"></i> 資產配置</a>
+        <a href="/tools/ta" class="nav-link"><i class="bi bi-graph-up"></i> 技術分析</a>
+        <a href="/tools/dca" class="nav-link"><i class="bi bi-calendar-check"></i> 定期定額</a>
+        <a href="/tools/ai" class="nav-link"><i class="bi bi-cpu"></i> AI 預測</a>
+        <a href="/tools/screener" class="nav-link"><i class="bi bi-funnel"></i> 選股器</a>
+        <div class="divider"></div>
+        
+        <a href="/login" class="btn btn-outline w-full">登入</a>
+        <a href="/register" class="btn btn-primary w-full"><i class="bi bi-person-plus"></i> 免費註冊</a>
+        
+        <!-- Mobile search -->
+        <div class="divider"></div>
+        <form action="/search" method="GET">
+            <div class="input-group">
+                <input type="text" name="q" class="input" placeholder="搜尋股票代號...">
+                <button type="submit" class="btn btn-primary"
+                    style="border-radius:0 var(--radius-md) var(--radius-md) 0;">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Flash Messages -->
+    
+    
+    
+
+    <!-- Main Content -->
+    <main>
+        
+<!-- =========== HERO =========== -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-badge">
+            <span class="pulse-dot red"></span>
+            台股市場已收盤
+            &nbsp;·&nbsp; 02/20 00:12
+        </div>
+
+        <h1 class="hero-title">
+            掌握台股<span class="gradient-text">即時行情</span><br>
+            做出更好的投資決策
+        </h1>
+
+        <p class="hero-subtitle">
+            專業股市分析工具、即時報價、技術指標與選股篩選，
+            一站式服務助您洞察市場脈動。
+        </p>
+
+        <!-- Search Bar -->
+        <div class="hero-search">
+            <form action="/search" method="GET">
+                <div class="hero-search-wrap">
+                    <i class="bi bi-search"
+                        style="color:var(--text-muted);padding-left:0.875rem;font-size:1rem;align-self:center;"></i>
+                    <input type="text" name="q" id="heroSearch" placeholder="輸入股票代號或公司名稱，例如 2330、台積電..."
+                        autocomplete="off">
+                    <button type="submit" class="hero-search-btn">
+                        <i class="bi bi-search"></i> 查詢
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Quick tags -->
+        <div class="quick-tags">
+            <span style="font-size:0.75rem;color:var(--text-muted);align-self:center;">熱搜：</span>
+            <a href="/stock?code=2330" class="quick-tag">台積電 2330</a>
+            <a href="/stock?code=0050" class="quick-tag">元大50 0050</a>
+            <a href="/stock?code=0056" class="quick-tag">元大高息 0056</a>
+            <a href="/stock?code=2317" class="quick-tag">鴻海 2317</a>
+            <a href="/stock?code=00878" class="quick-tag">國泰永續 00878</a>
+        </div>
+    </div>
+</section>
+
+<!-- =========== TICKER STRIP =========== -->
+
+<div class="ticker-strip">
+    <div class="ticker-inner" id="tickerInner">
+        
+        <span class="ticker-item">
+            <span class="ticker-name">台積電</span>
+            <span class="ticker-price">1915.0000</span>
+            
+            <span
+                class="ticker-change up">
+                ▲
+                +1.86%
+            </span>
+            
+        </span>
+        
+        <span class="ticker-item">
+            <span class="ticker-name">元大台灣50</span>
+            <span class="ticker-price">77.2000</span>
+            
+            <span
+                class="ticker-change up">
+                ▲
+                +2.25%
+            </span>
+            
+        </span>
+        
+        <span class="ticker-item">
+            <span class="ticker-name">元大高股息</span>
+            <span class="ticker-price">38.7000</span>
+            
+            <span
+                class="ticker-change up">
+                ▲
+                +0.94%
+            </span>
+            
+        </span>
+        
+        <span class="ticker-item">
+            <span class="ticker-name">富邦台50</span>
+            <span class="ticker-price">178.6500</span>
+            
+            <span
+                class="ticker-change up">
+                ▲
+                +2.20%
+            </span>
+            
+        </span>
+        
+        <span class="ticker-item">
+            <span class="ticker-name">鴻海</span>
+            <span class="ticker-price">227.0000</span>
+            
+            <span
+                class="ticker-change up">
+                ▲
+                +2.71%
+            </span>
+            
+        </span>
+        
+        <span class="ticker-item">
+            <span class="ticker-name">聯發科</span>
+            <span class="ticker-price">1855.0000</span>
+            
+            <span
+                class="ticker-change up">
+                ▲
+                +0.54%
+            </span>
+            
+        </span>
+        
+        <span class="ticker-item">
+            <span class="ticker-name">中華電</span>
+            <span class="ticker-price">133.0000</span>
+            
+            <span
+                class="ticker-change up">
+                ▲
+                +0.38%
+            </span>
+            
+        </span>
+        
+        <span class="ticker-item">
+            <span class="ticker-name">國泰永續高股息</span>
+            <span class="ticker-price">23.4100</span>
+            
+            <span
+                class="ticker-change up">
+                ▲
+                +0.77%
+            </span>
+            
+        </span>
+        
+        <!-- Duplicate for seamless loop -->
+        
+        <span class="ticker-item">
+            <span class="ticker-name">台積電</span>
+            <span class="ticker-price">1915.0000</span>
+            
+            <span
+                class="ticker-change up">
+                ▲
+                +1.86%
+            </span>
+            
+        </span>
+        
+        <span class="ticker-item">
+            <span class="ticker-name">元大台灣50</span>
+            <span class="ticker-price">77.2000</span>
+            
+            <span
+                class="ticker-change up">
+                ▲
+                +2.25%
+            </span>
+            
+        </span>
+        
+        <span class="ticker-item">
+            <span class="ticker-name">元大高股息</span>
+            <span class="ticker-price">38.7000</span>
+            
+            <span
+                class="ticker-change up">
+                ▲
+                +0.94%
+            </span>
+            
+        </span>
+        
+        <span class="ticker-item">
+            <span class="ticker-name">富邦台50</span>
+            <span class="ticker-price">178.6500</span>
+            
+            <span
+                class="ticker-change up">
+                ▲
+                +2.20%
+            </span>
+            
+        </span>
+        
+        <span class="ticker-item">
+            <span class="ticker-name">鴻海</span>
+            <span class="ticker-price">227.0000</span>
+            
+            <span
+                class="ticker-change up">
+                ▲
+                +2.71%
+            </span>
+            
+        </span>
+        
+        <span class="ticker-item">
+            <span class="ticker-name">聯發科</span>
+            <span class="ticker-price">1855.0000</span>
+            
+            <span
+                class="ticker-change up">
+                ▲
+                +0.54%
+            </span>
+            
+        </span>
+        
+        <span class="ticker-item">
+            <span class="ticker-name">中華電</span>
+            <span class="ticker-price">133.0000</span>
+            
+            <span
+                class="ticker-change up">
+                ▲
+                +0.38%
+            </span>
+            
+        </span>
+        
+        <span class="ticker-item">
+            <span class="ticker-name">國泰永續高股息</span>
+            <span class="ticker-price">23.4100</span>
+            
+            <span
+                class="ticker-change up">
+                ▲
+                +0.77%
+            </span>
+            
+        </span>
+        
+    </div>
+</div>
+
+
+<!-- =========== MAIN CONTENT =========== -->
+<div class="container" style="padding-top:3rem;padding-bottom:3rem;">
+
+    <!-- Market Summary -->
+    
+    <div style="margin-bottom:3rem;">
+        <div class="section-header">
+            <div class="section-title">
+                <div class="section-icon" style="background:rgba(0,212,255,0.1);color:var(--brand-cyan);">
+                    <i class="bi bi-bar-chart-fill"></i>
+                </div>
+                大盤行情
+            </div>
+            <span style="font-size:0.75rem;color:var(--text-muted);">
+                <i class="bi bi-clock me-1"></i>00:12:22 更新
+            </span>
+        </div>
+
+        <div class="index-grid">
+            
+            <div class="index-card">
+                <div class="index-card-label">指數</div>
+                <div class="index-card-value">33,605.71</div>
+                <div
+                    class="index-card-change neutral">
+                    ─
+                </div>
+            </div>
+            
+            <div class="index-card">
+                <div class="index-card-label">漲跌點數</div>
+                <div class="index-card-value">+532.74</div>
+                <div
+                    class="index-card-change up">
+                    ▲ 上漲
+                </div>
+            </div>
+            
+            <div class="index-card">
+                <div class="index-card-label">漲跌幅</div>
+                <div class="index-card-value">+1.61%</div>
+                <div
+                    class="index-card-change up">
+                    ▲ 上漲
+                </div>
+            </div>
+            
+            <div class="index-card">
+                <div class="index-card-label">更新時間</div>
+                <div class="index-card-value">2026-02-20 00:11:46</div>
+                <div
+                    class="index-card-change down">
+                    ▼ 下跌
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+
+    <!-- Popular Stocks -->
+    <div style="margin-bottom:3rem;">
+        <div class="section-header">
+            <div class="section-title">
+                <div class="section-icon" style="background:rgba(255,61,107,0.1);color:var(--brand-red);">
+                    <i class="bi bi-fire"></i>
+                </div>
+                熱門關注股票
+            </div>
+            <a href="/tools/screener" class="btn btn-outline btn-sm">
+                探索更多 <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+
+        
+        <div class="stocks-grid">
+            
+            
+            
+            <a href="/stock?code=2330" class="stock-card">
+                <div class="stock-card-header">
+                    <span class="stock-card-code">2330</span>
+                    
+                    <span class="stock-card-pct up">
+                        ▲ +1.86%
+                    </span>
+                    
+                </div>
+                <div class="stock-card-name">台積電</div>
+                <div class="stock-card-price up">
+                    $1915.0000
+                </div>
+                <div class="stock-card-change">
+                    +35.00
+                </div>
+                <div class="stock-card-vol">
+                    <i class="bi bi-bar-chart-line"></i>
+                    成交量：40,308
+                </div>
+            </a>
+            
+            
+            
+            <a href="/stock?code=0050" class="stock-card">
+                <div class="stock-card-header">
+                    <span class="stock-card-code">0050</span>
+                    
+                    <span class="stock-card-pct up">
+                        ▲ +2.25%
+                    </span>
+                    
+                </div>
+                <div class="stock-card-name">元大台灣50</div>
+                <div class="stock-card-price up">
+                    $77.2000
+                </div>
+                <div class="stock-card-change">
+                    +1.70
+                </div>
+                <div class="stock-card-vol">
+                    <i class="bi bi-bar-chart-line"></i>
+                    成交量：112,869
+                </div>
+            </a>
+            
+            
+            
+            <a href="/stock?code=0056" class="stock-card">
+                <div class="stock-card-header">
+                    <span class="stock-card-code">0056</span>
+                    
+                    <span class="stock-card-pct up">
+                        ▲ +0.94%
+                    </span>
+                    
+                </div>
+                <div class="stock-card-name">元大高股息</div>
+                <div class="stock-card-price up">
+                    $38.7000
+                </div>
+                <div class="stock-card-change">
+                    +0.36
+                </div>
+                <div class="stock-card-vol">
+                    <i class="bi bi-bar-chart-line"></i>
+                    成交量：119,555
+                </div>
+            </a>
+            
+            
+            
+            <a href="/stock?code=006208" class="stock-card">
+                <div class="stock-card-header">
+                    <span class="stock-card-code">006208</span>
+                    
+                    <span class="stock-card-pct up">
+                        ▲ +2.20%
+                    </span>
+                    
+                </div>
+                <div class="stock-card-name">富邦台50</div>
+                <div class="stock-card-price up">
+                    $178.6500
+                </div>
+                <div class="stock-card-change">
+                    +3.85
+                </div>
+                <div class="stock-card-vol">
+                    <i class="bi bi-bar-chart-line"></i>
+                    成交量：4,926
+                </div>
+            </a>
+            
+            
+            
+            <a href="/stock?code=2317" class="stock-card">
+                <div class="stock-card-header">
+                    <span class="stock-card-code">2317</span>
+                    
+                    <span class="stock-card-pct up">
+                        ▲ +2.71%
+                    </span>
+                    
+                </div>
+                <div class="stock-card-name">鴻海</div>
+                <div class="stock-card-price up">
+                    $227.0000
+                </div>
+                <div class="stock-card-change">
+                    +6.00
+                </div>
+                <div class="stock-card-vol">
+                    <i class="bi bi-bar-chart-line"></i>
+                    成交量：65,452
+                </div>
+            </a>
+            
+            
+            
+            <a href="/stock?code=2454" class="stock-card">
+                <div class="stock-card-header">
+                    <span class="stock-card-code">2454</span>
+                    
+                    <span class="stock-card-pct up">
+                        ▲ +0.54%
+                    </span>
+                    
+                </div>
+                <div class="stock-card-name">聯發科</div>
+                <div class="stock-card-price up">
+                    $1855.0000
+                </div>
+                <div class="stock-card-change">
+                    +10.00
+                </div>
+                <div class="stock-card-vol">
+                    <i class="bi bi-bar-chart-line"></i>
+                    成交量：8,191
+                </div>
+            </a>
+            
+            
+            
+            <a href="/stock?code=2412" class="stock-card">
+                <div class="stock-card-header">
+                    <span class="stock-card-code">2412</span>
+                    
+                    <span class="stock-card-pct up">
+                        ▲ +0.38%
+                    </span>
+                    
+                </div>
+                <div class="stock-card-name">中華電</div>
+                <div class="stock-card-price up">
+                    $133.0000
+                </div>
+                <div class="stock-card-change">
+                    +0.50
+                </div>
+                <div class="stock-card-vol">
+                    <i class="bi bi-bar-chart-line"></i>
+                    成交量：12,373
+                </div>
+            </a>
+            
+            
+            
+            <a href="/stock?code=00878" class="stock-card">
+                <div class="stock-card-header">
+                    <span class="stock-card-code">00878</span>
+                    
+                    <span class="stock-card-pct up">
+                        ▲ +0.77%
+                    </span>
+                    
+                </div>
+                <div class="stock-card-name">國泰永續高股息</div>
+                <div class="stock-card-price up">
+                    $23.4100
+                </div>
+                <div class="stock-card-change">
+                    +0.18
+                </div>
+                <div class="stock-card-vol">
+                    <i class="bi bi-bar-chart-line"></i>
+                    成交量：91,837
+                </div>
+            </a>
+            
+        </div>
+        
+    </div>
+
+    <!-- Features Strip -->
+    <div class="features-strip">
+        <div style="text-align:center;">
+            <div class="gradient-text"
+                style="font-size:0.75rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.5rem;">
+                專業工具套件
+            </div>
+            <h2 style="font-size:1.5rem;font-weight:700;color:var(--text-primary);margin-bottom:0;">
+                一站式台股分析平台
+            </h2>
+        </div>
+        <div class="features-grid">
+            <a href="/tools/dividend" class="feature-item" style="text-decoration:none;">
+                <div class="feature-icon" style="background:rgba(0,212,255,0.1);color:var(--brand-cyan);">
+                    <i class="bi bi-calculator"></i>
+                </div>
+                <div class="feature-name">股息計算器</div>
+                <div class="feature-desc">殖利率 · 再投入試算</div>
+            </a>
+            <a href="/tools/ta" class="feature-item" style="text-decoration:none;">
+                <div class="feature-icon" style="background:rgba(26,107,255,0.1);color:var(--brand-blue);">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <div class="feature-name">技術分析</div>
+                <div class="feature-desc">均線 · RSI · MACD</div>
+            </a>
+            <a href="/tools/screener" class="feature-item" style="text-decoration:none;">
+                <div class="feature-icon" style="background:rgba(255,145,0,0.1);color:var(--brand-orange);">
+                    <i class="bi bi-funnel"></i>
+                </div>
+                <div class="feature-name">智慧選股</div>
+                <div class="feature-desc">多條件篩選引擎</div>
+            </a>
+            <a href="/tools/dca" class="feature-item" style="text-decoration:none;">
+                <div class="feature-icon" style="background:rgba(0,230,118,0.1);color:var(--brand-green);">
+                    <i class="bi bi-calendar-week"></i>
+                </div>
+                <div class="feature-name">定期定額</div>
+                <div class="feature-desc">複利成長試算器</div>
+            </a>
+            <a href="/tools/allocation" class="feature-item" style="text-decoration:none;">
+                <div class="feature-icon" style="background:rgba(123,47,255,0.1);color:var(--brand-purple);">
+                    <i class="bi bi-pie-chart"></i>
+                </div>
+                <div class="feature-name">資產配置</div>
+                <div class="feature-desc">投資組合優化</div>
+            </a>
+            <a href="/tools/ai" class="feature-item" style="text-decoration:none;">
+                <div class="feature-icon" style="background:rgba(255,214,0,0.1);color:var(--brand-gold);">
+                    <i class="bi bi-cpu-fill"></i>
+                </div>
+                <div class="feature-name">AI 價格預測</div>
+                <div class="feature-desc">趨勢外推分析</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Market News -->
+    <div>
+        <div class="section-header">
+            <div class="section-title">
+                <div class="section-icon" style="background:rgba(0,212,255,0.1);color:var(--brand-cyan);">
+                    <i class="bi bi-newspaper"></i>
+                </div>
+                市場新聞
+            </div>
+            <a href="/news" class="btn btn-outline btn-sm">
+                閱讀更多 <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+
+        
+        <div class="news-grid">
+            
+            <a href="https://tw.news.yahoo.com/nvidia-confirmed-the-divestment-of-all-its-arm-shares-but-the-two-companies-20-year-technological-partnership-remains-strong-155725811.html" target="_blank" rel="noopener" class="news-card">
+                <div class="news-card-img">
+                    
+                    <div class="news-card-img-placeholder">
+                        <i class="bi bi-newspaper"></i>
+                    </div>
+                    
+                </div>
+                <div class="news-card-body">
+                    <div class="news-card-source">
+                        <i class="bi bi-rss-fill me-1"></i>Yahoo
+                    </div>
+                    <div class="news-card-title">NVIDIA證實出清所有Arm持股，但雙方長達20年技術合作依然穩固</div>
+                    <div class="news-card-summary"></div>
+                    <div class="news-card-footer">
+                        <span class="news-card-time">
+                            <i class="bi bi-clock"></i> 2026-02-19T15:57:25+08:00
+                        </span>
+                        <span style="font-size:0.75rem;color:var(--brand-cyan);">
+                            閱讀 <i class="bi bi-arrow-up-right"></i>
+                        </span>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="https://tw.news.yahoo.com/%E7%BE%8E%E5%9C%8B%E8%88%87%E4%BC%8A%E6%9C%97%E9%97%9C%E4%BF%82%E7%B7%8A%E5%BC%B5-%E8%8F%AF%E7%88%BE%E8%A1%97%E8%82%A1%E5%B8%82%E6%97%A9%E7%9B%A4%E8%B5%B0%E4%BD%8E-152657102.html" target="_blank" rel="noopener" class="news-card">
+                <div class="news-card-img">
+                    
+                    <div class="news-card-img-placeholder">
+                        <i class="bi bi-newspaper"></i>
+                    </div>
+                    
+                </div>
+                <div class="news-card-body">
+                    <div class="news-card-source">
+                        <i class="bi bi-rss-fill me-1"></i>Yahoo
+                    </div>
+                    <div class="news-card-title">美國與伊朗關係緊張　華爾街股市早盤走低</div>
+                    <div class="news-card-summary"></div>
+                    <div class="news-card-footer">
+                        <span class="news-card-time">
+                            <i class="bi bi-clock"></i> 2026-02-19T15:26:57+08:00
+                        </span>
+                        <span style="font-size:0.75rem;color:var(--brand-cyan);">
+                            閱讀 <i class="bi bi-arrow-up-right"></i>
+                        </span>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="https://tw.news.yahoo.com/%E5%82%B3%E7%BE%8E%E4%BC%8A%E6%81%90%E9%96%8B%E6%88%B0-%E7%BE%8E%E8%82%A14%E5%A4%A7%E8%82%A1%E6%8C%87%E9%96%8B%E7%9B%A4%E4%B8%8B%E8%B7%8C-150912678.html" target="_blank" rel="noopener" class="news-card">
+                <div class="news-card-img">
+                    
+                    <div class="news-card-img-placeholder">
+                        <i class="bi bi-newspaper"></i>
+                    </div>
+                    
+                </div>
+                <div class="news-card-body">
+                    <div class="news-card-source">
+                        <i class="bi bi-rss-fill me-1"></i>Yahoo
+                    </div>
+                    <div class="news-card-title">傳美伊恐開戰！美股4大股指開盤下跌</div>
+                    <div class="news-card-summary"></div>
+                    <div class="news-card-footer">
+                        <span class="news-card-time">
+                            <i class="bi bi-clock"></i> 2026-02-19T15:09:12+08:00
+                        </span>
+                        <span style="font-size:0.75rem;color:var(--brand-cyan);">
+                            閱讀 <i class="bi bi-arrow-up-right"></i>
+                        </span>
+                    </div>
+                </div>
+            </a>
+            
+        </div>
+        
+    </div>
+
+</div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="navbar-brand" style="margin-bottom:0.5rem;">
+                        <div class="navbar-logo-icon" style="width:30px;height:30px;font-size:0.9rem;">
+                            <i class="bi bi-graph-up-arrow" style="color:white;"></i>
+                        </div>
+                        <span class="navbar-brand-text" style="font-size:1rem;">TWStock<span> Pro</span></span>
+                    </div>
+                    <p class="footer-desc">台灣股市專業分析平台，提供即時行情、技術分析、選股工具與投資組合管理，助您做出更智慧的投資決策。</p>
+                </div>
+
+                <div>
+                    <h6 class="footer-heading">快速連結</h6>
+                    <ul class="footer-links">
+                        <li><a href="/">首頁</a></li>
+                        <li><a href="/news">市場新聞</a></li>
+                        <li><a href="/tools/screener">選股器</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h6 class="footer-heading">投資工具</h6>
+                    <ul class="footer-links">
+                        <li><a href="/tools/dividend">股息計算器</a></li>
+                        <li><a href="/tools/dca">定期定額</a></li>
+                        <li><a href="/tools/ta">技術分析</a></li>
+                        <li><a href="/tools/ai">AI 預測</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h6 class="footer-heading">會員服務</h6>
+                    <ul class="footer-links">
+                        
+                        <li><a href="/login">會員登入</a></li>
+                        <li><a href="/register">免費註冊</a></li>
+                        
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <span class="footer-copyright">
+                    &copy; 2026 TWStock Pro. 版權所有。
+                </span>
+                <span class="footer-disclaimer">
+                    ⚠️ 本平台資訊僅供參考，不構成投資建議。投資有風險，請自行評估。
+                </span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ===== Theme Manager =====
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIconLight = document.getElementById('themeIconLight');
+        const themeIconDark = document.getElementById('themeIconDark');
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('twstock_theme', theme);
+            if (theme === 'dark') {
+                themeIconLight.style.display = 'none';
+                themeIconDark.style.display = '';
+            } else {
+                themeIconLight.style.display = '';
+                themeIconDark.style.display = 'none';
+            }
+            window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme } }));
+        }
+
+        // Init icons
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        applyTheme(currentTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            applyTheme(t);
+        });
+
+        // ===== Mobile Nav =====
+        const hamburger = document.getElementById('hamburger');
+        const mobileNav = document.getElementById('mobileNav');
+        let mobileOpen = false;
+
+        hamburger.addEventListener('click', () => {
+            mobileOpen = !mobileOpen;
+            mobileNav.classList.toggle('open', mobileOpen);
+            hamburger.querySelectorAll('span').forEach((s, i) => {
+                if (mobileOpen) {
+                    if (i === 0) { s.style.transform = 'translateY(7px) rotate(45deg)'; }
+                    if (i === 1) { s.style.opacity = '0'; }
+                    if (i === 2) { s.style.transform = 'translateY(-7px) rotate(-45deg)'; }
+                } else {
+                    s.style.transform = '';
+                    s.style.opacity = '';
+                }
+            });
+        });
+
+        // Close mobile nav on link click
+        mobileNav.querySelectorAll('a').forEach(a => {
+            a.addEventListener('click', () => {
+                mobileOpen = false;
+                mobileNav.classList.remove('open');
+                hamburger.querySelectorAll('span').forEach(s => {
+                    s.style.transform = ''; s.style.opacity = '';
+                });
+            });
+        });
+
+        // ===== Dropdown hover on desktop =====
+        document.querySelectorAll('.navbar .dropdown').forEach(dd => {
+            // already handled by CSS hover; keep for click fallback
+        });
+
+        // ===== Auto-dismiss flash alerts =====
+        setTimeout(() => {
+            document.querySelectorAll('.flash-container .alert').forEach(el => {
+                el.style.transition = 'opacity 0.5s';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 4000);
+    </script>
+
+    
+<script>
+    // Ticker auto-scroll optimization
+    const ticker = document.getElementById('tickerInner');
+    if (ticker) {
+        // Pause on hover (already handled by CSS)
+        // Dynamically adjust speed based on width
+        const adjustSpeed = () => {
+            const items = ticker.children.length;
+            const speed = Math.max(20, items * 3);
+            ticker.style.animationDuration = speed + 's';
+        };
+        adjustSpeed();
+    }
+
+    // Hero search keyboard shortcut (Ctrl+K or Cmd+K)
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            document.getElementById('heroSearch')?.focus();
+        }
+    });
+</script>
+
+</body>
+
+</html>

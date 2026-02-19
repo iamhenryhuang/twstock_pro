@@ -1,161 +1,768 @@
 {% extends "layouts/base.html" %}
+{% block title %}TWStock Pro｜台灣股市即時行情與分析平台{% endblock %}
 
-{% block title %}首頁 - TWStock Pro{% endblock %}
-
-{% block content %}
-<div class="container py-4">
-    <!-- Welcome Header -->
-    <div class="text-center mb-5">
-        <h1 class="display-4 fw-bold text-primary mb-2">台灣股市即時資訊</h1>
-        <p class="lead text-secondary">掌握即時行情，洞察市場趨勢，您的最佳投資夥伴</p>
-        <div class="mt-4">
-            <span class="badge bg-{{ 'success' if market_open else 'secondary' }} fs-6 px-3 py-2 rounded-pill">
-                <i class="bi bi-circle-fill me-2 small"></i>
-                {% if market_open %}市場開盤中{% else %}市場已收盤{% endif %}
-            </span>
-            <span class="text-secondary ms-3 small">
-                <i class="bi bi-clock me-1"></i>{{ current_time.strftime('%Y-%m-%d %H:%M:%S') }}
-            </span>
-        </div>
-    </div>
-
-    <!-- Market Summary Cards -->
-    <div class="row g-4 mb-5">
-        {% if market_info and not market_info.get('錯誤') %}
-        {% for key, value in market_info.items() %}
-        <div class="col-md-3 col-6">
-            <div class="card h-100 border-0 shadow-sm hover-elevate">
-                <div class="card-body text-center">
-                    <h6 class="text-secondary text-uppercase small ls-1 mb-2">{{ key }}</h6>
-                    <div
-                        class="fs-4 fw-bold {{ 'text-danger' if '-' in value|string else 'text-success' if '+' in value|string else 'text-dark' }}">
-                        {{ value }}
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-        {% else %}
-        <div class="col-12 text-center">
-            <div class="alert alert-warning">
-                <i class="bi bi-exclamation-triangle me-2"></i>暫時無法取得大盤資訊
-            </div>
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- Popular Stocks Section -->
-    <div class="mb-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold"><i class="bi bi-fire text-danger me-2"></i>熱門關注股票</h3>
-            <a href="#" class="btn btn-outline-primary btn-sm rounded-pill">查看更多 <i class="bi bi-arrow-right"></i></a>
-        </div>
-
-        <div class="row g-4">
-            {% for stock in popular_stocks %}
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <a href="{{ url_for('stock_page', code=stock.code) }}" class="text-decoration-none">
-                    <div class="card h-100 border-0 shadow-sm hover-scale transition-all">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span class="badge border">{{ stock.code }}</span>
-                                {% if stock.change_percent != 'N/A' %}
-                                <span class="badge {{ 'bg-danger' if '-' in stock.change_percent else 'bg-success' }}">
-                                    {{ stock.change_percent }}
-                                </span>
-                                {% endif %}
-                            </div>
-                            <h5 class="fw-bold text-dark mb-1 text-truncate">{{ stock.name }}</h5>
-                            <div class="d-flex align-items-baseline gap-2">
-                                <span
-                                    class="fs-4 fw-bold {{ 'text-danger' if '-' in stock.change else 'text-success' }}">
-                                    ${{ stock.price }}
-                                </span>
-                                <small class="text-muted">{{ stock.change }}</small>
-                            </div>
-                            <div class="mt-3 text-secondary small">
-                                <i class="bi bi-bar-chart-fill me-1"></i>量: {{ stock.volume }}
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            {% else %}
-            <div class="col-12 text-center py-5">
-                <p class="text-secondary">目前沒有熱門股票資料</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- Market News Section -->
-    <div class="mb-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold"><i class="bi bi-newspaper text-info me-2"></i>市場新聞</h3>
-            <a href="{{ url_for('news_page') }}" class="btn btn-outline-primary btn-sm rounded-pill">閱讀更多 <i
-                    class="bi bi-arrow-right"></i></a>
-        </div>
-
-        <div class="row g-4">
-            {% for news in market_news %}
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    {% if news.image_url %}
-                    <img src="{{ news.image_url }}" class="card-img-top" alt="{{ news.title }}"
-                        style="height: 200px; object-fit: cover;">
-                    {% else %}
-                    <div class="card-img-top text-center py-5"
-                        style="height: 200px; background-color: var(--color-surface);">
-                        <i class="bi bi-image text-secondary fs-1"></i>
-                    </div>
-                    {% endif %}
-                    <div class="card-body">
-                        <small class="text-primary fw-bold mb-2 d-block">{{ news.source }}</small>
-                        <h5 class="card-title fw-bold mb-3">
-                            <a href="{{ news.link }}" target="_blank"
-                                class="text-dark text-decoration-none stretched-link">
-                                {{ news.title }}
-                            </a>
-                        </h5>
-                        <p class="card-text text-secondary small line-clamp-3">{{ news.summary }}</p>
-                    </div>
-                    <div class="card-footer bg-transparent border-0 pt-0">
-                        <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ news.published_at }}</small>
-                    </div>
-                </div>
-            </div>
-            {% else %}
-            <div class="col-12 text-center py-5">
-                <div class="alert border">
-                    <i class="bi bi-info-circle me-2"></i>目前沒有相關新聞
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-
+{% block extra_css %}
 <style>
-    .hover-elevate:hover {
-        transform: translateY(-5px);
-        transition: transform 0.3s ease;
+    /* ── Hero ── */
+    .hero {
+        padding: 64px 0 48px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
     }
 
-    .hover-scale:hover {
-        transform: scale(1.02);
-        transition: transform 0.2s ease;
-        box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: -60px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 800px;
+        height: 400px;
+        background: radial-gradient(ellipse, rgba(33, 150, 243, 0.08) 0%, transparent 65%);
+        pointer-events: none;
     }
 
-    .line-clamp-3 {
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 14px;
+        border-radius: var(--r-full);
+        background: rgba(33, 150, 243, 0.08);
+        border: 1px solid rgba(33, 150, 243, 0.2);
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--c-cyan);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+    }
+
+    .hero-title {
+        font-size: clamp(28px, 4vw, 48px);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+        color: var(--t-white);
+        margin-bottom: 14px;
+    }
+
+    .hero-title span {
+        color: var(--c-cyan);
+    }
+
+    .hero-sub {
+        font-size: 15px;
+        color: var(--t-secondary);
+        max-width: 520px;
+        margin: 0 auto 32px;
+        line-height: 1.7;
+    }
+
+    /* Hero search */
+    .hero-search {
+        max-width: 580px;
+        margin: 0 auto 20px;
+    }
+
+    .hero-search-box {
+        display: flex;
+        background: var(--bg-panel);
+        border: 1px solid var(--b-medium);
+        border-radius: var(--r-lg);
+        padding: 5px;
+        gap: 5px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        transition: border-color var(--ease-md), box-shadow var(--ease-md);
+    }
+
+    .hero-search-box:focus-within {
+        border-color: var(--b-brand);
+        box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.12), 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-search-box input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        padding: 10px 14px;
+        font-size: 15px;
+        color: var(--t-primary);
+        font-family: var(--font);
+    }
+
+    .hero-search-box input::placeholder {
+        color: var(--t-muted);
+    }
+
+    .hero-search-box button {
+        background: var(--c-cyan);
+        border: none;
+        border-radius: var(--r-md);
+        padding: 10px 22px;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        white-space: nowrap;
+        transition: opacity var(--ease);
+        font-family: var(--font);
+    }
+
+    .hero-search-box button:hover {
+        opacity: 0.88;
+    }
+
+    /* Quick links */
+    .quick-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: center;
+        margin-top: 16px;
+    }
+
+    .quick-link {
+        padding: 4px 12px;
+        border-radius: var(--r-full);
+        background: var(--bg-elevated);
+        border: 1px solid var(--b-default);
+        font-size: 12px;
+        color: var(--t-secondary);
+        text-decoration: none;
+        transition: all var(--ease);
+    }
+
+    .quick-link:hover {
+        border-color: var(--b-brand);
+        color: var(--c-cyan);
+    }
+
+    /* ── Content wrapper ── */
+    .home-content {
+        padding-bottom: 64px;
+    }
+
+    /* ── Section header ── */
+    .sec-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .sec-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--t-primary);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .sec-title-bar {
+        width: 3px;
+        height: 16px;
+        border-radius: 2px;
+        flex-shrink: 0;
+    }
+
+    /* ── Market summary info bar ── */
+    .market-bar {
+        background: var(--bg-panel);
+        border: 1px solid var(--b-default);
+        border-radius: var(--r-lg);
+        margin-bottom: 32px;
+        overflow: hidden;
+    }
+
+    .market-bar-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--b-default);
+    }
+
+    .market-bar-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--t-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .market-bar-time {
+        font-size: 11px;
+        color: var(--t-muted);
+        font-family: var(--mono);
+    }
+
+    .market-stats {
+        display: flex;
+        flex-wrap: wrap;
+        divide-x: 1px solid var(--b-default);
+    }
+
+    .market-stat {
+        padding: 14px 24px;
+        border-right: 1px solid var(--b-default);
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .market-stat:last-child {
+        border-right: none;
+    }
+
+    .market-stat-label {
+        font-size: 10.5px;
+        color: var(--t-muted);
+        margin-bottom: 4px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .market-stat-value {
+        font-family: var(--mono);
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--t-white);
+    }
+
+    /* ── Stock cards ── */
+    .stocks-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 12px;
+    }
+
+    .stock-card {
+        display: block;
+        text-decoration: none;
+        background: var(--bg-panel);
+        border: 1px solid var(--b-default);
+        border-radius: var(--r-lg);
+        padding: 16px;
+        transition: border-color var(--ease-md), transform var(--ease-md), box-shadow var(--ease-md);
+        cursor: pointer;
+    }
+
+    .stock-card:hover {
+        border-color: var(--b-brand);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    .sc-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .sc-code {
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 4px;
+        background: rgba(33, 150, 243, 0.1);
+        color: var(--c-cyan);
+    }
+
+    .sc-pct {
+        font-size: 11px;
+        font-weight: 700;
+        font-family: var(--mono);
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    .sc-pct.up {
+        background: rgba(38, 166, 154, 0.12);
+        color: var(--c-green);
+    }
+
+    .sc-pct.down {
+        background: rgba(239, 83, 80, 0.12);
+        color: var(--c-red);
+    }
+
+    .sc-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--t-primary);
+        margin-bottom: 10px;
+    }
+
+    .sc-price {
+        font-family: var(--mono);
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 2px;
+    }
+
+    .sc-price.up {
+        color: var(--c-green);
+    }
+
+    .sc-price.down {
+        color: var(--c-red);
+    }
+
+    .sc-price.neu {
+        color: var(--t-white);
+    }
+
+    .sc-chg {
+        font-size: 12px;
+        font-family: var(--mono);
+    }
+
+    .sc-chg.up {
+        color: var(--c-green);
+    }
+
+    .sc-chg.down {
+        color: var(--c-red);
+    }
+
+    .sc-vol {
+        font-size: 11px;
+        color: var(--t-muted);
+        margin-top: 8px;
+        border-top: 1px solid var(--b-default);
+        padding-top: 8px;
+    }
+
+    /* ── Tools grid ── */
+    .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .tool-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--bg-panel);
+        border: 1px solid var(--b-default);
+        border-radius: var(--r-lg);
+        padding: 16px 20px;
+        text-decoration: none;
+        color: var(--t-primary);
+        transition: border-color var(--ease-md), background var(--ease-md), transform var(--ease-md);
+    }
+
+    .tool-link:hover {
+        border-color: var(--b-brand);
+        background: var(--bg-elevated);
+        transform: translateY(-1px);
+    }
+
+    .tool-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: var(--r-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+        flex-shrink: 0;
+    }
+
+    .tool-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--t-white);
+        margin-bottom: 2px;
+    }
+
+    .tool-desc {
+        font-size: 11px;
+        color: var(--t-muted);
+    }
+
+    /* ── News grid ── */
+    .news-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .news-card {
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-panel);
+        border: 1px solid var(--b-default);
+        border-radius: var(--r-lg);
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+        transition: border-color var(--ease-md), transform var(--ease-md);
+    }
+
+    .news-card:hover {
+        border-color: var(--b-brand);
+        transform: translateY(-2px);
+    }
+
+    .news-img {
+        height: 140px;
+        background: var(--bg-elevated);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--t-muted);
+        font-size: 28px;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .news-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .news-body {
+        padding: 14px 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .news-source {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--c-cyan);
+        margin-bottom: 6px;
+    }
+
+    .news-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--t-white);
+        line-height: 1.5;
+        margin-bottom: auto;
         display: -webkit-box;
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
+        line-clamp: 3;
     }
 
-    .transition-all {
-        transition: all 0.3s ease;
+    .news-time {
+        font-size: 11px;
+        color: var(--t-muted);
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* ── Market status badge ── */
+    .status-open {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 2px 10px;
+        border-radius: var(--r-full);
+        background: rgba(38, 166, 154, 0.12);
+        border: 1px solid rgba(38, 166, 154, 0.3);
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--c-green);
+    }
+
+    .status-closed {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 2px 10px;
+        border-radius: var(--r-full);
+        background: rgba(120, 123, 134, 0.1);
+        border: 1px solid var(--b-default);
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--t-secondary);
+    }
+
+    @media (max-width: 900px) {
+        .tools-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .news-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .tools-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .news-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .market-stat {
+            min-width: 50%;
+        }
     }
 </style>
+{% endblock %}
+
+{% block content %}
+<!-- ── Hero ── -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-eyebrow">
+            <span class="pulse-dot live"></span> 台灣股市即時數據
+        </div>
+        <h1 class="hero-title">專業台股分析<br><span>一站式</span>投資決策平台</h1>
+        <p class="hero-sub">即時行情 · 技術分析 · AI 預測 · 智慧選股<br>讓數據助您做出更好的投資決策</p>
+
+        <div class="hero-search">
+            <form action="{{ url_for('search_redirect') }}" method="GET">
+                <div class="hero-search-box">
+                    <input type="text" name="q" id="heroSearch" placeholder="輸入股票代號或名稱，例如：2330、台積電">
+                    <button type="submit">
+                        <i class="bi bi-search"></i> 查詢
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="quick-links">
+            <a href="{{ url_for('stock_page', code='2330') }}" class="quick-link">台積電 2330</a>
+            <a href="{{ url_for('stock_page', code='0050') }}" class="quick-link">元大50 0050</a>
+            <a href="{{ url_for('stock_page', code='0056') }}" class="quick-link">元大高股息 0056</a>
+            <a href="{{ url_for('stock_page', code='2317') }}" class="quick-link">鴻海 2317</a>
+            <a href="{{ url_for('stock_page', code='2412') }}" class="quick-link">中華電 2412</a>
+        </div>
+    </div>
+</section>
+
+<!-- ── Main content ── -->
+<div class="home-content">
+    <div class="container">
+
+        <!-- Market Summary -->
+        {% if market_info %}
+        <div class="market-bar">
+            <div class="market-bar-head">
+                <div class="market-bar-title">
+                    <i class="bi bi-speedometer2"></i> 大盤行情
+                    {% if market_open %}
+                    <span class="status-open"><span class="pulse-dot live"></span> 交易中</span>
+                    {% else %}
+                    <span class="status-closed"><i class="bi bi-moon-fill" style="font-size:9px;"></i> 休市</span>
+                    {% endif %}
+                </div>
+                <span class="market-bar-time">
+                    <i class="bi bi-clock" style="font-size:10px;"></i>
+                    {{ current_time.strftime('%H:%M 更新') }}
+                </span>
+            </div>
+            <div class="market-stats">
+                {% for key, value in market_info.items() %}
+                {% set is_up = '+' in value|string %}
+                {% set is_down = '-' in value|string %}
+                <div class="market-stat">
+                    <div class="market-stat-label">{{ key }}</div>
+                    <div class="market-stat-value {% if is_up %}txt-up{% elif is_down %}txt-down{% endif %}">
+                        {{ value }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Popular Stocks -->
+        <div style="margin-bottom:40px;">
+            <div class="sec-head">
+                <div class="sec-title">
+                    <div class="sec-title-bar" style="background:var(--c-red);"></div>
+                    熱門股票
+                </div>
+                <a href="{{ url_for('stock_screener_tool') }}" class="btn btn-outline btn-sm">
+                    探索更多 <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            {% if popular_stocks %}
+            <div class="stocks-grid">
+                {% for stock in popular_stocks %}
+                {% set is_up = '+' in stock.change|string and stock.change != 'N/A' %}
+                {% set is_down = '-' in stock.change|string and stock.change != 'N/A' %}
+                <a href="{{ url_for('stock_page', code=stock.code) }}" class="stock-card">
+                    <div class="sc-top">
+                        <span class="sc-code">{{ stock.code }}</span>
+                        {% if stock.change_percent != 'N/A' %}
+                        <span class="sc-pct {{ 'up' if is_up else 'down' if is_down else '' }}">
+                            {{ '+' if is_up else '' }}{{ stock.change_percent }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="sc-name">{{ stock.name }}</div>
+                    <div class="sc-price {{ 'up' if is_up else 'down' if is_down else 'neu' }}">
+                        {{ stock.price if stock.price != 'N/A' else '—' }}
+                    </div>
+                    <div class="sc-chg {{ 'up' if is_up else 'down' if is_down else '' }}">
+                        {{ stock.change if stock.change != 'N/A' else '' }}
+                    </div>
+                    <div class="sc-vol">
+                        <i class="bi bi-bar-chart-line"></i> 成交量 {{ stock.volume if stock.volume != 'N/A' else '—' }}
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="card" style="padding:48px;text-align:center;">
+                <i class="bi bi-wifi-off"
+                    style="font-size:32px;color:var(--t-muted);display:block;margin-bottom:12px;"></i>
+                <p style="color:var(--t-secondary);font-size:13px;">暫時無法取得股票資料</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Tools -->
+        <div style="margin-bottom:40px;">
+            <div class="sec-head">
+                <div class="sec-title">
+                    <div class="sec-title-bar" style="background:var(--c-cyan);"></div>
+                    投資工具套件
+                </div>
+            </div>
+            <div class="tools-grid">
+                <a href="{{ url_for('technical_analysis_tool') }}" class="tool-link">
+                    <div class="tool-icon" style="background:rgba(33,150,243,0.12);color:#2196F3;">
+                        <i class="bi bi-bar-chart-fill"></i>
+                    </div>
+                    <div>
+                        <div class="tool-name">技術分析</div>
+                        <div class="tool-desc">RSI · MACD · 布林通道</div>
+                    </div>
+                </a>
+                <a href="{{ url_for('ai_price_prediction_tool') }}" class="tool-link">
+                    <div class="tool-icon" style="background:rgba(124,58,237,0.12);color:#7C3AED;">
+                        <i class="bi bi-cpu-fill"></i>
+                    </div>
+                    <div>
+                        <div class="tool-name">AI 價格預測</div>
+                        <div class="tool-desc">趨勢外推 · 信賴區間</div>
+                    </div>
+                </a>
+                <a href="{{ url_for('stock_screener_tool') }}" class="tool-link">
+                    <div class="tool-icon" style="background:rgba(251,140,0,0.12);color:#FB8C00;">
+                        <i class="bi bi-funnel-fill"></i>
+                    </div>
+                    <div>
+                        <div class="tool-name">智慧選股</div>
+                        <div class="tool-desc">PE · 殖利率 · ROE 篩選</div>
+                    </div>
+                </a>
+                <a href="{{ url_for('dividend_calculator') }}" class="tool-link">
+                    <div class="tool-icon" style="background:rgba(38,166,154,0.12);color:#26A69A;">
+                        <i class="bi bi-calculator-fill"></i>
+                    </div>
+                    <div>
+                        <div class="tool-name">股息計算器</div>
+                        <div class="tool-desc">殖利率 · 配息試算</div>
+                    </div>
+                </a>
+                <a href="{{ url_for('dca_tool') }}" class="tool-link">
+                    <div class="tool-icon" style="background:rgba(38,166,154,0.12);color:#26A69A;">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
+                    <div>
+                        <div class="tool-name">定期定額試算</div>
+                        <div class="tool-desc">長期複利 · 成長曲線</div>
+                    </div>
+                </a>
+                <a href="{{ url_for('allocation_tool') }}" class="tool-link">
+                    <div class="tool-icon" style="background:rgba(33,150,243,0.12);color:#2196F3;">
+                        <i class="bi bi-pie-chart-fill"></i>
+                    </div>
+                    <div>
+                        <div class="tool-name">資產配置</div>
+                        <div class="tool-desc">投資組合 · 風險分配</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- News -->
+        <div>
+            <div class="sec-head">
+                <div class="sec-title">
+                    <div class="sec-title-bar" style="background:var(--c-gold);"></div>
+                    市場新聞
+                </div>
+                <a href="{{ url_for('news_page') }}" class="btn btn-outline btn-sm">
+                    更多新聞 <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            {% if market_news %}
+            <div class="news-grid">
+                {% for news in market_news %}
+                <a href="{{ news.link }}" target="_blank" rel="noopener" class="news-card">
+                    <div class="news-img">
+                        {% if news.image_url %}
+                        <img src="{{ news.image_url }}" alt="{{ news.title }}" loading="lazy">
+                        {% else %}
+                        <i class="bi bi-newspaper"></i>
+                        {% endif %}
+                    </div>
+                    <div class="news-body">
+                        <div class="news-source"><i class="bi bi-rss-fill" style="font-size:9px;"></i> {{ news.source }}
+                        </div>
+                        <div class="news-title">{{ news.title }}</div>
+                        <div class="news-time"><i class="bi bi-clock"></i> {{ news.published_at }}</div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="card" style="padding:48px;text-align:center;">
+                <i class="bi bi-newspaper"
+                    style="font-size:32px;color:var(--t-muted);display:block;margin-bottom:12px;"></i>
+                <p style="color:var(--t-secondary);font-size:13px;">目前沒有最新新聞</p>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Ctrl+K / Cmd+K 聚焦搜尋
+    document.addEventListener('keydown', e => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            document.getElementById('heroSearch')?.focus();
+        }
+    });
+</script>
 {% endblock %}

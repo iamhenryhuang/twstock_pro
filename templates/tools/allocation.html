@@ -1,199 +1,400 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}Asset Allocation | TST{% endblock %}
+{% block title %}資產配置 | TWStock Pro{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tool-page {
+        padding: 2.5rem 0 5rem;
+    }
+
+    .tool-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .tool-icon-wrap {
+        width: 52px;
+        height: 52px;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+
+    .tool-layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    .form-group {
+        margin-bottom: 1.125rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: .5rem;
+        font-size: .8rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+
+    .input-prefix-group {
+        position: relative;
+    }
+
+    .input-prefix {
+        position: absolute;
+        left: .875rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: .875rem;
+        pointer-events: none;
+        font-family: var(--font-mono);
+    }
+
+    .has-prefix {
+        padding-left: 2.5rem !important;
+    }
+
+    /* Risk cards */
+    .risk-cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: .625rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .risk-card {
+        padding: .875rem .75rem;
+        border: 2px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        cursor: pointer;
+        text-align: center;
+        transition: all var(--transition-fast);
+        background: var(--bg-glass);
+    }
+
+    .risk-card:hover {
+        border-color: var(--border-medium);
+    }
+
+    .risk-card.selected {
+        border-color: var(--brand-cyan);
+        background: rgba(0, 212, 255, .06);
+    }
+
+    .risk-card-icon {
+        font-size: 1.5rem;
+        display: block;
+        margin-bottom: .375rem;
+    }
+
+    .risk-card-label {
+        font-size: .7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+    }
+
+    /* Allocation rows */
+    .alloc-row {
+        display: flex;
+        align-items: center;
+        gap: .875rem;
+        padding: .75rem 0;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .alloc-row:last-child {
+        border-bottom: none;
+    }
+
+    .alloc-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .alloc-name {
+        font-size: .85rem;
+        flex: 1;
+        color: var(--text-secondary);
+    }
+
+    .alloc-bar-wrap {
+        flex: 2;
+        height: 6px;
+        background: var(--bg-surface);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .alloc-bar {
+        height: 100%;
+        border-radius: 3px;
+        transition: width .6s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .alloc-pct {
+        font-family: var(--font-mono);
+        font-size: .85rem;
+        font-weight: 600;
+        width: 2.5rem;
+        text-align: right;
+    }
+
+    .alloc-amt {
+        font-family: var(--font-mono);
+        font-size: .78rem;
+        color: var(--text-muted);
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .chart-area {
+        height: 280px;
+        position: relative;
+    }
+
+    @media (max-width:768px) {
+        .tool-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .risk-cards {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="section">
-    <div class="container">
+<div class="container tool-page">
 
-        <!-- Header -->
-        <div class="text-center mb-xl">
-            <div
-                class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-surface border border-brand mb-md">
-                <i class="bi bi-pie-chart text-brand text-2xl"></i>
-            </div>
-            <h1 class="h1 mb-sm">Asset Allocation</h1>
-            <p class="text-secondary">Optimize your portfolio based on risk tolerance and investment horizon</p>
+    <div class="tool-header">
+        <div class="tool-icon-wrap" style="background:rgba(0,212,255,.12);color:var(--brand-cyan);">
+            <i class="bi bi-pie-chart-fill"></i>
         </div>
+        <div>
+            <h1 style="font-size:1.5rem;font-weight:800;margin:0 0 .25rem;">資產配置建議</h1>
+            <p style="color:var(--text-secondary);font-size:.875rem;margin:0;">依照風險承受度與投資期限，生成個人化的資產配置建議</p>
+        </div>
+    </div>
 
-        <div class="grid grid-cols-2-md gap-xl">
+    <div class="tool-layout">
 
-            <!-- Parameters -->
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="bi bi-sliders me-sm"></i>Investment Parameters
-                    </h3>
-                </div>
+        <!-- Left: Inputs -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title"><i class="bi bi-person-fill"
+                        style="color:var(--brand-cyan);margin-right:.5rem;"></i>個人化設定</span>
+            </div>
+            <div class="card-body">
                 <form id="allocationForm">
-                    <div class="mb-lg">
-                        <label for="totalAmount" class="text-secondary mb-xs block">Total Investment</label>
-                        <div class="input-group">
-                            <span class="input-group-text">NT$</span>
-                            <input type="number" id="totalAmount" class="input" placeholder="1000000" min="10000"
+                    <div class="form-group">
+                        <label>總投資金額（元）</label>
+                        <div class="input-prefix-group">
+                            <span class="input-prefix">NT$</span>
+                            <input type="number" id="totalAmount" class="input has-prefix"
+                                style="font-family:var(--font-mono);" placeholder="1,000,000" min="0" value="1000000"
                                 required>
                         </div>
                     </div>
 
-                    <div class="mb-lg">
-                        <label for="riskProfile" class="text-secondary mb-xs block">Risk Profile</label>
-                        <select id="riskProfile" class="input" required>
-                            <option value="conservative">Conservative (Low Risk)</option>
-                            <option value="moderate">Moderate (Medium Risk)</option>
-                            <option value="aggressive">Aggressive (High Risk)</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-xl">
-                        <label for="investmentHorizon" class="text-secondary mb-xs block">Investment Horizon</label>
+                    <div class="form-group">
+                        <label>投資期限</label>
                         <select id="investmentHorizon" class="input" required>
-                            <option value="short">Short Term (1-3 Years)</option>
-                            <option value="medium">Medium Term (3-7 Years)</option>
-                            <option value="long">Long Term (>7 Years)</option>
+                            <option value="short">短期（1-3 年）</option>
+                            <option value="medium" selected>中期（3-7 年）</option>
+                            <option value="long">長期（7 年以上）</option>
                         </select>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-full">
-                        <i class="bi bi-pie-chart me-sm"></i>Generate Allocation
+                    <div class="form-group">
+                        <label>風險承受度</label>
+                        <div class="risk-cards" id="riskCards">
+                            <div class="risk-card" data-val="conservative" onclick="selectRisk(this)">
+                                <span class="risk-card-icon">🛡️</span>
+                                <div class="risk-card-label" style="color:var(--brand-green);">保守型</div>
+                            </div>
+                            <div class="risk-card selected" data-val="moderate" onclick="selectRisk(this)">
+                                <span class="risk-card-icon">⚖️</span>
+                                <div class="risk-card-label" style="color:var(--brand-cyan);">穩健型</div>
+                            </div>
+                            <div class="risk-card" data-val="aggressive" onclick="selectRisk(this)">
+                                <span class="risk-card-icon">🚀</span>
+                                <div class="risk-card-label" style="color:var(--brand-red);">積極型</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="riskProfile" value="moderate">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+                        <i class="bi bi-pie-chart"></i> 生成配置方案
                     </button>
                 </form>
             </div>
+        </div>
 
-            <!-- Results -->
-            <div class="card">
+        <!-- Right: Results -->
+        <div>
+            <div class="card" style="margin-bottom:1.25rem;">
                 <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="bi bi-graph-up me-sm"></i>Recommended Allocation
-                    </h3>
+                    <span class="card-title"><i class="bi bi-graph-up"
+                            style="color:var(--brand-cyan);margin-right:.5rem;"></i>建議配置圓餅圖</span>
+                    <span id="profileLabel" style="font-size:.78rem;color:var(--text-muted);"></span>
                 </div>
-
-                <div style="height: 300px; margin-bottom: var(--space-lg);">
-                    <canvas id="allocationChart" style="display: none;"></canvas>
-                    <div id="chartPlaceholder"
-                        class="flex flex-col items-center justify-center h-full text-secondary opacity-50">
-                        <i class="bi bi-pie-chart text-4xl mb-md"></i>
-                        <p>Set parameters to see recommendation</p>
+                <div style="padding:1.25rem;">
+                    <div class="chart-area">
+                        <canvas id="allocationChart" style="display:none;"></canvas>
+                        <div id="chartPlaceholder"
+                            style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;color:var(--text-muted);">
+                            <i class="bi bi-pie-chart" style="font-size:3rem;opacity:.15;margin-bottom:1rem;"></i>
+                            <p style="font-size:.875rem;">設定參數後生成配置</p>
+                        </div>
                     </div>
-                </div>
-
-                <div id="allocationResults" class="flex flex-col gap-md" style="display: none;">
-                    <!-- Results injected here -->
                 </div>
             </div>
 
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="bi bi-list-check"
+                            style="color:var(--brand-green);margin-right:.5rem;"></i>各類資產明細</span>
+                    <span id="totalAmountLabel"
+                        style="font-size:.78rem;color:var(--text-muted);font-family:var(--font-mono);"></span>
+                </div>
+                <div class="card-body" id="allocationResults" style="padding-top:.5rem;padding-bottom:.5rem;">
+                    <div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:.875rem;">
+                        點擊「生成配置方案」後顯示
+                    </div>
+                </div>
+            </div>
+
+            <div
+                style="margin-top:1rem;background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.15);border-radius:var(--radius-md);padding:.875rem 1rem;font-size:.78rem;color:var(--brand-cyan);display:flex;gap:.5rem;align-items:flex-start;">
+                <i class="bi bi-info-circle-fill" style="flex-shrink:0;margin-top:.1rem;"></i>
+                <span>配置建議基於一般學術理論（Modern Portfolio Theory），實際執行前請諮詢合格理財規劃師。</span>
+            </div>
         </div>
     </div>
-</section>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        let chart = null;
+    let chart = null;
 
-        // Chart Config
-        Chart.defaults.color = '#94a3b8';
-        Chart.defaults.borderColor = '#334155';
-        Chart.defaults.font.family = "'JetBrains Mono', monospace";
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
+    Chart.defaults.font.family = "'JetBrains Mono', monospace";
 
-        document.getElementById('allocationForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            generateAllocation();
+    function selectRisk(el) {
+        document.querySelectorAll('.risk-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        document.getElementById('riskProfile').value = el.dataset.val;
+    }
+
+    document.getElementById('allocationForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        generateAllocation();
+    });
+
+    const allocations = {
+        conservative: {
+            label: '保守型',
+            items: [
+                { name: '大型股（台股）', pct: 20, color: '#00D4FF' },
+                { name: '債券 ETF', pct: 40, color: '#00E676' },
+                { name: '現金 / 貨幣基金', pct: 25, color: '#FFD600' },
+                { name: '海外股票 ETF', pct: 15, color: '#7B2FFF' }
+            ]
+        },
+        moderate: {
+            label: '穩健型',
+            items: [
+                { name: '大型股（台股）', pct: 35, color: '#00D4FF' },
+                { name: '中小型股 ETF', pct: 15, color: '#FF6D00' },
+                { name: '債券 ETF', pct: 25, color: '#00E676' },
+                { name: '海外股票 ETF', pct: 25, color: '#7B2FFF' }
+            ]
+        },
+        aggressive: {
+            label: '積極型',
+            items: [
+                { name: '大型科技股', pct: 30, color: '#00D4FF' },
+                { name: '中小型成長股', pct: 25, color: '#FF6D00' },
+                { name: '新興市場 ETF', pct: 20, color: '#7B2FFF' },
+                { name: '高成長基金', pct: 15, color: '#FFD600' },
+                { name: '債券（防守）', pct: 10, color: '#00E676' }
+            ]
+        }
+    };
+
+    function fmtAmt(n) { return 'NT$ ' + Math.round(n).toLocaleString('zh-TW'); }
+
+    function generateAllocation() {
+        const total = parseFloat(document.getElementById('totalAmount').value) || 0;
+        const risk = document.getElementById('riskProfile').value;
+        const alloc = allocations[risk] || allocations.moderate;
+
+        document.getElementById('profileLabel').textContent = alloc.label;
+        document.getElementById('totalAmountLabel').textContent = `總計 ${fmtAmt(total)}`;
+
+        const items = alloc.items.map(item => ({ ...item, amount: total * item.pct / 100 }));
+
+        // Update detail rows
+        document.getElementById('allocationResults').innerHTML = items.map(item => `
+        <div class="alloc-row">
+            <div class="alloc-dot" style="background:${item.color};"></div>
+            <div class="alloc-name">${item.name}</div>
+            <div class="alloc-bar-wrap"><div class="alloc-bar" style="width:${item.pct}%;background:${item.color};opacity:.7;"></div></div>
+            <div class="alloc-pct">${item.pct}%</div>
+            <div class="alloc-amt">${fmtAmt(item.amount)}</div>
+        </div>`).join('');
+
+        // Update chart
+        const ctx = document.getElementById('allocationChart').getContext('2d');
+        if (chart) chart.destroy();
+
+        chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: items.map(i => i.name),
+                datasets: [{
+                    data: items.map(i => i.pct),
+                    backgroundColor: items.map(i => i.color),
+                    borderWidth: 0,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, font: { size: 11 } } },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.label}：${ctx.raw}%` } }
+                },
+                cutout: '72%'
+            }
         });
 
-        function generateAllocation() {
-            const totalAmount = parseFloat(document.getElementById('totalAmount').value);
-            const riskProfile = document.getElementById('riskProfile').value;
-            const horizon = document.getElementById('investmentHorizon').value;
+        document.getElementById('chartPlaceholder').style.display = 'none';
+        document.getElementById('allocationChart').style.display = 'block';
+    }
 
-            const allocations = getPortfolioAllocation(riskProfile, horizon);
-
-            const allocatedAmounts = allocations.map(item => ({
-                ...item,
-                amount: Math.round(totalAmount * item.percentage / 100)
-            }));
-
-            displayAllocation(allocatedAmounts);
-            createChart(allocatedAmounts);
-        }
-
-        function getPortfolioAllocation(risk, horizon) {
-            const allocations = {
-                conservative: [
-                    { name: 'Large Cap Stocks', percentage: 25, color: '#00E5FF' },
-                    { name: 'Bonds', percentage: 40, color: '#00C853' },
-                    { name: 'Cash/Money Market', percentage: 20, color: '#FFD700' },
-                    { name: 'Global Stocks', percentage: 15, color: '#7B68EE' }
-                ],
-                moderate: [
-                    { name: 'Large Cap Stocks', percentage: 35, color: '#00E5FF' },
-                    { name: 'Mid/Small Cap', percentage: 15, color: '#FF3D00' },
-                    { name: 'Bonds', percentage: 25, color: '#00C853' },
-                    { name: 'Global Stocks', percentage: 25, color: '#7B68EE' }
-                ],
-                aggressive: [
-                    { name: 'Large Cap Stocks', percentage: 30, color: '#00E5FF' },
-                    { name: 'Mid/Small Cap', percentage: 25, color: '#FF3D00' },
-                    { name: 'Growth Funds', percentage: 20, color: '#FFD700' },
-                    { name: 'Emerging Markets', percentage: 15, color: '#7B68EE' },
-                    { name: 'Bonds', percentage: 10, color: '#00C853' }
-                ]
-            };
-
-            return allocations[risk] || allocations.moderate;
-        }
-
-        function displayAllocation(allocations) {
-            const resultsDiv = document.getElementById('allocationResults');
-
-            resultsDiv.innerHTML = allocations.map(item => `
-                <div class="p-md radius-md bg-surface border border-color flex justify-between items-center">
-                    <div class="flex items-center gap-sm">
-                        <div style="width: 12px; height: 12px; background: ${item.color}; border-radius: 2px;"></div>
-                        <span class="text-secondary">${item.name}</span>
-                    </div>
-                    <div class="text-right">
-                        <div class="font-bold text-white">${item.percentage}%</div>
-                        <div class="font-mono text-sm text-secondary">NT$ ${item.amount.toLocaleString()}</div>
-                    </div>
-                </div>
-            `).join('');
-
-            document.getElementById('chartPlaceholder').style.display = 'none';
-            resultsDiv.style.display = 'flex';
-        }
-
-        function createChart(allocations) {
-            const ctx = document.getElementById('allocationChart').getContext('2d');
-            if (chart) chart.destroy();
-
-            chart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: allocations.map(item => item.name),
-                    datasets: [{
-                        data: allocations.map(item => item.percentage),
-                        backgroundColor: allocations.map(item => item.color),
-                        borderWidth: 0,
-                        hoverOffset: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { padding: 20, usePointStyle: true }
-                        }
-                    },
-                    cutout: '70%'
-                }
-            });
-
-            document.getElementById('allocationChart').style.display = 'block';
-        }
-    });
+    // Auto-calculate on load with default values
+    document.addEventListener('DOMContentLoaded', generateAllocation);
 </script>
 {% endblock %}

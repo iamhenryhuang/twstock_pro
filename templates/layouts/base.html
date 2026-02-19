@@ -1,428 +1,1940 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" data-theme="light">
+<html lang="zh-Hant" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}TWStock Pro{% endblock %}</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="description" content="TWStock Pro - 台灣股市專業分析平台，即時行情、技術分析、選股工具一站搞定">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230D1421'/><polyline points='4,22 10,14 16,18 22,8 28,12' stroke='%2300D4FF' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+    <title>{% block title %}TWStock Pro｜台股專業分析平台{% endblock %}</title>
+
     <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts: Inter + JetBrains Mono -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
 
     <style>
+        /* ═══════════════════════════════════════════════════════════
+       TWSTOCK PRO · Design System v3.0
+       Reference: TradingView / Bloomberg Terminal aesthetic
+       Dark-first, professional financial platform
+    ═══════════════════════════════════════════════════════════ */
+
+        /* ── Token Layer ── */
         :root {
-            /* Light Theme Color Palette */
-            --color-brand-primary: #0d6efd;
-            --color-brand-secondary: #6610f2;
-            --color-success: #198754;
-            --color-danger: #dc3545;
-            --color-warning: #ffc107;
-            --color-info: #0dcaf0;
-            --color-surface: #f8f9fa;
-            --color-bg: #ffffff;
-            --color-text-primary: #212529;
-            --color-text-secondary: #6c757d;
-            --color-border: rgba(0, 0, 0, 0.05);
-            --color-card-bg: #ffffff;
-            --color-nav-bg: #ffffff;
+            /* Palette */
+            --c-cyan: #2196F3;
+            /* Primary blue (like TradingView) */
+            --c-green: #26A69A;
+            /* Up / profit */
+            --c-red: #EF5350;
+            /* Down / loss */
+            --c-gold: #FFB300;
+            /* Warning / highlight */
+            --c-purple: #7C3AED;
+            /* AI / premium */
+            --c-orange: #FB8C00;
+            /* Screener / tools */
 
-            /* Spacing */
-            --space-xs: 0.25rem;
-            --space-sm: 0.5rem;
-            --space-md: 1rem;
-            --space-lg: 1.5rem;
-            --space-xl: 3rem;
+            /* Semantic */
+            --up: var(--c-green);
+            --down: var(--c-red);
 
-            /* Border Radius */
-            --radius-sm: 0.25rem;
-            --radius-md: 0.5rem;
-            --radius-lg: 1rem;
+            /* Surfaces (dark) */
+            --bg-page: #131722;
+            /* TradingView dark bg */
+            --bg-panel: #1E2130;
+            /* Panel / card bg */
+            --bg-elevated: #252836;
+            /* Elevated surfaces */
+            --bg-input: #1A1E2E;
+            --bg-hover: rgba(255, 255, 255, 0.04);
+            --bg-active: rgba(33, 150, 243, 0.1);
+
+            /* Borders */
+            --b-default: rgba(255, 255, 255, 0.08);
+            --b-medium: rgba(255, 255, 255, 0.13);
+            --b-strong: rgba(255, 255, 255, 0.20);
+            --b-brand: rgba(33, 150, 243, 0.4);
+
+            /* Text */
+            --t-primary: #D1D4DC;
+            /* TradingView main text */
+            --t-secondary: #787B86;
+            /* Secondary text */
+            --t-muted: #434651;
+            --t-brand: var(--c-cyan);
+            --t-white: #EAECEF;
+
+            /* Typography */
+            --font: 'Inter', system-ui, -apple-system, sans-serif;
+            --mono: 'JetBrains Mono', 'Courier New', monospace;
+
+            /* ── Backward-compat aliases (for pages using old var names) ── */
+            --font-sans: var(--font);
+            --font-mono: var(--mono);
+            --bg-base: var(--bg-page);
+            --bg-card: var(--bg-panel);
+            --bg-surface: var(--bg-panel);
+            --bg-glass: var(--bg-elevated);
+            --bg-glass-hover: rgba(255, 255, 255, 0.06);
+            --border-subtle: var(--b-default);
+            --border-medium: var(--b-medium);
+            --border-strong: var(--b-strong);
+            --border-brand: var(--b-brand);
+            --text-primary: var(--t-primary);
+            --text-secondary: var(--t-secondary);
+            --text-muted: var(--t-muted);
+            --text-brand: var(--c-cyan);
+            --brand-cyan: var(--c-cyan);
+            --brand-green: var(--c-green);
+            --brand-red: var(--c-red);
+            --brand-gold: var(--c-gold);
+            --brand-purple: var(--c-purple);
+            --brand-blue: var(--c-cyan);
+            --brand-orange: var(--c-orange);
+            --grad-brand: linear-gradient(135deg, var(--c-cyan), #1565C0);
+            --glow-cyan: 0 0 0 3px rgba(33, 150, 243, 0.18);
+            --radius-sm: var(--r-sm);
+            --radius-md: var(--r-md);
+            --radius-lg: var(--r-lg);
+            --radius-xl: var(--r-xl);
+            --radius-full: var(--r-full);
+            --space-xs: var(--s1);
+            --space-sm: var(--s2);
+            --space-md: var(--s4);
+            --space-lg: var(--s6);
+            --space-xl: var(--s8);
+            --space-2xl: var(--s12);
+            --transition-fast: var(--ease);
+            --transition-base: var(--ease-md);
+            --navbar-height: var(--nav-h);
+            --color-up: var(--c-green);
+            --color-down: var(--c-red);
+            --transition-slow: 400ms ease;
+
+            /* Spacing (8px grid) */
+            --s1: 0.25rem;
+            /* 4px */
+            --s2: 0.5rem;
+            /* 8px */
+            --s3: 0.75rem;
+            /* 12px */
+            --s4: 1rem;
+            /* 16px */
+            --s5: 1.25rem;
+            /* 20px */
+            --s6: 1.5rem;
+            /* 24px */
+            --s8: 2rem;
+            /* 32px */
+            --s10: 2.5rem;
+            /* 40px */
+            --s12: 3rem;
+            /* 48px */
+
+            /* Radius */
+            --r-sm: 4px;
+            --r-md: 6px;
+            --r-lg: 10px;
+            --r-xl: 16px;
+            --r-full: 9999px;
+
+            /* Transition */
+            --ease: 150ms ease;
+            --ease-md: 250ms ease;
+
+            /* Navbar */
+            --nav-h: 56px;
         }
 
-        [data-theme="dark"] {
-            --color-surface: #121212;
-            --color-bg: #1a1a1a;
-            --color-text-primary: #e9ecef;
-            --color-text-secondary: #adb5bd;
-            --color-border: rgba(255, 255, 255, 0.1);
-            --color-card-bg: #242424;
-            --color-nav-bg: #1e1e1e;
-            --color-brand-primary: #3d8bfd;
+        /* ── Light Mode ── */
+        [data-theme="light"] {
+            --bg-page: #F0F3FA;
+            --bg-panel: #FFFFFF;
+            --bg-elevated: #F5F7FC;
+            --bg-input: #FFFFFF;
+            --bg-hover: rgba(0, 0, 0, 0.04);
+            --bg-active: rgba(33, 150, 243, 0.08);
+            --b-default: rgba(0, 0, 0, 0.08);
+            --b-medium: rgba(0, 0, 0, 0.13);
+            --b-strong: rgba(0, 0, 0, 0.20);
+            --b-brand: rgba(33, 150, 243, 0.3);
+            --t-primary: #131722;
+            --t-secondary: #5D6577;
+            --t-muted: #9BA3B5;
+            --c-cyan: #1565C0;
+            --t-brand: var(--c-cyan);
+            --t-white: #131722;
+        }
+
+        /* ── Reset ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background-color: var(--color-surface);
-            color: var(--color-text-primary);
+            font-family: var(--font);
+            background: var(--bg-page);
+            color: var(--t-primary);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            transition: background-color 0.3s, color 0.3s;
+            font-size: 14px;
+            line-height: 1.6;
+            transition: background var(--ease-md), color var(--ease-md);
         }
 
-        /* Layout Utilities */
-        .section {
-            padding: var(--space-xl) 0;
+        main {
+            flex: 1;
         }
 
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font-family: var(--font);
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        /* ── Container ── */
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 var(--space-md);
+            padding: 0 var(--s6);
+            width: 100%;
         }
 
-        .grid {
-            display: grid;
-            gap: var(--space-md);
+        .container-sm {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 var(--s6);
+            width: 100%;
         }
 
+        /* ══════════════ NAVBAR ══════════════ */
+        #navbar {
+            height: var(--nav-h);
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--b-default);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-wrap {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--s6);
+            display: flex;
+            align-items: center;
+            gap: var(--s4);
+        }
+
+        /* Brand */
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--s2);
+            text-decoration: none;
+            flex-shrink: 0;
+            margin-right: var(--s2);
+        }
+
+        .nav-brand-icon {
+            width: 30px;
+            height: 30px;
+            background: var(--c-cyan);
+            border-radius: var(--r-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            color: #fff;
+        }
+
+        .nav-brand-text {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--t-white);
+            letter-spacing: -0.02em;
+        }
+
+        .nav-brand-text em {
+            color: var(--c-cyan);
+            font-style: normal;
+        }
+
+        /* Main nav links */
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: var(--s1);
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 10px;
+            border-radius: var(--r-md);
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--t-secondary);
+            text-decoration: none;
+            transition: color var(--ease), background var(--ease);
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: var(--t-primary);
+            background: var(--bg-hover);
+        }
+
+        .nav-link.active {
+            color: var(--t-white);
+            background: var(--bg-active);
+        }
+
+        .nav-link i {
+            font-size: 14px;
+        }
+
+        /* Dropdown */
+        .nav-dropdown {
+            position: relative;
+        }
+
+        .nav-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            min-width: 220px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--b-medium);
+            border-radius: var(--r-lg);
+            padding: 6px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-4px);
+            transition: opacity var(--ease), transform var(--ease), visibility var(--ease);
+            z-index: 100;
+        }
+
+        .nav-dropdown.open .nav-dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .nav-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: var(--r-md);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--t-secondary);
+            text-decoration: none;
+            transition: background var(--ease), color var(--ease);
+        }
+
+        .nav-dropdown-item:hover {
+            background: var(--bg-hover);
+            color: var(--t-primary);
+        }
+
+        .nav-dropdown-item i {
+            font-size: 14px;
+            width: 18px;
+            text-align: center;
+        }
+
+        .nav-dropdown-sep {
+            height: 1px;
+            background: var(--b-default);
+            margin: 5px 0;
+        }
+
+        .nav-dropdown-label {
+            padding: 4px 12px 2px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--t-muted);
+        }
+
+        /* Spacer */
+        .nav-spacer {
+            flex: 1;
+        }
+
+        /* Search */
+        .nav-search {
+            display: flex;
+            align-items: center;
+            background: var(--bg-input);
+            border: 1px solid var(--b-default);
+            border-radius: var(--r-md);
+            height: 34px;
+            width: 220px;
+            overflow: hidden;
+            transition: border-color var(--ease), box-shadow var(--ease);
+        }
+
+        .nav-search:focus-within {
+            border-color: var(--b-brand);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.12);
+        }
+
+        .nav-search-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            flex-shrink: 0;
+            color: var(--t-muted);
+            font-size: 13px;
+        }
+
+        .nav-search input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: var(--font);
+            font-size: 13px;
+            color: var(--t-primary);
+            padding: 0 var(--s2) 0 0;
+        }
+
+        .nav-search input::placeholder {
+            color: var(--t-muted);
+        }
+
+        .nav-search-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            flex-shrink: 0;
+            background: var(--c-cyan);
+            border: none;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+            transition: opacity var(--ease);
+        }
+
+        .nav-search-btn:hover {
+            opacity: 0.85;
+        }
+
+        /* Right actions */
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--s2);
+            flex-shrink: 0;
+        }
+
+        /* Theme toggle */
+        .nav-theme-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 1px solid var(--b-default);
+            border-radius: var(--r-md);
+            color: var(--t-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all var(--ease);
+        }
+
+        .nav-theme-btn:hover {
+            border-color: var(--b-medium);
+            color: var(--t-primary);
+        }
+
+        /* User button */
+        .nav-user-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 4px 10px 4px 5px;
+            background: var(--bg-hover);
+            border: 1px solid var(--b-default);
+            border-radius: var(--r-full);
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--t-primary);
+            transition: all var(--ease);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .nav-user-btn:hover {
+            border-color: var(--b-brand);
+            background: var(--bg-active);
+        }
+
+        .nav-avatar {
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(135deg, var(--c-cyan), var(--c-purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        /* Mobile hamburger */
+        .nav-hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            padding: 6px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .nav-hamburger span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: var(--t-secondary);
+            border-radius: 2px;
+            transition: all var(--ease-md);
+        }
+
+        .nav-hamburger.open span:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+
+        .nav-hamburger.open span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .nav-hamburger.open span:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+
+        /* Mobile nav overlay */
+        #mobile-nav {
+            display: none;
+            position: fixed;
+            inset: var(--nav-h) 0 0 0;
+            background: var(--bg-panel);
+            z-index: 999;
+            overflow-y: auto;
+            padding: var(--s4);
+            flex-direction: column;
+            gap: var(--s1);
+            border-top: 1px solid var(--b-default);
+        }
+
+        #mobile-nav.open {
+            display: flex;
+        }
+
+        .mobile-section-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--t-muted);
+            padding: var(--s3) var(--s2) var(--s1);
+        }
+
+        .mobile-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: var(--r-md);
+            color: var(--t-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background var(--ease), color var(--ease);
+        }
+
+        .mobile-nav-link:hover {
+            background: var(--bg-hover);
+            color: var(--t-primary);
+        }
+
+        .mobile-nav-link i {
+            font-size: 15px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .mobile-search {
+            display: flex;
+            align-items: center;
+            background: var(--bg-input);
+            border: 1px solid var(--b-default);
+            border-radius: var(--r-md);
+            overflow: hidden;
+            margin: var(--s2) 0;
+        }
+
+        .mobile-search input {
+            flex: 1;
+            padding: 10px 12px;
+            background: none;
+            border: none;
+            outline: none;
+            font-family: var(--font);
+            font-size: 14px;
+            color: var(--t-primary);
+        }
+
+        .mobile-search input::placeholder {
+            color: var(--t-muted);
+        }
+
+        .mobile-search button {
+            padding: 10px 14px;
+            background: var(--c-cyan);
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* ══════════════ FLASH MESSAGES ══════════════ */
+        .flash-wrap {
+            padding: var(--s3) 0 0;
+        }
+
+        .flash-msg {
+            display: flex;
+            align-items: center;
+            gap: var(--s3);
+            padding: 10px var(--s4);
+            border-radius: var(--r-md);
+            font-size: 13.5px;
+            margin-bottom: 6px;
+            border: 1px solid transparent;
+        }
+
+        .flash-msg i {
+            flex-shrink: 0;
+            font-size: 15px;
+        }
+
+        .flash-msg .close-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.6;
+            font-size: 14px;
+            padding: 0 0 0 var(--s2);
+        }
+
+        .flash-msg .close-btn:hover {
+            opacity: 1;
+        }
+
+        .flash-success {
+            background: rgba(38, 166, 154, 0.1);
+            border-color: rgba(38, 166, 154, 0.3);
+            color: var(--c-green);
+        }
+
+        .flash-danger {
+            background: rgba(239, 83, 80, 0.1);
+            border-color: rgba(239, 83, 80, 0.3);
+            color: var(--c-red);
+        }
+
+        .flash-warning {
+            background: rgba(255, 179, 0, 0.1);
+            border-color: rgba(255, 179, 0, 0.3);
+            color: var(--c-gold);
+        }
+
+        .flash-info {
+            background: rgba(33, 150, 243, 0.1);
+            border-color: rgba(33, 150, 243, 0.3);
+            color: var(--c-cyan);
+        }
+
+        /* ══════════════ CARD SYSTEM ══════════════ */
+        .card {
+            background: var(--bg-panel);
+            border: 1px solid var(--b-default);
+            border-radius: var(--r-lg);
+            overflow: hidden;
+            transition: border-color var(--ease-md);
+        }
+
+        .card:hover {
+            border-color: var(--b-medium);
+        }
+
+        /* Card header — clean, no heavy divider */
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px var(--s6);
+            border-bottom: 1px solid var(--b-default);
+            gap: var(--s3);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--t-secondary);
+            margin: 0;
+        }
+
+        .card-title-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .card-body {
+            padding: var(--s6);
+        }
+
+        .card-body-sm {
+            padding: var(--s4);
+        }
+
+        .card-footer {
+            padding: var(--s3) var(--s6);
+            border-top: 1px solid var(--b-default);
+            font-size: 12px;
+            color: var(--t-secondary);
+        }
+
+        /* Stat card variant */
+        .stat-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--b-default);
+            border-radius: var(--r-lg);
+            padding: var(--s5) var(--s6);
+            transition: border-color var(--ease-md), transform var(--ease-md);
+        }
+
+        .stat-card:hover {
+            border-color: var(--b-brand);
+            transform: translateY(-1px);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--t-muted);
+            margin-bottom: var(--s2);
+        }
+
+        .stat-value {
+            font-family: var(--mono);
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--t-white);
+            line-height: 1.2;
+        }
+
+        .stat-sub {
+            font-size: 12px;
+            color: var(--t-secondary);
+            margin-top: var(--s1);
+        }
+
+        /* ══════════════ BUTTONS ══════════════ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border-radius: var(--r-md);
+            font-family: var(--font);
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all var(--ease);
+            white-space: nowrap;
+            user-select: none;
+            line-height: 1.4;
+        }
+
+        .btn:focus-visible {
+            outline: 2px solid var(--c-cyan);
+            outline-offset: 2px;
+        }
+
+        .btn-primary {
+            background: var(--c-cyan);
+            color: #fff;
+            border-color: var(--c-cyan);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.88;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--t-secondary);
+            border-color: var(--b-medium);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg-hover);
+            color: var(--t-primary);
+            border-color: var(--b-strong);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--t-secondary);
+            border-color: transparent;
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-hover);
+            color: var(--t-primary);
+        }
+
+        .btn-success {
+            background: var(--c-green);
+            color: #fff;
+            border-color: var(--c-green);
+        }
+
+        .btn-success:hover {
+            opacity: 0.88;
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--c-red);
+            border-color: rgba(239, 83, 80, 0.4);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 83, 80, 0.1);
+        }
+
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+
+        .btn-lg {
+            padding: 10px 22px;
+            font-size: 14.5px;
+        }
+
+        .btn-xl {
+            padding: 13px 28px;
+            font-size: 15px;
+            border-radius: var(--r-lg);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* ══════════════ FORM INPUTS ══════════════ */
+        .form-group {
+            margin-bottom: var(--s5);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--t-secondary);
+        }
+
+        .form-input,
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        select,
+        textarea {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--b-default);
+            border-radius: var(--r-md);
+            color: var(--t-primary);
+            font-family: var(--font);
+            font-size: 13.5px;
+            transition: border-color var(--ease), box-shadow var(--ease);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .form-input:focus,
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--c-cyan);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.14);
+            background: var(--bg-elevated);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: var(--t-muted);
+        }
+
+        select option {
+            background: var(--bg-elevated);
+            color: var(--t-primary);
+        }
+
+        /* Input with icon */
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-icon-left {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--t-muted);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .input-with-icon {
+            padding-left: 34px !important;
+        }
+
+        .input-prefix-text {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--t-muted);
+            font-size: 13px;
+            font-family: var(--mono);
+            pointer-events: none;
+        }
+
+        /* ══════════════ BADGE ══════════════ */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: var(--r-full);
+            font-size: 11px;
+            font-weight: 700;
+            font-family: var(--mono);
+            letter-spacing: 0.04em;
+        }
+
+        .badge-up {
+            background: rgba(38, 166, 154, 0.12);
+            color: var(--c-green);
+            border: 1px solid rgba(38, 166, 154, 0.25);
+        }
+
+        .badge-down {
+            background: rgba(239, 83, 80, 0.12);
+            color: var(--c-red);
+            border: 1px solid rgba(239, 83, 80, 0.25);
+        }
+
+        .badge-neu {
+            background: rgba(120, 123, 134, 0.1);
+            color: var(--t-secondary);
+            border: 1px solid var(--b-default);
+        }
+
+        .badge-info {
+            background: rgba(33, 150, 243, 0.1);
+            color: var(--c-cyan);
+            border: 1px solid rgba(33, 150, 243, 0.25);
+        }
+
+        .badge-warn {
+            background: rgba(255, 179, 0, 0.1);
+            color: var(--c-gold);
+            border: 1px solid rgba(255, 179, 0, 0.25);
+        }
+
+        .badge-purple {
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--c-purple);
+            border: 1px solid rgba(124, 58, 237, 0.25);
+        }
+
+        /* ══════════════ TABLE ══════════════ */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: var(--t-muted);
+            border-bottom: 1px solid var(--b-default);
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--b-default);
+            font-size: 13.5px;
+            color: var(--t-primary);
+            transition: background var(--ease);
+        }
+
+        .data-table tbody tr:hover td {
+            background: var(--bg-hover);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table-mono {
+            font-family: var(--mono);
+            font-size: 13px;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        /* Backward-compat text color aliases */
+        .text-up {
+            color: var(--c-green) !important;
+        }
+
+        .text-down {
+            color: var(--c-red) !important;
+        }
+
+        .color-up {
+            color: var(--c-green) !important;
+        }
+
+        .color-down {
+            color: var(--c-red) !important;
+        }
+
+        .color-neutral {
+            color: var(--t-secondary) !important;
+        }
+
+        /* card-header alias → card-head styles */
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px var(--s6);
+            border-bottom: 1px solid var(--b-default);
+            gap: var(--s3);
+        }
+
+        /* ══════════════ ALERT ══════════════ */
+        .alert {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--s3);
+            padding: 12px var(--s4);
+            border-radius: var(--r-md);
+            font-size: 13.5px;
+            border: 1px solid transparent;
+            margin-bottom: var(--s3);
+        }
+
+        .alert i {
+            flex-shrink: 0;
+            font-size: 15px;
+            margin-top: 1px;
+        }
+
+        .alert-success {
+            background: rgba(38, 166, 154, 0.08);
+            border-color: rgba(38, 166, 154, 0.25);
+            color: var(--c-green);
+        }
+
+        .alert-danger {
+            background: rgba(239, 83, 80, 0.08);
+            border-color: rgba(239, 83, 80, 0.25);
+            color: var(--c-red);
+        }
+
+        .alert-warning {
+            background: rgba(255, 179, 0, 0.08);
+            border-color: rgba(255, 179, 0, 0.25);
+            color: var(--c-gold);
+        }
+
+        .alert-info {
+            background: rgba(33, 150, 243, 0.08);
+            border-color: rgba(33, 150, 243, 0.25);
+            color: var(--c-cyan);
+        }
+
+        /* ══════════════ MODAL ══════════════ */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--s6);
+        }
+
+        .modal-box {
+            background: var(--bg-panel);
+            border: 1px solid var(--b-medium);
+            border-radius: var(--r-xl);
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--s5) var(--s6);
+            border-bottom: 1px solid var(--b-default);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--t-white);
+        }
+
+        .modal-body {
+            padding: var(--s6);
+        }
+
+        .modal-foot {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: var(--s2);
+            padding: var(--s4) var(--s6);
+            border-top: 1px solid var(--b-default);
+        }
+
+        /* ══════════════ SPINNER ══════════════ */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--b-medium);
+            border-top-color: var(--c-cyan);
+            border-radius: 50%;
+            animation: spin 0.65s linear infinite;
+            flex-shrink: 0;
+        }
+
+        .spinner-lg {
+            width: 36px;
+            height: 36px;
+            border-width: 3px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ══════════════ TICKER (price colors) ══════════════ */
+        .txt-up {
+            color: var(--c-green) !important;
+        }
+
+        .txt-down {
+            color: var(--c-red) !important;
+        }
+
+        .txt-neu {
+            color: var(--t-secondary) !important;
+        }
+
+        .txt-brand {
+            color: var(--c-cyan) !important;
+        }
+
+        .txt-muted {
+            color: var(--t-muted) !important;
+        }
+
+        .txt-white {
+            color: var(--t-white) !important;
+        }
+
+        .txt-gold {
+            color: var(--c-gold) !important;
+        }
+
+        .txt-purple {
+            color: var(--c-purple) !important;
+        }
+
+        /* ══════════════ PULSE DOT ══════════════ */
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .pulse-dot.live {
+            background: var(--c-green);
+            box-shadow: 0 0 0 0 rgba(38, 166, 154, 0.6);
+            animation: pulse-anim 2s infinite;
+        }
+
+        @keyframes pulse-anim {
+            0% {
+                box-shadow: 0 0 0 0 rgba(38, 166, 154, 0.6);
+            }
+
+            70% {
+                box-shadow: 0 0 0 5px rgba(38, 166, 154, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(38, 166, 154, 0);
+            }
+        }
+
+        /* ══════════════ DIVIDER ══════════════ */
+        .sep {
+            height: 1px;
+            background: var(--b-default);
+            margin: var(--s4) 0;
+        }
+
+        /* ══════════════ UTILITIES ══════════════ */
         .flex {
             display: flex;
+        }
+
+        .flex-col {
+            display: flex;
+            flex-direction: column;
         }
 
         .items-center {
             align-items: center;
         }
 
-        .justify-center {
-            justify-content: center;
+        .items-start {
+            align-items: flex-start;
         }
 
         .justify-between {
             justify-content: space-between;
         }
 
-        .gap-md {
-            gap: var(--space-md);
+        .justify-center {
+            justify-content: center;
+        }
+
+        .justify-end {
+            justify-content: flex-end;
+        }
+
+        .gap-1 {
+            gap: var(--s1);
+        }
+
+        .gap-2 {
+            gap: var(--s2);
+        }
+
+        .gap-3 {
+            gap: var(--s3);
+        }
+
+        .gap-4 {
+            gap: var(--s4);
+        }
+
+        .gap-6 {
+            gap: var(--s6);
+        }
+
+        .gap-8 {
+            gap: var(--s8);
+        }
+
+        .flex-1 {
+            flex: 1;
+        }
+
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+
+        .shrink-0 {
+            flex-shrink: 0;
+        }
+
+        .w-full {
+            width: 100%;
+        }
+
+        .h-full {
+            height: 100%;
+        }
+
+        .mt-2 {
+            margin-top: var(--s2);
+        }
+
+        .mt-4 {
+            margin-top: var(--s4);
+        }
+
+        .mt-6 {
+            margin-top: var(--s6);
+        }
+
+        .mt-8 {
+            margin-top: var(--s8);
+        }
+
+        .mb-2 {
+            margin-bottom: var(--s2);
+        }
+
+        .mb-4 {
+            margin-bottom: var(--s4);
+        }
+
+        .mb-6 {
+            margin-bottom: var(--s6);
+        }
+
+        .mb-8 {
+            margin-bottom: var(--s8);
+        }
+
+        .p-4 {
+            padding: var(--s4);
+        }
+
+        .p-6 {
+            padding: var(--s6);
+        }
+
+        .px-4 {
+            padding-left: var(--s4);
+            padding-right: var(--s4);
+        }
+
+        .py-8 {
+            padding-top: var(--s8);
+            padding-bottom: var(--s8);
+        }
+
+        .py-12 {
+            padding-top: var(--s12);
+            padding-bottom: var(--s12);
         }
 
         .text-center {
             text-align: center;
         }
 
-        .text-end {
+        .text-right {
             text-align: right;
         }
 
-        /* Typography */
-        .h1 {
-            font-size: 2.5rem;
+        .mono {
+            font-family: var(--mono);
+        }
+
+        .truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Grid helpers */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--s4);
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--s4);
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--s4);
+        }
+
+        /* ══════════════ FOOTER ══════════════ */
+        #footer {
+            background: var(--bg-panel);
+            border-top: 1px solid var(--b-default);
+            padding: var(--s10) 0 var(--s6);
+            margin-top: auto;
+            font-size: 13px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: var(--s10);
+            margin-bottom: var(--s8);
+        }
+
+        .footer-brand-desc {
+            color: var(--t-secondary);
+            line-height: 1.7;
+            margin-top: var(--s3);
+            font-size: 12.5px;
+        }
+
+        .footer-col-title {
+            font-size: 10px;
             font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--t-muted);
+            margin-bottom: var(--s3);
         }
 
-        .h2 {
-            font-size: 2rem;
-            font-weight: 600;
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
-        .h3 {
-            font-size: 1.75rem;
-            font-weight: 600;
-        }
-
-        .text-brand {
-            color: var(--color-brand-primary);
-        }
-
-        .text-secondary {
-            color: var(--color-text-secondary);
-        }
-
-        .text-success {
-            color: var(--color-success) !important;
-        }
-
-        .text-danger {
-            color: var(--color-danger) !important;
-        }
-
-        /* Components */
-        .card {
-            background: var(--color-card-bg);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--color-border);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-            padding: var(--space-lg);
-            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s, border-color 0.3s;
-        }
-
-        .btn {
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-md);
-            font-weight: 500;
-            transition: all 0.2s;
+        .footer-links a {
+            color: var(--t-secondary);
             text-decoration: none;
-            display: inline-flex;
+            transition: color var(--ease);
+        }
+
+        .footer-links a:hover {
+            color: var(--c-cyan);
+        }
+
+        .footer-bottom {
+            display: flex;
             align-items: center;
-            border: 1px solid transparent;
-            cursor: pointer;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: var(--s2);
+            padding-top: var(--s5);
+            border-top: 1px solid var(--b-default);
+            font-size: 12px;
+            color: var(--t-muted);
         }
 
-        .btn-primary {
-            background-color: var(--color-brand-primary);
-            color: white;
+        /* ══════════════ PAGE HEADER ══════════════ */
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: var(--s3);
+            padding: var(--s8) 0 var(--s6);
         }
 
-        .btn-primary:hover {
-            background-color: #0b5ed7;
-            color: white;
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border-color: var(--color-border);
-            color: var(--color-text-primary);
-        }
-
-        .btn-outline:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-
-        /* Navbar */
-        .navbar {
-            background-color: var(--color-nav-bg);
-            border-bottom: 1px solid var(--color-border);
-            padding: var(--space-md) 0;
-            transition: background-color 0.3s, border-color 0.3s;
-        }
-
-        .nav-link {
-            color: var(--color-text-secondary);
-            font-weight: 500;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            color: var(--color-brand-primary);
-        }
-
-        .text-dark {
-            color: var(--color-text-primary) !important;
-        }
-
-        /* Theme Toggle */
-        #theme-toggle {
-            background: none;
-            border: none;
-            color: var(--color-text-secondary);
-            font-size: 1.25rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
+        .page-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--r-lg);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background-color 0.2s, color 0.2s;
+            font-size: 18px;
+            flex-shrink: 0;
         }
 
-        #theme-toggle:hover {
-            background-color: rgba(0, 0, 0, 0.05);
-            color: var(--color-brand-primary);
+        .page-header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--t-white);
+            margin: 0 0 2px;
         }
 
-        [data-theme="dark"] #theme-toggle:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+        .page-header p {
+            font-size: 13px;
+            color: var(--t-secondary);
+            margin: 0;
         }
 
-        /* Footer */
-        .footer {
-            margin-top: auto;
-            background-color: var(--color-nav-bg);
-            padding: var(--space-xl) 0;
-            border-top: 1px solid var(--color-border);
-            transition: background-color 0.3s, border-color 0.3s;
+        /* Tool layout */
+        .tool-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: var(--s5);
+            align-items: start;
         }
 
-        /* Dropdown adaptation */
-        .dropdown-menu {
-            background-color: var(--color-card-bg);
-            border-color: var(--color-border);
+        .tool-layout-wide {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: var(--s5);
+            align-items: start;
         }
 
-        .dropdown-item {
-            color: var(--color-text-primary);
+        /* ══════════════ SCROLLBAR ══════════════ */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
         }
 
-        .dropdown-item:hover {
-            background-color: rgba(0, 0, 0, 0.05);
+        ::-webkit-scrollbar-track {
+            background: transparent;
         }
 
-        [data-theme="dark"] .dropdown-item:hover {
-            background-color: rgba(255, 255, 255, 0.05);
+        ::-webkit-scrollbar-thumb {
+            background: var(--b-medium);
+            border-radius: 3px;
         }
 
-        .dropdown-divider {
-            border-top-color: var(--color-border);
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--b-strong);
         }
 
-        /* Form Controls */
-        .form-control {
-            background-color: var(--color-bg);
-            border-color: var(--color-border);
-            color: var(--color-text-primary);
+        /* ══════════════ RESPONSIVE ══════════════ */
+        @media (max-width: 1024px) {
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .footer-grid> :first-child {
+                grid-column: 1/-1;
+            }
+
+            .tool-layout,
+            .tool-layout-wide {
+                grid-template-columns: 1fr;
+            }
         }
 
-        .form-control:focus {
-            background-color: var(--color-bg);
-            color: var(--color-text-primary);
-            border-color: var(--color-brand-primary);
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        @media (max-width: 768px) {
+
+            .container,
+            .container-sm {
+                padding: 0 var(--s4);
+            }
+
+            .nav-links,
+            .nav-search {
+                display: none;
+            }
+
+            .nav-hamburger {
+                display: flex;
+            }
+
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: var(--s6);
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
+
+    <!-- FOUC prevention -->
     <script>
-        // Immediately set theme to avoid flicker
         (function () {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
+            var t = localStorage.getItem('ts_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', t);
         })();
     </script>
     {% block extra_css %}{% endblock %}
 </head>
 
 <body>
-    <!-- Navbar -->
-    <nav class="navbar mb-4">
-        <div class="container d-flex justify-content-between align-items-center">
-            <a href="{{ url_for('home') }}" class="d-flex align-items-center text-decoration-none">
-                <i class="bi bi-graph-up-arrow text-primary fs-3 me-2"></i>
-                <span class="fs-4 fw-bold text-dark">TWStock Pro</span>
+    <!-- ═══════ NAVBAR ═══════ -->
+    <nav id="navbar">
+        <div class="nav-wrap">
+            <!-- Brand -->
+            <a href="{{ url_for('home') }}" class="nav-brand">
+                <div class="nav-brand-icon">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <span class="nav-brand-text">TWStock<em> Pro</em></span>
             </a>
 
-            <div class="d-flex gap-2 align-items-center">
-                <a href="{{ url_for('home') }}" class="nav-link d-none d-md-block">首頁</a>
-                <a href="{{ url_for('news_page') }}" class="nav-link d-none d-md-block">新聞</a>
-                <div class="dropdown d-none d-md-block">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">工具</a>
-                    <ul class="dropdown-menu border-0 shadow-sm">
-                        <li><a class="dropdown-item" href="{{ url_for('dividend_calculator') }}">股息計算</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('allocation_tool') }}">資產配置</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('technical_analysis_tool') }}">技術分析</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('dca_tool') }}">定期定額</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('ai_price_prediction_tool') }}">AI 預測</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('stock_screener_tool') }}">選股器</a></li>
-                    </ul>
-                </div>
+            <!-- Desktop Nav Links -->
+            <div class="nav-links" id="desktop-nav">
+                <a href="{{ url_for('home') }}" class="nav-link {% if request.endpoint=='home' %}active{% endif %}">
+                    <i class="bi bi-house-fill"></i> 首頁
+                </a>
+                <a href="{{ url_for('news_page') }}"
+                    class="nav-link {% if request.endpoint=='news_page' %}active{% endif %}">
+                    <i class="bi bi-newspaper"></i> 新聞
+                </a>
 
-                <form action="{{ url_for('search_redirect') }}" method="GET" class="d-flex ms-2">
-                    <div class="input-group input-group-sm">
-                        <input type="text" name="q" class="form-control" placeholder="輸入代號/名稱..." aria-label="Search">
-                        <button class="btn btn-outline-primary" type="submit"><i class="bi bi-search"></i></button>
+                <!-- Tools dropdown -->
+                <div class="nav-dropdown" id="tools-dd">
+                    <button class="nav-link" id="tools-dd-btn" aria-expanded="false">
+                        <i class="bi bi-tools"></i> 工具
+                        <i class="bi bi-chevron-down" style="font-size:10px;margin-left:1px;"></i>
+                    </button>
+                    <div class="nav-dropdown-menu" id="tools-dd-menu">
+                        <div class="nav-dropdown-label">分析工具</div>
+                        <a class="nav-dropdown-item" href="{{ url_for('technical_analysis_tool') }}">
+                            <i class="bi bi-bar-chart-fill" style="color:#2196F3;"></i> 技術分析
+                        </a>
+                        <a class="nav-dropdown-item" href="{{ url_for('ai_price_prediction_tool') }}">
+                            <i class="bi bi-cpu-fill" style="color:#7C3AED;"></i> AI 預測
+                        </a>
+                        <a class="nav-dropdown-item" href="{{ url_for('stock_screener_tool') }}">
+                            <i class="bi bi-funnel-fill" style="color:#FB8C00;"></i> 智慧選股
+                        </a>
+                        <div class="nav-dropdown-sep"></div>
+                        <div class="nav-dropdown-label">計算工具</div>
+                        <a class="nav-dropdown-item" href="{{ url_for('dividend_calculator') }}">
+                            <i class="bi bi-calculator-fill" style="color:#26A69A;"></i> 股息計算器
+                        </a>
+                        <a class="nav-dropdown-item" href="{{ url_for('dca_tool') }}">
+                            <i class="bi bi-cash-coin" style="color:#26A69A;"></i> 定期定額
+                        </a>
+                        <a class="nav-dropdown-item" href="{{ url_for('allocation_tool') }}">
+                            <i class="bi bi-pie-chart-fill" style="color:#2196F3;"></i> 資產配置
+                        </a>
                     </div>
-                </form>
+                </div>
+            </div>
 
-                <!-- Theme Toggle Button -->
-                <button id="theme-toggle" class="ms-2" title="切換主題">
-                    <i class="bi bi-sun-fill" id="theme-icon-light"></i>
-                    <i class="bi bi-moon-fill d-none" id="theme-icon-dark"></i>
+            <div class="nav-spacer"></div>
+
+            <!-- Search -->
+            <form action="{{ url_for('search_redirect') }}" method="GET" class="nav-search">
+                <div class="nav-search-icon"><i class="bi bi-search"></i></div>
+                <input type="text" name="q" id="nav-search-input" placeholder="搜尋股票代號或名稱" autocomplete="off">
+                <button type="submit" class="nav-search-btn" aria-label="搜尋">
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
+
+            <!-- Right actions -->
+            <div class="nav-actions">
+                <!-- Theme toggle -->
+                <button class="nav-theme-btn" id="theme-btn" title="切換主題">
+                    <i class="bi bi-moon-fill" id="ti-dark"></i>
+                    <i class="bi bi-sun-fill" id="ti-light" style="display:none;"></i>
                 </button>
 
                 {% if current_user.is_authenticated %}
-                <div class="dropdown ms-2">
-                    <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle fs-5 me-1"></i>
-                        <span class="d-none d-sm-inline">{{ current_user.username }}</span>
-                    </a>
-                    <ul class="dropdown-menu border-0 shadow-sm dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{{ url_for('dashboard') }}"><i
-                                    class="bi bi-speedometer2 me-2"></i>控制台</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('watchlist') }}"><i
-                                    class="bi bi-bookmark-star me-2"></i>自選股</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i
-                                    class="bi bi-person-gear me-2"></i>個人資料</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i
-                                    class="bi bi-box-arrow-right me-2"></i>登出</a></li>
-                    </ul>
+                <!-- User dropdown -->
+                <div class="nav-dropdown" id="user-dd">
+                    <button class="nav-user-btn" id="user-dd-btn" aria-expanded="false">
+                        <div class="nav-avatar">{{ current_user.username[0].upper() }}</div>
+                        <span id="user-name-label">{{ current_user.username }}</span>
+                        <i class="bi bi-chevron-down" style="font-size:10px;color:var(--t-muted);"></i>
+                    </button>
+                    <div class="nav-dropdown-menu" style="right:0;left:auto;" id="user-dd-menu">
+                        <div class="nav-dropdown-label">會員中心</div>
+                        <a class="nav-dropdown-item" href="{{ url_for('dashboard') }}">
+                            <i class="bi bi-speedometer2" style="color:var(--c-cyan);"></i> 我的控制台
+                        </a>
+                        <a class="nav-dropdown-item" href="{{ url_for('watchlist') }}">
+                            <i class="bi bi-bookmark-star-fill" style="color:var(--c-gold);"></i> 自選股清單
+                        </a>
+                        <a class="nav-dropdown-item" href="{{ url_for('profile') }}">
+                            <i class="bi bi-person-gear" style="color:var(--t-secondary);"></i> 個人資料
+                        </a>
+                        <div class="nav-dropdown-sep"></div>
+                        <a class="nav-dropdown-item" href="{{ url_for('logout') }}" style="color:var(--c-red);">
+                            <i class="bi bi-box-arrow-right"></i> 登出
+                        </a>
+                    </div>
                 </div>
                 {% else %}
-                <div class="ms-2 d-flex gap-2">
-                    <a href="{{ url_for('login') }}" class="btn btn-sm btn-outline-primary">登入</a>
-                    <a href="{{ url_for('register') }}" class="btn btn-sm btn-primary d-none d-sm-inline-flex">註冊</a>
-                </div>
+                <a href="{{ url_for('login') }}" class="btn btn-outline btn-sm">登入</a>
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-person-plus"></i> 免費註冊
+                </a>
                 {% endif %}
+
+                <!-- Hamburger (mobile) -->
+                <button class="nav-hamburger" id="hamburger" aria-label="選單">
+                    <span></span><span></span><span></span>
+                </button>
             </div>
         </div>
     </nav>
 
-    <!-- Flash Messages -->
-    <div class="container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show shadow-sm"
-            role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        {% endfor %}
+    <!-- Mobile Nav Overlay -->
+    <div id="mobile-nav">
+        <form action="{{ url_for('search_redirect') }}" method="GET" class="mobile-search">
+            <input type="text" name="q" placeholder="搜尋股票代號或名稱..." autocomplete="off">
+            <button type="submit"><i class="bi bi-search"></i></button>
+        </form>
+        <div class="mobile-section-label">主選單</div>
+        <a href="{{ url_for('home') }}" class="mobile-nav-link"><i class="bi bi-house-fill"></i> 首頁</a>
+        <a href="{{ url_for('news_page') }}" class="mobile-nav-link"><i class="bi bi-newspaper"></i> 市場新聞</a>
+        <div class="mobile-section-label">投資工具</div>
+        <a href="{{ url_for('technical_analysis_tool') }}" class="mobile-nav-link"><i class="bi bi-bar-chart-fill"></i>
+            技術分析</a>
+        <a href="{{ url_for('ai_price_prediction_tool') }}" class="mobile-nav-link"><i class="bi bi-cpu-fill"></i> AI
+            預測</a>
+        <a href="{{ url_for('stock_screener_tool') }}" class="mobile-nav-link"><i class="bi bi-funnel-fill"></i>
+            智慧選股</a>
+        <a href="{{ url_for('dividend_calculator') }}" class="mobile-nav-link"><i class="bi bi-calculator-fill"></i>
+            股息計算器</a>
+        <a href="{{ url_for('dca_tool') }}" class="mobile-nav-link"><i class="bi bi-cash-coin"></i> 定期定額</a>
+        <a href="{{ url_for('allocation_tool') }}" class="mobile-nav-link"><i class="bi bi-pie-chart-fill"></i> 資產配置</a>
+        {% if current_user.is_authenticated %}
+        <div class="mobile-section-label">會員中心</div>
+        <a href="{{ url_for('dashboard') }}" class="mobile-nav-link"><i class="bi bi-speedometer2"></i> 控制台</a>
+        <a href="{{ url_for('watchlist') }}" class="mobile-nav-link"><i class="bi bi-bookmark-star-fill"></i> 自選股</a>
+        <a href="{{ url_for('profile') }}" class="mobile-nav-link"><i class="bi bi-person-gear"></i> 個人資料</a>
+        <a href="{{ url_for('logout') }}" class="mobile-nav-link" style="color:var(--c-red);"><i
+                class="bi bi-box-arrow-right"></i> 登出</a>
+        {% else %}
+        <div class="sep"></div>
+        <a href="{{ url_for('login') }}" class="btn btn-outline btn-block mt-2">登入</a>
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-block mt-2"><i class="bi bi-person-plus"></i>
+            免費註冊</a>
         {% endif %}
-        {% endwith %}
     </div>
 
-    <!-- Main Content -->
-    <main class="flex-grow-1">
-        {% block content %}{% endblock %}
-    </main>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container flash-wrap">
+        {% for cat, msg in messages %}
+        {% set cls = 'danger' if cat in ['error','danger'] else cat %}
+        <div class="flash-msg flash-{{ cls }}" role="alert">
+            <i
+                class="bi bi-{{ 'check-circle-fill' if cls=='success' else 'exclamation-triangle-fill' if cls in ['danger','warning'] else 'info-circle-fill' }}"></i>
+            <span>{{ msg }}</span>
+            <button class="close-btn" onclick="this.closest('.flash-msg').remove()" aria-label="關閉">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Main -->
+    <main>{% block content %}{% endblock %}</main>
 
     <!-- Footer -->
-    <footer class="footer mt-5">
-        <div class="container text-center">
-            <p class="text-secondary mb-2">&copy; {{ current_time.year if current_time else 2024 }} TWStock Pro. All
-                rights reserved.</p>
-            <div class="d-flex justify-content-center gap-3">
-                <a href="#" class="text-decoration-none text-secondary small">隱私政策</a>
-                <a href="#" class="text-decoration-none text-secondary small">服務條款</a>
-                <a href="#" class="text-decoration-none text-secondary small">聯絡我們</a>
+    <footer id="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <a href="{{ url_for('home') }}" class="nav-brand" style="margin-bottom:var(--s3);">
+                        <div class="nav-brand-icon"><i class="bi bi-graph-up-arrow"></i></div>
+                        <span class="nav-brand-text">TWStock<em> Pro</em></span>
+                    </a>
+                    <p class="footer-brand-desc">台灣股市專業分析平台，提供即時行情、技術指標、AI 預測與投資組合管理，助您做出更智慧的投資決策。</p>
+                </div>
+                <div>
+                    <div class="footer-col-title">快速連結</div>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('home') }}">首頁</a></li>
+                        <li><a href="{{ url_for('news_page') }}">市場新聞</a></li>
+                        <li><a href="{{ url_for('stock_screener_tool') }}">智慧選股</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="footer-col-title">投資工具</div>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('dividend_calculator') }}">股息計算器</a></li>
+                        <li><a href="{{ url_for('dca_tool') }}">定期定額</a></li>
+                        <li><a href="{{ url_for('technical_analysis_tool') }}">技術分析</a></li>
+                        <li><a href="{{ url_for('ai_price_prediction_tool') }}">AI 預測</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="footer-col-title">會員服務</div>
+                    <ul class="footer-links">
+                        {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('dashboard') }}">控制台</a></li>
+                        <li><a href="{{ url_for('watchlist') }}">自選股清單</a></li>
+                        <li><a href="{{ url_for('profile') }}">個人資料</a></li>
+                        {% else %}
+                        <li><a href="{{ url_for('login') }}">會員登入</a></li>
+                        <li><a href="{{ url_for('register') }}">免費註冊</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; {{ current_time.year if current_time else 2025 }} TWStock Pro. All rights reserved.</span>
+                <span>⚠️ 本平台資料僅供參考，不構成投資建議，投資請自行評估風險。</span>
             </div>
         </div>
     </footer>
 
-    <!-- Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Init tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
-
-        // Theme Toggle Logic
-        const themeToggle = document.getElementById('theme-toggle');
-        const lightIcon = document.getElementById('theme-icon-light');
-        const darkIcon = document.getElementById('theme-icon-dark');
-
-        function updateIcons(theme) {
-            if (theme === 'dark') {
-                lightIcon.classList.add('d-none');
-                darkIcon.classList.remove('d-none');
-            } else {
-                lightIcon.classList.remove('d-none');
-                darkIcon.classList.add('d-none');
-            }
+        /* ═══ Theme ═══ */
+        function setTheme(t) {
+            document.documentElement.setAttribute('data-theme', t);
+            localStorage.setItem('ts_theme', t);
+            document.getElementById('ti-dark').style.display = t === 'dark' ? '' : 'none';
+            document.getElementById('ti-light').style.display = t === 'light' ? '' : 'none';
         }
-
-        // Initialize icons
-        updateIcons(document.documentElement.getAttribute('data-theme'));
-
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateIcons(newTheme);
-
-            // Dispatch event for other components (like charts) to react
-            window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: newTheme } }));
+        setTheme(document.documentElement.getAttribute('data-theme') || 'dark');
+        document.getElementById('theme-btn').addEventListener('click', () => {
+            setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
         });
+
+        /* ═══ Dropdowns ═══ */
+        function setupDropdown(ddId, btnId) {
+            const dd = document.getElementById(ddId);
+            const btn = document.getElementById(btnId);
+            if (!dd || !btn) return;
+
+            btn.addEventListener('click', e => {
+                e.preventDefault(); e.stopPropagation();
+                const open = dd.classList.toggle('open');
+                btn.setAttribute('aria-expanded', open);
+                // close others
+                document.querySelectorAll('.nav-dropdown.open').forEach(el => {
+                    if (el !== dd) { el.classList.remove('open'); }
+                });
+            });
+        }
+        setupDropdown('tools-dd', 'tools-dd-btn');
+        setupDropdown('user-dd', 'user-dd-btn');
+
+        document.addEventListener('click', e => {
+            if (!e.target.closest('.nav-dropdown')) {
+                document.querySelectorAll('.nav-dropdown.open').forEach(el => el.classList.remove('open'));
+            }
+        });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.nav-dropdown.open').forEach(el => el.classList.remove('open'));
+            }
+        });
+
+        /* ═══ Mobile Nav ═══ */
+        const hamburger = document.getElementById('hamburger');
+        const mobileNav = document.getElementById('mobile-nav');
+        let mobileOpen = false;
+        hamburger.addEventListener('click', () => {
+            mobileOpen = !mobileOpen;
+            hamburger.classList.toggle('open', mobileOpen);
+            mobileNav.classList.toggle('open', mobileOpen);
+            document.body.style.overflow = mobileOpen ? 'hidden' : '';
+        });
+        mobileNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+            mobileOpen = false;
+            hamburger.classList.remove('open');
+            mobileNav.classList.remove('open');
+            document.body.style.overflow = '';
+        }));
+
+        /* ═══ Auto-dismiss flash ═══ */
+        setTimeout(() => {
+            document.querySelectorAll('.flash-msg').forEach(el => {
+                el.style.transition = 'opacity 0.4s';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 400);
+            });
+        }, 4500);
     </script>
+
     {% block scripts %}{% endblock %}
 </body>
 

@@ -363,13 +363,12 @@ def stock_screener_tool():
 def news_page():
     """新聞頁面"""
     try:
-        # 獲取更多新聞
-        news_items = get_yahoo_stock_top_news(12)
+        news_list = get_yahoo_stock_top_news(20)
     except Exception as e:
         print(f"獲取新聞失敗: {e}")
-        news_items = []
-        
-    return render_template('news.html', news_items=news_items)
+        news_list = []
+    now = datetime.now(ZoneInfo('Asia/Taipei')) if ZoneInfo else datetime.now()
+    return render_template('news.html', news_list=news_list, current_time=now)
 
 
 # === 會員系統路由 ===
@@ -586,7 +585,18 @@ def remove_from_watchlist(item_id):
     return redirect(url_for('watchlist'))
 
 
-
+@app.route('/watchlist/remove/code/<stock_code>')
+@login_required
+def remove_from_watchlist_by_code(stock_code):
+    """透過股票代號移除自選股"""
+    item = db.session.query(Watchlist).filter_by(user_id=current_user.id, stock_code=stock_code.upper()).first()
+    if item:
+        db.session.delete(item)
+        db.session.commit()
+        flash(f'已移除自選股：{stock_code}', 'success')
+    else:
+        flash('找不到此自選股項目', 'warning')
+    return redirect(url_for('watchlist'))
 
 
 # === API 端點 ===
@@ -707,6 +717,47 @@ def api_popular():
             'error': str(e),
             'timestamp': datetime.now().isoformat()
         }), 500
+
+
+@app.route('/api/search')
+def api_search():
+    """API: 搜尋股票代號與名稱"""
+    q = request.args.get('q', '').strip()
+    limit = min(request.args.get('limit', 10, type=int), 20)
+    if not q:
+        return jsonify({'results': []})
+    try:
+        # 常用股票名單作即時搜尋
+        all_stocks = [
+            {'code': '2330', 'name': '台積電'},
+            {'code': '2317', 'name': '鴻海'},
+            {'code': '2454', 'name': '聯發科'},
+            {'code': '2412', 'name': '中華電'},
+            {'code': '2882', 'name': '國泰金'},
+            {'code': '2881', 'name': '富邦金'},
+            {'code': '2886', 'name': '兆豐金'},
+            {'code': '2891', 'name': '中信金'},
+            {'code': '0050', 'name': '元大台灣50'},
+            {'code': '0056', 'name': '元大高股息'},
+            {'code': '006208', 'name': '富邦台50'},
+            {'code': '00878', 'name': '國泰永續高股息'},
+            {'code': '00919', 'name': '群益台灣精選高息'},
+            {'code': '2303', 'name': '聯電'},
+            {'code': '3711', 'name': '日月光投控'},
+            {'code': '2002', 'name': '中鋼'},
+            {'code': '1301', 'name': '台塑'},
+            {'code': '1303', 'name': '南亞'},
+            {'code': '2308', 'name': '台達電'},
+            {'code': '2357', 'name': '華碩'},
+        ]
+        q_lower = q.lower()
+        results = [s for s in all_stocks if q_lower in s['code'].lower() or q in s['name']]
+        if not results:
+            # fallback: try direct code lookup
+            results = [{'code': q.upper(), 'name': get_stock_name(q.upper())}]
+        return jsonify({'results': results[:limit]})
+    except Exception as e:
+        return jsonify({'results': [], 'error': str(e)})
 
 
 @app.route('/api/watchlist/add', methods=['POST'])
@@ -947,6 +998,5 @@ if __name__ == '__main__':
         except Exception as e:
             print(f"❌ 資料庫初始化錯誤: {e}")
     
-    #app.run(debug=True, host='127.0.0.1', port=5000)
-    app.run()
+    app.run(debug=True, host='127.0.0.1', port=5000)
     
