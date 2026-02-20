@@ -25,53 +25,71 @@
 
         /* ── Token Layer ── */
         :root {
-            /* Palette */
-            --c-cyan: #2196F3;
-            /* Primary blue (like TradingView) */
-            --c-green: #26A69A;
-            /* Up / profit */
-            --c-red: #EF5350;
-            /* Down / loss */
-            --c-gold: #FFB300;
-            /* Warning / highlight */
-            --c-purple: #7C3AED;
+            /* Palette — refined, less neon */
+            --c-blue: #3B82F6;
+            /* primary accent */
+            --c-cyan: #3B82F6;
+            /* alias */
+            --c-green: #22C55E;
+            /* up / profit */
+            --c-red: #EF4444;
+            /* down / loss */
+            --c-gold: #F59E0B;
+            /* warning / yield */
+            --c-purple: #8B5CF6;
             /* AI / premium */
-            --c-orange: #FB8C00;
-            /* Screener / tools */
+            --c-orange: #F97316;
+            /* tools */
+            --c-teal: #14B8A6;
+            /* secondary green */
 
             /* Semantic */
             --up: var(--c-green);
             --down: var(--c-red);
 
-            /* Surfaces (dark) */
-            --bg-page: #131722;
-            /* TradingView dark bg */
-            --bg-panel: #1E2130;
-            /* Panel / card bg */
-            --bg-elevated: #252836;
-            /* Elevated surfaces */
-            --bg-input: #1A1E2E;
+            /* Surfaces — 4-layer depth system (dark) */
+            --bg-page: #0F1117;
+            /* deepest — page bg */
+            --bg-panel: #171B26;
+            /* panels, cards */
+            --bg-elevated: #1E2235;
+            /* elevated surfaces */
+            --bg-overlay: #252A3A;
+            /* tooltips, popovers */
+            --bg-input: #161923;
             --bg-hover: rgba(255, 255, 255, 0.04);
-            --bg-active: rgba(33, 150, 243, 0.1);
+            --bg-active: rgba(59, 130, 246, 0.10);
 
             /* Borders */
-            --b-default: rgba(255, 255, 255, 0.08);
-            --b-medium: rgba(255, 255, 255, 0.13);
-            --b-strong: rgba(255, 255, 255, 0.20);
-            --b-brand: rgba(33, 150, 243, 0.4);
+            --b-default: rgba(255, 255, 255, 0.07);
+            --b-medium: rgba(255, 255, 255, 0.11);
+            --b-strong: rgba(255, 255, 255, 0.18);
+            --b-brand: rgba(59, 130, 246, 0.35);
 
             /* Text */
-            --t-primary: #D1D4DC;
-            /* TradingView main text */
-            --t-secondary: #787B86;
-            /* Secondary text */
-            --t-muted: #434651;
-            --t-brand: var(--c-cyan);
-            --t-white: #EAECEF;
+            --t-primary: #CDD2E0;
+            /* main readable text */
+            --t-secondary: #6B7280;
+            /* subdued */
+            --t-muted: #3D4354;
+            /* disabled, placeholders */
+            --t-brand: var(--c-blue);
+            --t-white: #E8ECF4;
+            /* headings */
 
             /* Typography */
             --font: 'Inter', system-ui, -apple-system, sans-serif;
             --mono: 'JetBrains Mono', 'Courier New', monospace;
+
+            /* Type scale */
+            --text-xs: 11px;
+            --text-sm: 12px;
+            --text-base: 13.5px;
+            --text-md: 15px;
+            --text-lg: 18px;
+            --text-xl: 22px;
+            --text-2xl: 28px;
+            --text-3xl: 36px;
 
             /* ── Backward-compat aliases (for pages using old var names) ── */
             --font-sans: var(--font);
@@ -153,22 +171,26 @@
 
         /* ── Light Mode ── */
         [data-theme="light"] {
-            --bg-page: #F0F3FA;
+            --bg-page: #F3F5FB;
             --bg-panel: #FFFFFF;
-            --bg-elevated: #F5F7FC;
+            --bg-elevated: #EEF1FA;
+            --bg-overlay: #E8EBF5;
             --bg-input: #FFFFFF;
             --bg-hover: rgba(0, 0, 0, 0.04);
-            --bg-active: rgba(33, 150, 243, 0.08);
-            --b-default: rgba(0, 0, 0, 0.08);
-            --b-medium: rgba(0, 0, 0, 0.13);
-            --b-strong: rgba(0, 0, 0, 0.20);
-            --b-brand: rgba(33, 150, 243, 0.3);
-            --t-primary: #131722;
-            --t-secondary: #5D6577;
-            --t-muted: #9BA3B5;
-            --c-cyan: #1565C0;
-            --t-brand: var(--c-cyan);
-            --t-white: #131722;
+            --bg-active: rgba(59, 130, 246, 0.07);
+            --b-default: rgba(0, 0, 0, 0.07);
+            --b-medium: rgba(0, 0, 0, 0.11);
+            --b-strong: rgba(0, 0, 0, 0.18);
+            --b-brand: rgba(59, 130, 246, 0.25);
+            --t-primary: #111827;
+            --t-secondary: #4B5563;
+            --t-muted: #9CA3AF;
+            --t-white: #111827;
+            --c-blue: #2563EB;
+            --c-cyan: #2563EB;
+            --t-brand: var(--c-blue);
+            --c-green: #16A34A;
+            --c-red: #DC2626;
         }
 
         /* ── Reset ── */
@@ -192,9 +214,11 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            font-size: 14px;
-            line-height: 1.6;
+            font-size: var(--text-base);
+            line-height: 1.65;
             transition: background var(--ease-md), color var(--ease-md);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         main {
@@ -233,13 +257,19 @@
         /* ══════════════ NAVBAR ══════════════ */
         #navbar {
             height: var(--nav-h);
-            background: var(--bg-panel);
+            background: rgba(23, 27, 38, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             border-bottom: 1px solid var(--b-default);
             position: sticky;
             top: 0;
             z-index: 1000;
             display: flex;
             align-items: center;
+        }
+
+        [data-theme="light"] #navbar {
+            background: rgba(255, 255, 255, 0.88);
         }
 
         .nav-wrap {
@@ -256,34 +286,36 @@
         .nav-brand {
             display: flex;
             align-items: center;
-            gap: var(--s2);
+            gap: 8px;
             text-decoration: none;
             flex-shrink: 0;
-            margin-right: var(--s2);
+            margin-right: var(--s3);
         }
 
         .nav-brand-icon {
-            width: 30px;
-            height: 30px;
-            background: var(--c-cyan);
-            border-radius: var(--r-md);
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--c-blue), #6366F1);
+            border-radius: 7px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 15px;
+            font-size: 14px;
             color: #fff;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
         }
 
         .nav-brand-text {
-            font-size: 15px;
-            font-weight: 800;
+            font-size: 14.5px;
+            font-weight: 700;
             color: var(--t-white);
-            letter-spacing: -0.02em;
+            letter-spacing: -0.025em;
         }
 
         .nav-brand-text em {
-            color: var(--c-cyan);
+            color: var(--c-blue);
             font-style: normal;
+            font-weight: 800;
         }
 
         /* Main nav links */
@@ -705,11 +737,12 @@
             border: 1px solid var(--b-default);
             border-radius: var(--r-lg);
             overflow: hidden;
-            transition: border-color var(--ease-md);
+            transition: border-color var(--ease-md), box-shadow var(--ease-md);
         }
 
         .card:hover {
             border-color: var(--b-medium);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
         }
 
         /* Card header — clean, no heavy divider */
@@ -813,18 +846,20 @@
         }
 
         .btn:focus-visible {
-            outline: 2px solid var(--c-cyan);
-            outline-offset: 2px;
+            outline: 2px solid var(--c-blue);
+            outline-offset: 3px;
         }
 
         .btn-primary {
-            background: var(--c-cyan);
+            background: var(--c-blue);
             color: #fff;
-            border-color: var(--c-cyan);
+            border-color: var(--c-blue);
+            box-shadow: 0 1px 3px rgba(59, 130, 246, 0.25);
         }
 
         .btn-primary:hover {
-            opacity: 0.88;
+            filter: brightness(1.08);
+            box-shadow: 0 3px 10px rgba(59, 130, 246, 0.35);
         }
 
         .btn-outline {
@@ -935,9 +970,10 @@
         input[type="number"]:focus,
         select:focus,
         textarea:focus {
-            border-color: var(--c-cyan);
-            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.14);
+            border-color: var(--c-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
             background: var(--bg-elevated);
+            outline: none;
         }
 
         input::placeholder,
@@ -1211,6 +1247,60 @@
             to {
                 transform: rotate(360deg);
             }
+        }
+
+        /* Fade-up entrance */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-up {
+            animation: fadeUp 0.35s ease both;
+        }
+
+        .fade-up-1 {
+            animation-delay: 0.05s;
+        }
+
+        .fade-up-2 {
+            animation-delay: 0.10s;
+        }
+
+        .fade-up-3 {
+            animation-delay: 0.15s;
+        }
+
+        .fade-up-4 {
+            animation-delay: 0.20s;
+        }
+
+        /* Skeleton shimmer */
+        @keyframes shimmer {
+            from {
+                background-position: -600px 0;
+            }
+
+            to {
+                background-position: 600px 0;
+            }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg,
+                    var(--bg-elevated) 25%,
+                    var(--bg-overlay) 50%,
+                    var(--bg-elevated) 75%);
+            background-size: 600px 100%;
+            animation: shimmer 1.4s infinite linear;
+            border-radius: var(--r-md);
         }
 
         /* ══════════════ TICKER (price colors) ══════════════ */

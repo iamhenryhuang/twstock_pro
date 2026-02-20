@@ -4,21 +4,21 @@
 {% block extra_css %}
 <style>
     .dash-page {
-        padding: 32px 0 56px;
+        padding: 32px 0 64px;
     }
 
     .dash-welcome {
-        font-size: 20px;
+        font-size: var(--text-xl);
         font-weight: 800;
         color: var(--t-white);
     }
 
     .dash-welcome span {
-        color: var(--c-cyan);
+        color: var(--c-blue);
     }
 
     .dash-time {
-        font-size: 11px;
+        font-size: var(--text-xs);
         color: var(--t-muted);
         font-family: var(--mono);
     }
@@ -33,11 +33,11 @@
     .stat-item {
         background: var(--bg-panel);
         border: 1px solid var(--b-default);
-        border-radius: var(--r-lg);
-        padding: 16px 20px;
+        border-radius: 12px;
+        padding: 18px 20px;
         position: relative;
         overflow: hidden;
-        transition: border-color var(--ease-md);
+        transition: border-color var(--ease-md), transform var(--ease-md);
     }
 
     .stat-item::before {
@@ -46,21 +46,22 @@
         top: 0;
         left: 0;
         right: 0;
-        height: 2px;
-        background: var(--accent, var(--c-cyan));
+        height: 3px;
+        background: var(--accent, var(--c-blue));
     }
 
     .stat-item:hover {
         border-color: var(--b-brand);
+        transform: translateY(-1px);
     }
 
     .si-label {
-        font-size: 10.5px;
+        font-size: var(--text-xs);
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
         color: var(--t-muted);
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         display: flex;
         align-items: center;
         gap: 6px;
@@ -78,34 +79,33 @@
 
     .si-value {
         font-family: var(--mono);
-        font-size: 22px;
+        font-size: 24px;
         font-weight: 700;
         color: var(--t-white);
     }
 
     .si-sub {
-        font-size: 11px;
+        font-size: var(--text-xs);
         color: var(--t-muted);
         margin-top: 4px;
     }
 
     .dash-grid {
         display: grid;
-        grid-template-columns: 1fr 300px;
+        grid-template-columns: 1fr 290px;
         gap: 16px;
         align-items: start;
     }
 
-    /* Quick action buttons */
     .qa-link {
         display: flex;
         align-items: center;
         gap: 12px;
-        padding: 12px 14px;
-        border-radius: var(--r-md);
+        padding: 11px 12px;
+        border-radius: 8px;
         text-decoration: none;
         color: var(--t-secondary);
-        transition: background var(--ease), color var(--ease);
+        transition: background var(--ease), color var(--ease), transform var(--ease);
         border: 1px solid transparent;
     }
 
@@ -113,12 +113,13 @@
         background: var(--bg-elevated);
         color: var(--t-primary);
         border-color: var(--b-default);
+        transform: translateX(3px);
     }
 
     .qa-icon {
         width: 34px;
         height: 34px;
-        border-radius: var(--r-md);
+        border-radius: 9px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -130,15 +131,14 @@
         font-size: 13px;
         font-weight: 600;
         color: var(--t-white);
-        margin-bottom: 2px;
+        margin-bottom: 1px;
     }
 
     .qa-desc {
-        font-size: 11px;
+        font-size: var(--text-xs);
         color: var(--t-muted);
     }
 
-    /* History item */
     .hist-item {
         display: flex;
         align-items: center;
@@ -154,14 +154,19 @@
     .hist-code {
         display: inline-block;
         font-family: var(--mono);
-        font-size: 12px;
+        font-size: var(--text-xs);
         font-weight: 700;
         padding: 2px 8px;
         border-radius: 4px;
-        background: rgba(33, 150, 243, 0.1);
-        color: var(--c-cyan);
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--c-blue);
         text-decoration: none;
         margin-right: 8px;
+        transition: background var(--ease);
+    }
+
+    .hist-code:hover {
+        background: rgba(59, 130, 246, 0.2);
     }
 
     .hist-name {
@@ -170,7 +175,7 @@
     }
 
     .hist-time {
-        font-size: 11px;
+        font-size: var(--text-xs);
         color: var(--t-muted);
         font-family: var(--mono);
     }
@@ -197,11 +202,11 @@
 <div class="dash-page">
     <div class="container">
         <!-- Header -->
-        <div class="flex items-center justify-between mb-6" style="flex-wrap:wrap;gap:12px;">
+        <div class="flex items-center justify-between mb-6 fade-up" style="flex-wrap:wrap;gap:12px;">
             <div>
                 <div class="dash-welcome">歡迎回來，<span>{{ current_user.username }}</span></div>
-                <div class="dash-time mt-2"><i class="bi bi-clock"></i> {{ current_time.strftime('%Y/%m/%d %H:%M') if
-                    current_time else '' }}</div>
+                <div class="dash-time mt-2"><i class="bi bi-clock"></i>
+                    {{ current_time.strftime('%Y/%m/%d %H:%M') if current_time else '' }}</div>
             </div>
             <div class="flex gap-2">
                 <a href="{{ url_for('watchlist') }}" class="btn btn-outline btn-sm">
@@ -214,11 +219,11 @@
         </div>
 
         <!-- Stats -->
-        <div class="stats-row">
-            <div class="stat-item" style="--accent:var(--c-cyan);">
+        <div class="stats-row fade-up fade-up-1">
+            <div class="stat-item" style="--accent:var(--c-blue);">
                 <div class="si-label">
                     <i class="bi bi-bookmark-star-fill"
-                        style="background:rgba(33,150,243,0.12);color:var(--c-cyan);"></i>
+                        style="background:rgba(59,130,246,0.12);color:var(--c-blue);"></i>
                     自選股
                 </div>
                 <div class="si-value">{{ watchlist|length if watchlist else 0 }}</div>
@@ -226,7 +231,7 @@
             </div>
             <div class="stat-item" style="--accent:var(--c-green);">
                 <div class="si-label">
-                    <i class="bi bi-clock-history" style="background:rgba(38,166,154,0.12);color:var(--c-green);"></i>
+                    <i class="bi bi-clock-history" style="background:rgba(34,197,94,0.1);color:var(--c-green);"></i>
                     搜尋記錄
                 </div>
                 <div class="si-value">{{ recent_searches|length if recent_searches else 0 }}</div>
@@ -234,20 +239,20 @@
             </div>
             <div class="stat-item" style="--accent:var(--c-purple);">
                 <div class="si-label">
-                    <i class="bi bi-person-badge" style="background:rgba(124,58,237,0.12);color:var(--c-purple);"></i>
+                    <i class="bi bi-person-badge" style="background:rgba(139,92,246,0.12);color:var(--c-purple);"></i>
                     會員等級
                 </div>
-                <div class="si-value" style="font-size:16px;">
+                <div class="si-value" style="font-size:18px;">
                     {{ 'VIP' if current_user.is_vip() else 'Pro' if current_user.is_premium() else '免費版' }}
                 </div>
                 <div class="si-sub">目前方案</div>
             </div>
             <div class="stat-item" style="--accent:var(--c-gold);">
                 <div class="si-label">
-                    <i class="bi bi-bell-fill" style="background:rgba(255,179,0,0.12);color:var(--c-gold);"></i>
+                    <i class="bi bi-bell-fill" style="background:rgba(245,158,11,0.12);color:var(--c-gold);"></i>
                     價格提醒
                 </div>
-                <div class="si-value" style="font-size:16px;">
+                <div class="si-value" style="font-size:18px;">
                     {{ '已啟用' if features.price_alerts else '未啟用' }}
                 </div>
                 <div class="si-sub">{{ 'Pro 功能' if features.price_alerts else '升級解鎖' }}</div>
@@ -255,20 +260,17 @@
         </div>
 
         <!-- Main grid -->
-        <div class="dash-grid">
-            <!-- Left: watchlist + history -->
+        <div class="dash-grid fade-up fade-up-2">
             <div style="display:flex;flex-direction:column;gap:16px;">
-
                 <!-- Watchlist -->
                 <div class="card">
                     <div class="card-head">
                         <div class="card-title">
-                            <div class="card-title-dot" style="background:var(--c-cyan);"></div>
+                            <div class="card-title-dot" style="background:var(--c-blue);"></div>
                             自選股清單
                         </div>
-                        <a href="{{ url_for('watchlist') }}" class="btn btn-outline btn-sm">
-                            管理 <i class="bi bi-arrow-right"></i>
-                        </a>
+                        <a href="{{ url_for('watchlist') }}" class="btn btn-outline btn-sm">管理 <i
+                                class="bi bi-arrow-right"></i></a>
                     </div>
                     {% if watchlist %}
                     <div class="table-scroll">
@@ -307,8 +309,8 @@
                     {% else %}
                     <div class="card-body" style="text-align:center;padding:48px;">
                         <i class="bi bi-bookmark"
-                            style="font-size:32px;color:var(--t-muted);display:block;margin-bottom:12px;opacity:0.4;"></i>
-                        <p style="color:var(--t-secondary);font-size:13px;margin-bottom:16px;">你還沒有自選股，去新增一些吧！</p>
+                            style="font-size:36px;color:var(--t-muted);display:block;margin-bottom:14px;opacity:0.4;"></i>
+                        <p style="color:var(--t-secondary);font-size:13px;margin-bottom:16px;">尚未建立自選股清單</p>
                         <a href="{{ url_for('home') }}" class="btn btn-primary btn-sm"><i class="bi bi-search"></i>
                             搜尋股票</a>
                     </div>
@@ -343,12 +345,10 @@
                     </div>
                 </div>
                 {% endif %}
-
             </div>
 
-            <!-- Right: sidebar -->
+            <!-- Sidebar -->
             <div style="display:flex;flex-direction:column;gap:16px;">
-
                 <!-- Quick actions -->
                 <div class="card">
                     <div class="card-head">
@@ -359,7 +359,7 @@
                     </div>
                     <div class="card-body" style="padding:var(--s2);">
                         <a href="{{ url_for('watchlist') }}" class="qa-link">
-                            <div class="qa-icon" style="background:rgba(33,150,243,0.12);color:var(--c-cyan);"><i
+                            <div class="qa-icon" style="background:rgba(59,130,246,0.12);color:var(--c-blue);"><i
                                     class="bi bi-bookmark-star-fill"></i></div>
                             <div>
                                 <div class="qa-name">管理自選股</div>
@@ -367,7 +367,7 @@
                             </div>
                         </a>
                         <a href="{{ url_for('stock_screener_tool') }}" class="qa-link">
-                            <div class="qa-icon" style="background:rgba(251,140,0,0.12);color:#FB8C00;"><i
+                            <div class="qa-icon" style="background:rgba(249,115,22,0.12);color:#F97316;"><i
                                     class="bi bi-funnel-fill"></i></div>
                             <div>
                                 <div class="qa-name">開始選股</div>
@@ -375,7 +375,7 @@
                             </div>
                         </a>
                         <a href="{{ url_for('dividend_calculator') }}" class="qa-link">
-                            <div class="qa-icon" style="background:rgba(38,166,154,0.12);color:var(--c-green);"><i
+                            <div class="qa-icon" style="background:rgba(20,184,166,0.12);color:#14B8A6;"><i
                                     class="bi bi-calculator-fill"></i></div>
                             <div>
                                 <div class="qa-name">股息計算</div>
@@ -383,7 +383,7 @@
                             </div>
                         </a>
                         <a href="{{ url_for('profile') }}" class="qa-link">
-                            <div class="qa-icon" style="background:rgba(124,58,237,0.12);color:var(--c-purple);"><i
+                            <div class="qa-icon" style="background:rgba(139,92,246,0.12);color:var(--c-purple);"><i
                                     class="bi bi-person-gear"></i></div>
                             <div>
                                 <div class="qa-name">個人設定</div>
@@ -397,7 +397,7 @@
                 <div class="card">
                     <div class="card-head">
                         <div class="card-title">
-                            <div class="card-title-dot" style="background:var(--c-cyan);"></div>
+                            <div class="card-title-dot" style="background:var(--c-blue);"></div>
                             會員資訊
                         </div>
                     </div>
@@ -442,7 +442,6 @@
                         </table>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>

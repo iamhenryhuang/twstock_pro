@@ -8,56 +8,33 @@
         padding: 2.5rem 0 4rem;
     }
 
-    .page-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    .page-title {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        display: flex;
-        align-items: center;
-        gap: 0.625rem;
-    }
-
-    /* Watchlist table */
-    .watchlist-card {
-        overflow: hidden;
-    }
-
     .wl-table {
         width: 100%;
         border-collapse: collapse;
     }
 
     .wl-table th {
-        padding: 0.75rem 1.25rem;
-        font-size: 0.7rem;
+        padding: 9px 16px;
+        font-size: 10px;
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: var(--text-muted);
-        border-bottom: 1px solid var(--border-subtle);
+        color: var(--t-muted);
+        border-bottom: 1px solid var(--b-default);
         white-space: nowrap;
     }
 
     .wl-table td {
-        padding: 1rem 1.25rem;
-        border-bottom: 1px solid var(--border-subtle);
-        font-size: 0.9rem;
-        color: var(--text-primary);
-        transition: background var(--transition-fast);
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--b-default);
+        font-size: 13px;
+        color: var(--t-primary);
+        transition: background var(--ease);
         vertical-align: middle;
     }
 
     .wl-table tbody tr:hover td {
-        background: var(--bg-glass);
+        background: var(--bg-hover);
     }
 
     .wl-table tbody tr:last-child td {
@@ -66,93 +43,82 @@
 
     .stock-code-link {
         display: inline-block;
-        font-family: var(--font-mono);
-        font-size: 0.8rem;
-        font-weight: 600;
-        padding: 0.2rem 0.6rem;
-        background: rgba(0, 212, 255, 0.08);
-        border: 1px solid rgba(0, 212, 255, 0.2);
-        border-radius: var(--radius-sm);
-        color: var(--brand-cyan);
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        font-weight: 700;
+        padding: 2px 8px;
+        background: rgba(59, 130, 246, 0.08);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 5px;
+        color: var(--c-blue);
         text-decoration: none;
-        transition: all var(--transition-fast);
+        transition: all var(--ease);
     }
 
     .stock-code-link:hover {
-        background: rgba(0, 212, 255, 0.15);
-        border-color: var(--border-brand);
+        background: rgba(59, 130, 246, 0.15);
     }
 
     .stock-name-link {
-        color: var(--text-primary);
+        color: var(--t-primary);
         text-decoration: none;
         font-weight: 600;
-        transition: color var(--transition-fast);
+        transition: color var(--ease);
     }
 
     .stock-name-link:hover {
-        color: var(--brand-cyan);
+        color: var(--c-blue);
     }
 
     .price-cell {
-        font-family: var(--font-mono);
+        font-family: var(--mono);
         font-weight: 500;
     }
 
-    .change-up {
-        color: var(--brand-green);
-    }
-
-    .change-down {
-        color: var(--brand-red);
-    }
-
     .date-cell {
-        font-family: var(--font-mono);
-        font-size: 0.8rem;
-        color: var(--text-muted);
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--t-muted);
     }
 
     .notes-cell {
-        font-size: 0.8rem;
-        color: var(--text-secondary);
+        font-size: 12px;
+        color: var(--t-secondary);
         max-width: 200px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
-    /* Empty state */
     .empty-state {
         text-align: center;
-        padding: 5rem 2rem;
+        padding: 72px 2rem;
     }
 
     .empty-icon {
-        font-size: 4rem;
-        color: var(--text-muted);
-        opacity: 0.25;
-        margin-bottom: 1.5rem;
+        font-size: 52px;
+        color: var(--t-muted);
+        opacity: 0.2;
+        margin-bottom: 16px;
         display: block;
     }
 
-    /* Add modal search */
     .modal-search-list {
         max-height: 280px;
         overflow-y: auto;
-        border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-md);
-        margin-top: 0.75rem;
+        border: 1px solid var(--b-default);
+        border-radius: var(--r-md);
+        margin-top: 10px;
     }
 
     .search-result-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid var(--border-subtle);
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--b-default);
         cursor: pointer;
-        transition: background var(--transition-fast);
+        transition: background var(--ease);
     }
 
     .search-result-item:last-child {
@@ -160,23 +126,23 @@
     }
 
     .search-result-item:hover {
-        background: var(--bg-glass);
+        background: var(--bg-hover);
     }
 
     .limit-banner {
-        background: rgba(255, 214, 0, 0.08);
-        border: 1px solid rgba(255, 214, 0, 0.2);
-        border-radius: var(--radius-md);
-        padding: 0.875rem 1.125rem;
+        background: rgba(245, 158, 11, 0.08);
+        border: 1px solid rgba(245, 158, 11, 0.25);
+        border-radius: var(--r-md);
+        padding: 12px 16px;
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        font-size: 0.875rem;
-        color: var(--brand-gold);
-        margin-bottom: 1.5rem;
+        gap: 10px;
+        font-size: 13px;
+        color: var(--c-gold);
+        margin-bottom: 20px;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width:768px) {
 
         .wl-table th:nth-child(4),
         .wl-table td:nth-child(4),
@@ -190,43 +156,33 @@
 
 {% block content %}
 <div class="container watchlist-page">
-
-    <div class="page-header">
+    <div class="flex items-center justify-between mb-6" style="flex-wrap:wrap;gap:12px;">
         <div>
-            <h1 class="page-title">
-                <i class="bi bi-bookmark-star-fill" style="color:var(--brand-cyan);font-size:1.5rem;"></i>
-                自選股清單
+            <h1
+                style="font-size:var(--text-xl);font-weight:800;color:var(--t-white);display:flex;align-items:center;gap:10px;">
+                <i class="bi bi-bookmark-star-fill" style="color:var(--c-blue);"></i> 自選股清單
             </h1>
-            <p style="color:var(--text-secondary);font-size:0.875rem;margin-top:0.375rem;">
-                正在追蹤 <strong style="color:var(--text-primary);">{{ watchlist|length }}</strong> 支股票
-                {% if features.watchlist_limit %}
-                / 上限 {{ features.watchlist_limit }} 支
-                {% else %}
-                （無上限）
-                {% endif %}
+            <p style="color:var(--t-secondary);font-size:13px;margin-top:6px;">
+                正在追蹤 <strong style="color:var(--t-white);">{{ watchlist|length }}</strong> 支股票
+                {% if features.watchlist_limit %}/ 上限 {{ features.watchlist_limit }} 支{% else %}（無上限）{% endif %}
             </p>
         </div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWatchlistModal">
+        <button class="btn btn-primary" id="openAddModal">
             <i class="bi bi-plus-lg"></i> 新增股票
         </button>
     </div>
 
-    <!-- Limit warning -->
     {% if features.watchlist_limit and watchlist|length >= features.watchlist_limit %}
     <div class="limit-banner">
-        <i class="bi bi-exclamation-triangle-fill" style="font-size:1.1rem;flex-shrink:0;"></i>
-        <div>
-            您已達到免費版自選股上限（{{ features.watchlist_limit }} 支）。
-            <a href="#" style="color:var(--brand-gold);font-weight:600;text-decoration:none;">升級 Pro 方案</a> 可追蹤最多 100
-            支股票。
-        </div>
+        <i class="bi bi-exclamation-triangle-fill" style="flex-shrink:0;"></i>
+        <div>您已達到免費版自選股上限（{{ features.watchlist_limit }} 支）。<a href="#"
+                style="color:var(--c-gold);font-weight:600;text-decoration:none;">升級 Pro</a> 可追蹤最多 100 支。</div>
     </div>
     {% endif %}
 
-    <!-- Watchlist Table -->
-    <div class="card watchlist-card">
+    <div class="card">
         {% if watchlist %}
-        <div class="table-container">
+        <div class="table-scroll">
             <table class="wl-table">
                 <thead>
                     <tr>
@@ -241,39 +197,22 @@
                 <tbody>
                     {% for item in watchlist %}
                     <tr>
-                        <td>
-                            <a href="{{ url_for('stock_page', code=item.stock_code) }}" class="stock-code-link">
-                                {{ item.stock_code }}
-                            </a>
+                        <td><a href="{{ url_for('stock_page', code=item.stock_code) }}" class="stock-code-link">{{
+                                item.stock_code }}</a></td>
+                        <td><a href="{{ url_for('stock_page', code=item.stock_code) }}" class="stock-name-link">{{
+                                item.stock_name or '—' }}</a></td>
+                        <td class="price-cell">{% if item.added_price %}NT$ {{ '%.2f'|format(item.added_price) }}{% else
+                            %}<span style="color:var(--t-muted);">—</span>{% endif %}</td>
+                        <td class="date-cell">{{ item.created_at.strftime('%Y-%m-%d') if item.created_at else '—' }}
                         </td>
-                        <td>
-                            <a href="{{ url_for('stock_page', code=item.stock_code) }}" class="stock-name-link">
-                                {{ item.stock_name or '—' }}
-                            </a>
-                        </td>
-                        <td class="price-cell">
-                            {% if item.added_price %}
-                            NT$ {{ '%.2f'|format(item.added_price) }}
-                            {% else %}
-                            <span style="color:var(--text-muted);">—</span>
-                            {% endif %}
-                        </td>
-                        <td class="date-cell">
-                            {{ item.created_at.strftime('%Y-%m-%d') if item.created_at else '—' }}
-                        </td>
-                        <td class="notes-cell" title="{{ item.notes or '' }}">
-                            {{ item.notes or '—' }}
-                        </td>
+                        <td class="notes-cell" title="{{ item.notes or '' }}">{{ item.notes or '—' }}</td>
                         <td style="text-align:right;white-space:nowrap;">
                             <a href="{{ url_for('stock_page', code=item.stock_code) }}" class="btn btn-outline btn-sm"
-                                style="margin-right:0.375rem;">
-                                <i class="bi bi-eye"></i>
-                            </a>
+                                style="margin-right:4px;"><i class="bi bi-eye"></i></a>
                             <a href="{{ url_for('remove_from_watchlist_by_code', stock_code=item.stock_code) }}"
                                 class="btn btn-danger btn-sm"
-                                onclick="return confirm('確定移除 {{ item.stock_code }} 從自選股？')">
-                                <i class="bi bi-trash3"></i>
-                            </a>
+                                onclick="return confirm('確定移除 {{ item.stock_code }} 從自選股？')"><i
+                                    class="bi bi-trash3"></i></a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -283,17 +222,12 @@
         {% else %}
         <div class="empty-state">
             <i class="bi bi-bookmark-plus empty-icon"></i>
-            <h3 style="font-size:1.25rem;font-weight:700;margin-bottom:0.5rem;">你的自選股是空的</h3>
-            <p style="color:var(--text-secondary);margin-bottom:2rem;font-size:0.9rem;">
-                新增你感興趣的股票，隨時追蹤行情
-            </p>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWatchlistModal">
-                <i class="bi bi-plus-lg"></i> 新增第一支股票
-            </button>
+            <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">自選股清單是空的</h3>
+            <p style="color:var(--t-secondary);margin-bottom:24px;font-size:13px;">新增你感興趣的股票，隨時追蹤行情</p>
+            <button class="btn btn-primary" id="openAddModal2"><i class="bi bi-plus-lg"></i> 新增第一支股票</button>
         </div>
         {% endif %}
     </div>
-
 </div>
 
 <!-- Add Watchlist Modal -->
@@ -322,18 +256,18 @@
                     </div>
 
                     <input type="hidden" name="stock_code" id="selected-stock-code">
-                    <div id="selected-stock-display" style="display:none;margin-bottom:1rem;">
+                    <div id="selected-stock-display" style="display:none;margin-bottom:12px;">
                         <div
-                            style="display:flex;align-items:center;gap:0.625rem;padding:0.75rem;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:var(--radius-md);">
-                            <i class="bi bi-check-circle-fill" style="color:var(--brand-green);"></i>
+                            style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:var(--r-md);">
+                            <i class="bi bi-check-circle-fill" style="color:var(--c-green);"></i>
                             <span id="selected-stock-text" style="font-weight:600;"></span>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="watchlist-notes">備註 <span
-                                style="color:var(--text-muted);font-weight:400;font-size:0.8rem;">（選填）</span></label>
-                        <textarea class="input" name="notes" id="watchlist-notes" rows="2"
+                        <label class="form-label" for="watchlist-notes">備註 <span
+                                style="color:var(--t-muted);font-weight:400;font-size:var(--text-xs);">（選填）</span></label>
+                        <textarea class="form-input" name="notes" id="watchlist-notes" rows="2"
                             placeholder="投資理由、目標價格等..."></textarea>
                     </div>
                 </div>
@@ -376,29 +310,25 @@
             .then(data => {
                 if (!data.results || data.results.length === 0) {
                     resultsDiv.style.display = 'block';
-                    resultsDiv.innerHTML = `<div style="padding:1rem;text-align:center;color:var(--text-muted);font-size:0.85rem;">
-                        找不到符合的股票
-                    </div>`;
+                    resultsDiv.innerHTML = `<div style="padding:14px;text-align:center;color:var(--t-muted);font-size:13px;">找不到符合的股票</div>`;
                     return;
                 }
                 resultsDiv.style.display = 'block';
                 resultsDiv.innerHTML = data.results.map(s => `
                     <div class="search-result-item" onclick="selectStock('${s.code}', '${s.name}')">
-                        <div style="display:flex;align-items:center;gap:0.625rem;">
-                            <span style="font-family:var(--font-mono);font-size:0.8rem;font-weight:600;
-                                         padding:0.15rem 0.5rem;background:rgba(0,212,255,0.08);
-                                         border:1px solid rgba(0,212,255,0.2);border-radius:4px;color:var(--brand-cyan);">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span style="font-family:var(--mono);font-size:var(--text-xs);font-weight:700;
+                                         padding:2px 7px;background:rgba(59,130,246,0.08);
+                                         border:1px solid rgba(59,130,246,0.2);border-radius:4px;color:var(--c-blue);">
                                 ${s.code}
                             </span>
-                            <span style="font-size:0.875rem;color:var(--text-primary);">${s.name}</span>
+                            <span style="font-size:13px;color:var(--t-primary);">${s.name}</span>
                         </div>
-                        <i class="bi bi-plus-circle" style="color:var(--text-muted);"></i>
+                        <i class="bi bi-plus-circle" style="color:var(--t-muted);"></i>
                     </div>
                 `).join('');
             })
-            .catch(() => {
-                resultsDiv.style.display = 'none';
-            });
+            .catch(() => { resultsDiv.style.display = 'none'; });
     }
 
     function selectStock(code, name) {
@@ -410,15 +340,18 @@
         submitBtn.disabled = false;
     }
 
-    // Quick add: user enters code directly
     searchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const v = searchInput.value.trim();
-            if (v.length >= 4) {
-                selectStock(v, v);
-            }
-        }
+        if (e.key === 'Enter') { e.preventDefault(); const v = searchInput.value.trim(); if (v.length >= 4) selectStock(v, v); }
+    });
+
+    // Open modal handlers
+    const modal = document.getElementById('addWatchlistModal');
+    ['openAddModal', 'openAddModal2'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.addEventListener('click', () => { modal.style.display = 'flex'; modal.classList.add('show'); });
+    });
+    document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(el => {
+        el.addEventListener('click', () => { modal.style.display = 'none'; modal.classList.remove('show'); });
     });
 </script>
 {% endblock %}
