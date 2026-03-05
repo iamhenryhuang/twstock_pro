@@ -1753,41 +1753,9 @@
                 <a href="{{ url_for('home') }}" class="nav-link {% if request.endpoint=='home' %}active{% endif %}">
                     <i class="bi bi-house-fill"></i> 首頁
                 </a>
-                <a href="{{ url_for('news_page') }}"
-                    class="nav-link {% if request.endpoint=='news_page' %}active{% endif %}">
-                    <i class="bi bi-newspaper"></i> 新聞
-                </a>
 
-                <!-- Tools dropdown -->
-                <div class="nav-dropdown" id="tools-dd">
-                    <button class="nav-link" id="tools-dd-btn" aria-expanded="false">
-                        <i class="bi bi-tools"></i> 工具
-                        <i class="bi bi-chevron-down" style="font-size:10px;margin-left:1px;"></i>
-                    </button>
-                    <div class="nav-dropdown-menu" id="tools-dd-menu">
-                        <div class="nav-dropdown-label">分析工具</div>
-                        <a class="nav-dropdown-item" href="{{ url_for('technical_analysis_tool') }}">
-                            <i class="bi bi-bar-chart-fill" style="color:#2196F3;"></i> 技術分析
-                        </a>
-                        <a class="nav-dropdown-item" href="{{ url_for('ai_price_prediction_tool') }}">
-                            <i class="bi bi-cpu-fill" style="color:#7C3AED;"></i> AI 預測
-                        </a>
-                        <a class="nav-dropdown-item" href="{{ url_for('stock_screener_tool') }}">
-                            <i class="bi bi-funnel-fill" style="color:#FB8C00;"></i> 智慧選股
-                        </a>
-                        <div class="nav-dropdown-sep"></div>
-                        <div class="nav-dropdown-label">計算工具</div>
-                        <a class="nav-dropdown-item" href="{{ url_for('dividend_calculator') }}">
-                            <i class="bi bi-calculator-fill" style="color:#26A69A;"></i> 股息計算器
-                        </a>
-                        <a class="nav-dropdown-item" href="{{ url_for('dca_tool') }}">
-                            <i class="bi bi-cash-coin" style="color:#26A69A;"></i> 定期定額
-                        </a>
-                        <a class="nav-dropdown-item" href="{{ url_for('allocation_tool') }}">
-                            <i class="bi bi-pie-chart-fill" style="color:#2196F3;"></i> 資產配置
-                        </a>
-                    </div>
-                </div>
+
+
             </div>
 
             <div class="nav-spacer"></div>
@@ -1857,18 +1825,8 @@
         </form>
         <div class="mobile-section-label">主選單</div>
         <a href="{{ url_for('home') }}" class="mobile-nav-link"><i class="bi bi-house-fill"></i> 首頁</a>
-        <a href="{{ url_for('news_page') }}" class="mobile-nav-link"><i class="bi bi-newspaper"></i> 市場新聞</a>
-        <div class="mobile-section-label">投資工具</div>
-        <a href="{{ url_for('technical_analysis_tool') }}" class="mobile-nav-link"><i class="bi bi-bar-chart-fill"></i>
-            技術分析</a>
-        <a href="{{ url_for('ai_price_prediction_tool') }}" class="mobile-nav-link"><i class="bi bi-cpu-fill"></i> AI
-            預測</a>
-        <a href="{{ url_for('stock_screener_tool') }}" class="mobile-nav-link"><i class="bi bi-funnel-fill"></i>
-            智慧選股</a>
-        <a href="{{ url_for('dividend_calculator') }}" class="mobile-nav-link"><i class="bi bi-calculator-fill"></i>
-            股息計算器</a>
-        <a href="{{ url_for('dca_tool') }}" class="mobile-nav-link"><i class="bi bi-cash-coin"></i> 定期定額</a>
-        <a href="{{ url_for('allocation_tool') }}" class="mobile-nav-link"><i class="bi bi-pie-chart-fill"></i> 資產配置</a>
+
+
         {% if current_user.is_authenticated %}
         <div class="mobile-section-label">會員中心</div>
         <a href="{{ url_for('dashboard') }}" class="mobile-nav-link"><i class="bi bi-speedometer2"></i> 控制台</a>
@@ -1915,23 +1873,13 @@
                         <div class="nav-brand-icon"><i class="bi bi-graph-up-arrow"></i></div>
                         <span class="nav-brand-text">TWStock<em> Pro</em></span>
                     </a>
-                    <p class="footer-brand-desc">台灣股市專業分析平台，提供即時行情、技術指標、AI 預測與投資組合管理，助您做出更智慧的投資決策。</p>
+                    <p class="footer-brand-desc">台灣股市專業分析平台，提供即時行情、大盤資訊與個人化自選股追蹤，致力於提供最純粹、快速的投資數據體驗。</p>
                 </div>
                 <div>
                     <div class="footer-col-title">快速連結</div>
                     <ul class="footer-links">
                         <li><a href="{{ url_for('home') }}">首頁</a></li>
-                        <li><a href="{{ url_for('news_page') }}">市場新聞</a></li>
-                        <li><a href="{{ url_for('stock_screener_tool') }}">智慧選股</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <div class="footer-col-title">投資工具</div>
-                    <ul class="footer-links">
-                        <li><a href="{{ url_for('dividend_calculator') }}">股息計算器</a></li>
-                        <li><a href="{{ url_for('dca_tool') }}">定期定額</a></li>
-                        <li><a href="{{ url_for('technical_analysis_tool') }}">技術分析</a></li>
-                        <li><a href="{{ url_for('ai_price_prediction_tool') }}">AI 預測</a></li>
+
                     </ul>
                 </div>
                 <div>
@@ -1984,7 +1932,7 @@
                 });
             });
         }
-        setupDropdown('tools-dd', 'tools-dd-btn');
+
         setupDropdown('user-dd', 'user-dd-btn');
 
         document.addEventListener('click', e => {

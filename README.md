@@ -1,15 +1,15 @@
 # TaiwanStock Pro
 
-A stock analysis platform for Taiwan stock market. Real-time quotes, technical analysis tools, and portfolio management.
+A professional, high-performance financial analysis platform for the Taiwan stock market. Designed with a clean, grid-based aesthetic to provide a streamlined experience for traders and investors.
 
 ## Features
 
-- **Stock Lookup**: Search stocks by code or company name, view real-time prices and charts
-- **Technical Analysis**: MA, RSI, MACD indicators with interactive charts
-- **Stock Screener**: Filter stocks by price, volume, market cap, and other criteria
-- **Dividend Calculator**: Calculate dividend yields with reinvestment options
-- **Watchlist**: Save stocks to track (requires account)
-- **User Accounts**: Three-tier membership system (free, premium, VIP)
+- **Real-time Market Insights**: Live market summaries with instant price updates and trend indicators.
+- **Stock Lookup & Detail**: Search by code or company name to access detailed stock views with real-time quotes.
+- **Advanced Watchlist**: Seamlessly track and manage your favorite stocks in a professional, high-density interface.
+- **Smart History**: Keep track of your recent searches and market interactions for quick access.
+- **Multi-tier Membership**: Integrated user system with scaled features for Pro and VIP members.
+- **Professional Design**: Refined dark-mode interface optimized for data density and long-term use, minimizing "generic AI" aesthetic bloat.
 
 ## Quick Start
 
@@ -39,8 +39,7 @@ twstock_pro/
 │   └── manage.py         # Database utilities
 ├── utils/                 # Utility modules
 │   ├── twse.py           # TWSE API integration
-│   ├── news.py           # News scraper
-│   └── stock_screener.py # Stock screening engine
+│   └── news.py           # News scraper
 ├── templates/             # HTML templates
 ├── static/                # CSS and static files
 └── cache/                 # JSON cache files
@@ -54,26 +53,23 @@ twstock_pro/
 - `GET /api/stock/<code>/chart?days=7` - Get chart data (1-30 days)
 - `GET /api/market` - Get market summary
 - `GET /api/popular` - Get popular stocks
-- `POST /api/screener` - Screen stocks by criteria
 - `POST /api/watchlist/add` - Add to watchlist (login required)
 
-### Pages
+### Main Pages
 
-- `/` - Homepage with market summary
-- `/stock?code=2330` - Stock detail page
-- `/tools/dividend` - Dividend calculator
-- `/tools/ta` - Technical analysis
-- `/tools/screener` - Stock screener
-- `/dashboard` - User dashboard (login required)
-- `/watchlist` - Watchlist management (login required)
+- `/` - Market homepage with real-time summaries
+- `/stock?code=2330` - Comprehensive stock detail view
+- `/dashboard` - Personalized member control panel
+- `/watchlist` - Focused watchlist management
+- `/profile` - Secure account & settings management
 
-## Database
+## Database Structure
 
-SQLite database with three main tables:
+The system uses an optimized SQLite database with the following core entities:
 
-- `users` - User accounts and membership levels
-- `watchlists` - User watchlists
-- `search_history` - Search history tracking
+- **Users**: Authentication and membership tier tracking (Free, Pro, VIP)
+- **Watchlists**: Persistence for user-tracked symbols
+- **Search History**: Intelligent tracking of recent market lookups
 
 Manage the database:
 
@@ -90,20 +86,20 @@ python db_viewer.py
 ## Tech Stack
 
 **Backend**
-- Flask 2.3+
-- SQLAlchemy 3.0+
-- Flask-Login
-- Requests + BeautifulSoup4
+- Flask 2.3+ (Core Application)
+- SQLAlchemy (Persistence)
+- Flask-Login & Scrypt Hashing (Security)
+- Requests & BeautifulSoup4 (Live Data Pipeline)
 
 **Frontend**
-- Jinja2 templates
-- Bootstrap 5
-- Custom CSS (Bloomberg-inspired)
-- Chart.js
+- Custom CSS (Modern, Data-Dense Design)
+- Google Fonts: Inter & JetBrains Mono
+- Bootstrap Icons (Interface Symbols)
+- Dynamic Data Visualization (Charts)
 
 **Data Sources**
-- TWSE official API
-- Yahoo Finance API (fallback)
+- TWSE Official Live API
+- Yahoo Finance (Redundant Fallback)
 
 ## Data Caching
 
@@ -111,9 +107,9 @@ The app uses JSON caching to reduce API calls. Cache files are stored in the `ca
 
 ## Membership Levels
 
-- **Free**: Basic stock lookup, limited watchlist (5 stocks)
-- **Premium**: Extended watchlist (20 stocks), advanced tools
-- **VIP**: Unlimited watchlist, all features
+- **Free**: Real-time stock lookup, personalized watchlist (up to 10 stocks)
+- **Pro**: Extended watchlist (up to 100 stocks), price alerts, and enhanced data history
+- **VIP**: Unlimited watchlist, native API access, and priority support
 
 ## Notes
 

@@ -93,12 +93,6 @@ def home():
                     'change_percent': 'N/A',
                     'volume': 'N/A'
                 })
-        # 市場新聞（Yahoo 熱門前3則）
-        market_news = []
-        try:
-            market_news = get_yahoo_stock_top_news(3)
-        except Exception as _:
-            market_news = []
 
         # 台北時區時間與市場開盤狀態（週一至週五 09:00-13:30）
         now_tpe = datetime.now(ZoneInfo('Asia/Taipei')) if ZoneInfo else datetime.now()
@@ -113,7 +107,6 @@ def home():
         return render_template('home.html', 
                              market_info=market_info,
                              popular_stocks=popular_stocks,
-                             market_news=market_news,
                              market_open=market_open,
                              current_time=now_tpe)
         
@@ -122,7 +115,6 @@ def home():
         return render_template('home.html', 
                              market_info={'錯誤': '無法載入大盤資訊'},
                              popular_stocks=[],
-                             market_news=[],
                              market_open=False,
                              current_time=datetime.now(ZoneInfo('Asia/Taipei')) if ZoneInfo else datetime.now())
 

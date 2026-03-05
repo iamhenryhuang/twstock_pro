@@ -462,105 +462,7 @@
         color: var(--t-muted);
     }
 
-    /* News grid */
-    .news-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-    }
-
-    .news-card {
-        display: flex;
-        flex-direction: column;
-        background: var(--bg-panel);
-        border: 1px solid var(--b-default);
-        border-radius: 12px;
-        overflow: hidden;
-        text-decoration: none;
-        color: inherit;
-        transition: border-color var(--ease-md), transform var(--ease-md), box-shadow var(--ease-md);
-    }
-
-    .news-card:hover {
-        border-color: var(--b-brand);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    }
-
-    .news-img {
-        height: 130px;
-        background: var(--bg-elevated);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--t-muted);
-        font-size: 28px;
-        overflow: hidden;
-        flex-shrink: 0;
-    }
-
-    .news-img img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .news-body {
-        padding: 14px 16px;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .news-source {
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--c-blue);
-        margin-bottom: 6px;
-    }
-
-    .news-title {
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--t-white);
-        line-height: 1.55;
-        margin-bottom: auto;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .news-time {
-        font-size: var(--text-xs);
-        color: var(--t-muted);
-        margin-top: 10px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-
-    @media (max-width: 900px) {
-        .tools-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .news-grid {
-            grid-template-columns: 1fr 1fr;
-        }
-    }
-
     @media (max-width: 600px) {
-        .tools-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .news-grid {
-            grid-template-columns: 1fr;
-        }
-
         .market-stat {
             min-width: 50%;
         }
@@ -580,7 +482,7 @@
         <h1 class="hero-title">
             專業台股分析<br><span class="accent">一站式</span>投資決策平台
         </h1>
-        <p class="hero-sub">即時行情 · 技術指標 · AI 預測 · 智慧選股<br>讓數據成為你最好的投資夥伴</p>
+        <p class="hero-sub">即時行情 · 大盤資訊 · 個股查詢<br>讓數據成為你最好的投資夥伴</p>
 
         <div class="hero-search">
             <form action="{{ url_for('search_redirect') }}" method="GET">
@@ -644,9 +546,6 @@
                     <div class="sec-title-bar" style="background:var(--c-red);"></div>
                     熱門股票
                 </div>
-                <a href="{{ url_for('stock_screener_tool') }}" class="btn btn-outline btn-sm">
-                    探索更多 <i class="bi bi-arrow-right"></i>
-                </a>
             </div>
             {% if popular_stocks %}
             <div class="stocks-grid">
@@ -686,111 +585,9 @@
             {% endif %}
         </div>
 
-        <!-- Investment Tools -->
-        <div style="margin-bottom:44px;">
-            <div class="sec-head">
-                <div class="sec-title">
-                    <div class="sec-title-bar" style="background:var(--c-blue);"></div>
-                    投資工具套件
-                </div>
-            </div>
-            <div class="tools-grid">
-                <a href="{{ url_for('technical_analysis_tool') }}" class="tool-link fade-up fade-up-1">
-                    <div class="tool-icon" style="background:rgba(59,130,246,0.12);color:#3B82F6;">
-                        <i class="bi bi-bar-chart-fill"></i>
-                    </div>
-                    <div>
-                        <div class="tool-name">技術分析</div>
-                        <div class="tool-desc">RSI · MACD · 布林通道</div>
-                    </div>
-                </a>
-                <a href="{{ url_for('ai_price_prediction_tool') }}" class="tool-link fade-up fade-up-2">
-                    <div class="tool-icon" style="background:rgba(139,92,246,0.12);color:#8B5CF6;">
-                        <i class="bi bi-cpu-fill"></i>
-                    </div>
-                    <div>
-                        <div class="tool-name">AI 價格預測</div>
-                        <div class="tool-desc">趨勢外推 · 信賴區間</div>
-                    </div>
-                </a>
-                <a href="{{ url_for('stock_screener_tool') }}" class="tool-link fade-up fade-up-3">
-                    <div class="tool-icon" style="background:rgba(249,115,22,0.12);color:#F97316;">
-                        <i class="bi bi-funnel-fill"></i>
-                    </div>
-                    <div>
-                        <div class="tool-name">智慧選股</div>
-                        <div class="tool-desc">PE · 殖利率 · ROE 篩選</div>
-                    </div>
-                </a>
-                <a href="{{ url_for('dividend_calculator') }}" class="tool-link fade-up fade-up-1">
-                    <div class="tool-icon" style="background:rgba(20,184,166,0.12);color:#14B8A6;">
-                        <i class="bi bi-calculator-fill"></i>
-                    </div>
-                    <div>
-                        <div class="tool-name">股息計算器</div>
-                        <div class="tool-desc">殖利率 · 配息試算 · 複利</div>
-                    </div>
-                </a>
-                <a href="{{ url_for('dca_tool') }}" class="tool-link fade-up fade-up-2">
-                    <div class="tool-icon" style="background:rgba(34,197,94,0.1);color:#22C55E;">
-                        <i class="bi bi-cash-coin"></i>
-                    </div>
-                    <div>
-                        <div class="tool-name">定期定額試算</div>
-                        <div class="tool-desc">長期複利 · 成長曲線</div>
-                    </div>
-                </a>
-                <a href="{{ url_for('allocation_tool') }}" class="tool-link fade-up fade-up-3">
-                    <div class="tool-icon" style="background:rgba(59,130,246,0.12);color:#3B82F6;">
-                        <i class="bi bi-pie-chart-fill"></i>
-                    </div>
-                    <div>
-                        <div class="tool-name">資產配置</div>
-                        <div class="tool-desc">投資組合 · 風險分配</div>
-                    </div>
-                </a>
-            </div>
-        </div>
 
-        <!-- News -->
-        <div>
-            <div class="sec-head">
-                <div class="sec-title">
-                    <div class="sec-title-bar" style="background:var(--c-gold);"></div>
-                    市場新聞
-                </div>
-                <a href="{{ url_for('news_page') }}" class="btn btn-outline btn-sm">
-                    更多新聞 <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
-            {% if market_news %}
-            <div class="news-grid">
-                {% for news in market_news %}
-                <a href="{{ news.link }}" target="_blank" rel="noopener" class="news-card fade-up">
-                    <div class="news-img">
-                        {% if news.image_url %}
-                        <img src="{{ news.image_url }}" alt="{{ news.title }}" loading="lazy">
-                        {% else %}
-                        <i class="bi bi-newspaper"></i>
-                        {% endif %}
-                    </div>
-                    <div class="news-body">
-                        <div class="news-source"><i class="bi bi-rss-fill" style="font-size:9px;"></i> {{ news.source }}
-                        </div>
-                        <div class="news-title">{{ news.title }}</div>
-                        <div class="news-time"><i class="bi bi-clock"></i> {{ news.published_at }}</div>
-                    </div>
-                </a>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="card" style="padding:48px;text-align:center;">
-                <i class="bi bi-newspaper"
-                    style="font-size:32px;color:var(--t-muted);display:block;margin-bottom:12px;"></i>
-                <p style="color:var(--t-secondary);font-size:13px;">目前沒有最新新聞</p>
-            </div>
-            {% endif %}
-        </div>
+
+
 
     </div>
 </div>
