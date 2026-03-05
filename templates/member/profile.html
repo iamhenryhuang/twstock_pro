@@ -1,4 +1,4 @@
-{% extends "layouts/base.html" %}
+﻿{% extends "layouts/base.html" %}
 
 {% block title %}個人資料 | TWStock Pro{% endblock %}
 
@@ -137,7 +137,7 @@
                     </div>
                     <div style="display:flex;gap:10px;margin-top:4px;">
                         {{ form.submit(class="btn btn-primary") }}
-                        <a href="{{ url_for('change_password') }}" class="btn btn-outline"><i class="bi bi-key"></i>
+                        <a href="{{ url_for('member.change_password') }}" class="btn btn-outline"><i class="bi bi-key"></i>
                             修改密碼</a>
                     </div>
                 </form>

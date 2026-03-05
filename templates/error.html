@@ -1,4 +1,4 @@
-{% extends "layouts/base.html" %}
+﻿{% extends "layouts/base.html" %}
 
 {% block title %}{{ error_code }} 錯誤 | TWStock Pro{% endblock %}
 
@@ -23,7 +23,7 @@
             {% endif %}
         </p>
         <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
-            <a href="{{ url_for('home') }}" class="btn btn-primary">
+            <a href="{{ url_for('main.home') }}" class="btn btn-primary">
                 <i class="bi bi-house"></i> 返回首頁
             </a>
             <button onclick="history.back()" class="btn btn-outline">

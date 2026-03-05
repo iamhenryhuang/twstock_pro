@@ -1,4 +1,4 @@
-{% extends "layouts/base.html" %}
+﻿{% extends "layouts/base.html" %}
 {% block title %}會員登入 | TWStock Pro{% endblock %}
 
 {% block extra_css %}
@@ -239,7 +239,7 @@
                 </form>
 
                 <div class="auth-footer">
-                    還沒有帳戶？<a href="{{ url_for('register') }}">立即免費註冊</a>
+                    還沒有帳戶？<a href="{{ url_for('auth.register') }}">立即免費註冊</a>
                 </div>
             </div>
 

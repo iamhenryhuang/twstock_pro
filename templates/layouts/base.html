@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-Hant" data-theme="dark">
 
 <head>
@@ -1741,7 +1741,7 @@
     <nav id="navbar">
         <div class="nav-wrap">
             <!-- Brand -->
-            <a href="{{ url_for('home') }}" class="nav-brand">
+            <a href="{{ url_for('main.home') }}" class="nav-brand">
                 <div class="nav-brand-icon">
                     <i class="bi bi-graph-up-arrow"></i>
                 </div>
@@ -1750,7 +1750,7 @@
 
             <!-- Desktop Nav Links -->
             <div class="nav-links" id="desktop-nav">
-                <a href="{{ url_for('home') }}" class="nav-link {% if request.endpoint=='home' %}active{% endif %}">
+                <a href="{{ url_for('main.home') }}" class="nav-link {% if request.endpoint=='main.home' %}active{% endif %}">
                     <i class="bi bi-house-fill"></i> 首頁
                 </a>
 
@@ -1761,7 +1761,7 @@
             <div class="nav-spacer"></div>
 
             <!-- Search -->
-            <form action="{{ url_for('search_redirect') }}" method="GET" class="nav-search">
+            <form action="{{ url_for('main.search_redirect') }}" method="GET" class="nav-search">
                 <div class="nav-search-icon"><i class="bi bi-search"></i></div>
                 <input type="text" name="q" id="nav-search-input" placeholder="搜尋股票代號或名稱" autocomplete="off">
                 <button type="submit" class="nav-search-btn" aria-label="搜尋">
@@ -1787,24 +1787,24 @@
                     </button>
                     <div class="nav-dropdown-menu" style="right:0;left:auto;" id="user-dd-menu">
                         <div class="nav-dropdown-label">會員中心</div>
-                        <a class="nav-dropdown-item" href="{{ url_for('dashboard') }}">
+                        <a class="nav-dropdown-item" href="{{ url_for('member.dashboard') }}">
                             <i class="bi bi-speedometer2" style="color:var(--c-cyan);"></i> 我的控制台
                         </a>
-                        <a class="nav-dropdown-item" href="{{ url_for('watchlist') }}">
+                        <a class="nav-dropdown-item" href="{{ url_for('member.watchlist') }}">
                             <i class="bi bi-bookmark-star-fill" style="color:var(--c-gold);"></i> 自選股清單
                         </a>
-                        <a class="nav-dropdown-item" href="{{ url_for('profile') }}">
+                        <a class="nav-dropdown-item" href="{{ url_for('member.profile') }}">
                             <i class="bi bi-person-gear" style="color:var(--t-secondary);"></i> 個人資料
                         </a>
                         <div class="nav-dropdown-sep"></div>
-                        <a class="nav-dropdown-item" href="{{ url_for('logout') }}" style="color:var(--c-red);">
+                        <a class="nav-dropdown-item" href="{{ url_for('auth.logout') }}" style="color:var(--c-red);">
                             <i class="bi bi-box-arrow-right"></i> 登出
                         </a>
                     </div>
                 </div>
                 {% else %}
-                <a href="{{ url_for('login') }}" class="btn btn-outline btn-sm">登入</a>
-                <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-sm">登入</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">
                     <i class="bi bi-person-plus"></i> 免費註冊
                 </a>
                 {% endif %}
@@ -1819,25 +1819,25 @@
 
     <!-- Mobile Nav Overlay -->
     <div id="mobile-nav">
-        <form action="{{ url_for('search_redirect') }}" method="GET" class="mobile-search">
+        <form action="{{ url_for('main.search_redirect') }}" method="GET" class="mobile-search">
             <input type="text" name="q" placeholder="搜尋股票代號或名稱..." autocomplete="off">
             <button type="submit"><i class="bi bi-search"></i></button>
         </form>
         <div class="mobile-section-label">主選單</div>
-        <a href="{{ url_for('home') }}" class="mobile-nav-link"><i class="bi bi-house-fill"></i> 首頁</a>
+        <a href="{{ url_for('main.home') }}" class="mobile-nav-link"><i class="bi bi-house-fill"></i> 首頁</a>
 
 
         {% if current_user.is_authenticated %}
         <div class="mobile-section-label">會員中心</div>
-        <a href="{{ url_for('dashboard') }}" class="mobile-nav-link"><i class="bi bi-speedometer2"></i> 控制台</a>
-        <a href="{{ url_for('watchlist') }}" class="mobile-nav-link"><i class="bi bi-bookmark-star-fill"></i> 自選股</a>
-        <a href="{{ url_for('profile') }}" class="mobile-nav-link"><i class="bi bi-person-gear"></i> 個人資料</a>
-        <a href="{{ url_for('logout') }}" class="mobile-nav-link" style="color:var(--c-red);"><i
+        <a href="{{ url_for('member.dashboard') }}" class="mobile-nav-link"><i class="bi bi-speedometer2"></i> 控制台</a>
+        <a href="{{ url_for('member.watchlist') }}" class="mobile-nav-link"><i class="bi bi-bookmark-star-fill"></i> 自選股</a>
+        <a href="{{ url_for('member.profile') }}" class="mobile-nav-link"><i class="bi bi-person-gear"></i> 個人資料</a>
+        <a href="{{ url_for('auth.logout') }}" class="mobile-nav-link" style="color:var(--c-red);"><i
                 class="bi bi-box-arrow-right"></i> 登出</a>
         {% else %}
         <div class="sep"></div>
-        <a href="{{ url_for('login') }}" class="btn btn-outline btn-block mt-2">登入</a>
-        <a href="{{ url_for('register') }}" class="btn btn-primary btn-block mt-2"><i class="bi bi-person-plus"></i>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-block mt-2">登入</a>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-block mt-2"><i class="bi bi-person-plus"></i>
             免費註冊</a>
         {% endif %}
     </div>
@@ -1869,7 +1869,7 @@
         <div class="container">
             <div class="footer-grid">
                 <div>
-                    <a href="{{ url_for('home') }}" class="nav-brand" style="margin-bottom:var(--s3);">
+                    <a href="{{ url_for('main.home') }}" class="nav-brand" style="margin-bottom:var(--s3);">
                         <div class="nav-brand-icon"><i class="bi bi-graph-up-arrow"></i></div>
                         <span class="nav-brand-text">TWStock<em> Pro</em></span>
                     </a>
@@ -1878,7 +1878,7 @@
                 <div>
                     <div class="footer-col-title">快速連結</div>
                     <ul class="footer-links">
-                        <li><a href="{{ url_for('home') }}">首頁</a></li>
+                        <li><a href="{{ url_for('main.home') }}">首頁</a></li>
 
                     </ul>
                 </div>
@@ -1886,12 +1886,12 @@
                     <div class="footer-col-title">會員服務</div>
                     <ul class="footer-links">
                         {% if current_user.is_authenticated %}
-                        <li><a href="{{ url_for('dashboard') }}">控制台</a></li>
-                        <li><a href="{{ url_for('watchlist') }}">自選股清單</a></li>
-                        <li><a href="{{ url_for('profile') }}">個人資料</a></li>
+                        <li><a href="{{ url_for('member.dashboard') }}">控制台</a></li>
+                        <li><a href="{{ url_for('member.watchlist') }}">自選股清單</a></li>
+                        <li><a href="{{ url_for('member.profile') }}">個人資料</a></li>
                         {% else %}
-                        <li><a href="{{ url_for('login') }}">會員登入</a></li>
-                        <li><a href="{{ url_for('register') }}">免費註冊</a></li>
+                        <li><a href="{{ url_for('auth.login') }}">會員登入</a></li>
+                        <li><a href="{{ url_for('auth.register') }}">免費註冊</a></li>
                         {% endif %}
                     </ul>
                 </div>

@@ -1,4 +1,4 @@
-{% extends "layouts/base.html" %}
+﻿{% extends "layouts/base.html" %}
 
 {% block title %}自選股清單 | TWStock Pro{% endblock %}
 
@@ -197,9 +197,9 @@
                 <tbody>
                     {% for item in watchlist %}
                     <tr>
-                        <td><a href="{{ url_for('stock_page', code=item.stock_code) }}" class="stock-code-link">{{
+                        <td><a href="{{ url_for('main.stock_page', code=item.stock_code) }}" class="stock-code-link">{{
                                 item.stock_code }}</a></td>
-                        <td><a href="{{ url_for('stock_page', code=item.stock_code) }}" class="stock-name-link">{{
+                        <td><a href="{{ url_for('main.stock_page', code=item.stock_code) }}" class="stock-name-link">{{
                                 item.stock_name or '—' }}</a></td>
                         <td class="price-cell">{% if item.added_price %}NT$ {{ '%.2f'|format(item.added_price) }}{% else
                             %}<span style="color:var(--t-muted);">—</span>{% endif %}</td>
@@ -207,9 +207,9 @@
                         </td>
                         <td class="notes-cell" title="{{ item.notes or '' }}">{{ item.notes or '—' }}</td>
                         <td style="text-align:right;white-space:nowrap;">
-                            <a href="{{ url_for('stock_page', code=item.stock_code) }}" class="btn btn-outline btn-sm"
-                                style="margin-right:4px;"><i class="bi bi-eye"></i></a>
-                            <a href="{{ url_for('remove_from_watchlist_by_code', stock_code=item.stock_code) }}"
+                            <a href="{{ url_for('main.stock_page', code=item.stock_code) }}"
+                                class="btn btn-outline btn-sm" style="margin-right:4px;"><i class="bi bi-eye"></i></a>
+                            <a href="{{ url_for('member.remove_from_watchlist_by_code', stock_code=item.stock_code) }}"
                                 class="btn btn-danger btn-sm"
                                 onclick="return confirm('確定移除 {{ item.stock_code }} 從自選股？')"><i
                                     class="bi bi-trash3"></i></a>
@@ -234,7 +234,7 @@
 <div class="modal fade" id="addWatchlistModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <form action="{{ url_for('add_to_watchlist') }}" method="POST" id="addForm">
+            <form action="{{ url_for('member.add_to_watchlist') }}" method="POST" id="addForm">
                 <div class="modal-header">
                     <h5 style="font-weight:700;display:flex;align-items:center;gap:0.5rem;">
                         <i class="bi bi-bookmark-plus-fill" style="color:var(--brand-cyan);"></i>

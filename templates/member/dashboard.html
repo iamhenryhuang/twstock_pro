@@ -1,4 +1,4 @@
-{% extends "layouts/base.html" %}
+﻿{% extends "layouts/base.html" %}
 {% block title %}控制台 | TWStock Pro{% endblock %}
 
 {% block extra_css %}
@@ -209,10 +209,10 @@
                     {{ current_time.strftime('%Y/%m/%d %H:%M') if current_time else '' }}</div>
             </div>
             <div class="flex gap-2">
-                <a href="{{ url_for('watchlist') }}" class="btn btn-outline btn-sm">
+                <a href="{{ url_for('member.watchlist') }}" class="btn btn-outline btn-sm">
                     <i class="bi bi-bookmark-star"></i> 自選股
                 </a>
-                <a href="{{ url_for('profile') }}" class="btn btn-outline btn-sm">
+                <a href="{{ url_for('member.profile') }}" class="btn btn-outline btn-sm">
                     <i class="bi bi-person-gear"></i> 設定
                 </a>
             </div>
@@ -269,7 +269,7 @@
                             <div class="card-title-dot" style="background:var(--c-blue);"></div>
                             自選股清單
                         </div>
-                        <a href="{{ url_for('watchlist') }}" class="btn btn-outline btn-sm">管理 <i
+                        <a href="{{ url_for('member.watchlist') }}" class="btn btn-outline btn-sm">管理 <i
                                 class="bi bi-arrow-right"></i></a>
                     </div>
                     {% if watchlist %}
@@ -285,9 +285,9 @@
                             </thead>
                             <tbody>
                                 {% for item in watchlist[:8] %}
-                                <tr onclick="window.location.href='{{ url_for('stock_page', code=item.stock_code) }}'"
+                                <tr onclick="window.location.href='{{ url_for('main.stock_page', code=item.stock_code) }}'"
                                     style="cursor:pointer;">
-                                    <td><a href="{{ url_for('stock_page', code=item.stock_code) }}" class="hist-code">{{
+                                    <td><a href="{{ url_for('main.stock_page', code=item.stock_code) }}" class="hist-code">{{
                                             item.stock_code }}</a></td>
                                     <td style="font-size:13px;">{{ item.stock_name or '—' }}</td>
                                     <td class="table-mono">{{ '$%.2f'|format(item.added_price) if item.added_price else
@@ -301,7 +301,7 @@
                     </div>
                     {% if watchlist|length > 8 %}
                     <div class="card-footer text-center">
-                        <a href="{{ url_for('watchlist') }}" class="txt-brand" style="font-size:12px;">
+                        <a href="{{ url_for('member.watchlist') }}" class="txt-brand" style="font-size:12px;">
                             查看全部 {{ watchlist|length }} 支自選股 →
                         </a>
                     </div>
@@ -311,7 +311,7 @@
                         <i class="bi bi-bookmark"
                             style="font-size:36px;color:var(--t-muted);display:block;margin-bottom:14px;opacity:0.4;"></i>
                         <p style="color:var(--t-secondary);font-size:13px;margin-bottom:16px;">尚未建立自選股清單</p>
-                        <a href="{{ url_for('home') }}" class="btn btn-primary btn-sm"><i class="bi bi-search"></i>
+                        <a href="{{ url_for('main.home') }}" class="btn btn-primary btn-sm"><i class="bi bi-search"></i>
                             搜尋股票</a>
                     </div>
                     {% endif %}
@@ -330,7 +330,7 @@
                         {% for s in recent_searches %}
                         <div class="hist-item">
                             <div class="flex items-center gap-3">
-                                <a href="{{ url_for('stock_page', code=s.stock_code) }}" class="hist-code">{{
+                                <a href="{{ url_for('main.stock_page', code=s.stock_code) }}" class="hist-code">{{
                                     s.stock_code }}</a>
                                 <span class="hist-name">{{ s.stock_name or '—' }}</span>
                                 {% if s.search_price %}
@@ -358,7 +358,7 @@
                         </div>
                     </div>
                     <div class="card-body" style="padding:var(--s2);">
-                        <a href="{{ url_for('watchlist') }}" class="qa-link">
+                        <a href="{{ url_for('member.watchlist') }}" class="qa-link">
                             <div class="qa-icon" style="background:rgba(59,130,246,0.12);color:var(--c-blue);"><i
                                     class="bi bi-bookmark-star-fill"></i></div>
                             <div>
@@ -367,7 +367,7 @@
                             </div>
                         </a>
 
-                        <a href="{{ url_for('profile') }}" class="qa-link">
+                        <a href="{{ url_for('member.profile') }}" class="qa-link">
                             <div class="qa-icon" style="background:rgba(139,92,246,0.12);color:var(--c-purple);"><i
                                     class="bi bi-person-gear"></i></div>
                             <div>

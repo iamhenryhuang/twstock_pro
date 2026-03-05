@@ -1,19 +1,13 @@
-import os
-import requests
-import pandas as pd
-from datetime import datetime, timedelta
-import json
-import time
 import re
+import requests
+from datetime import datetime, timedelta
 
-CACHE_DIR = 'cache'
-os.makedirs(CACHE_DIR, exist_ok=True)
+from utils.cache import get_cache, save_cache
 
-# 配置選項
+# ── HTTP 配置 ────────────────────────────────────────────
 CONFIG = {
-    'timeout': 20,  # 增加超時時間
-    'retry_times': 3,  # 增加重試次數
-    'cache_duration': 300,  # 縮短快取時間到5分鐘，獲取更新數據
+    'timeout': 20,
+    'retry_times': 3,
 }
 
 # 請求標頭
@@ -619,35 +613,7 @@ def get_market_from_yahoo(url):
         return None
 
 
-def get_cache(key):
-    """獲取快取資料"""
-    cache_file = os.path.join(CACHE_DIR, f"{key}.json")
-    if os.path.exists(cache_file):
-        try:
-            with open(cache_file, 'r', encoding='utf-8') as f:
-                cache_data = json.load(f)
-            
-            # 檢查快取是否過期
-            cache_time = datetime.fromisoformat(cache_data['timestamp'])
-            if datetime.now() - cache_time < timedelta(seconds=CONFIG['cache_duration']):
-                return cache_data['data']
-        except Exception as e:
-            print(f"❌ 讀取快取失敗: {e}")
-    return None
-
-
-def save_cache(key, data):
-    """儲存快取資料"""
-    cache_file = os.path.join(CACHE_DIR, f"{key}.json")
-    try:
-        cache_data = {
-            'timestamp': datetime.now().isoformat(),
-            'data': data
-        }
-        with open(cache_file, 'w', encoding='utf-8') as f:
-            json.dump(cache_data, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        print(f"❌ 儲存快取失敗: {e}")
+# get_cache / save_cache 已移至 utils/cache.py
 
 
 def search_stock(stock_code):

@@ -1,4 +1,4 @@
-{% extends "layouts/base.html" %}
+﻿{% extends "layouts/base.html" %}
 {% block title %}TWStock Pro｜台灣股市即時行情與分析平台{% endblock %}
 
 {% block extra_css %}
@@ -485,7 +485,7 @@
         <p class="hero-sub">即時行情 · 大盤資訊 · 個股查詢<br>讓數據成為你最好的投資夥伴</p>
 
         <div class="hero-search">
-            <form action="{{ url_for('search_redirect') }}" method="GET">
+            <form action="{{ url_for('main.search_redirect') }}" method="GET">
                 <div class="hero-search-box">
                     <input type="text" name="q" id="heroSearch" placeholder="輸入股票代號或名稱，例如：2330、台積電" autocomplete="off">
                     <button type="submit">
@@ -495,11 +495,11 @@
             </form>
         </div>
         <div class="quick-links">
-            <a href="{{ url_for('stock_page', code='2330') }}" class="quick-link">台積電 2330</a>
-            <a href="{{ url_for('stock_page', code='0050') }}" class="quick-link">元大50 0050</a>
-            <a href="{{ url_for('stock_page', code='0056') }}" class="quick-link">高股息 0056</a>
-            <a href="{{ url_for('stock_page', code='2317') }}" class="quick-link">鴻海 2317</a>
-            <a href="{{ url_for('stock_page', code='2412') }}" class="quick-link">中華電 2412</a>
+            <a href="{{ url_for('main.stock_page', code='2330') }}" class="quick-link">台積電 2330</a>
+            <a href="{{ url_for('main.stock_page', code='0050') }}" class="quick-link">元大50 0050</a>
+            <a href="{{ url_for('main.stock_page', code='0056') }}" class="quick-link">高股息 0056</a>
+            <a href="{{ url_for('main.stock_page', code='2317') }}" class="quick-link">鴻海 2317</a>
+            <a href="{{ url_for('main.stock_page', code='2412') }}" class="quick-link">中華電 2412</a>
         </div>
     </div>
 </section>
@@ -552,7 +552,7 @@
                 {% for stock in popular_stocks %}
                 {% set is_up = '+' in stock.change|string and stock.change != 'N/A' %}
                 {% set is_down = '-' in stock.change|string and stock.change != 'N/A' %}
-                <a href="{{ url_for('stock_page', code=stock.code) }}"
+                <a href="{{ url_for('main.stock_page', code=stock.code) }}"
                     class="stock-card fade-up fade-up-{{ loop.index if loop.index <= 4 else '4' }} {{ 'up-card' if is_up else 'down-card' if is_down else '' }}">
                     <div class="sc-top">
                         <span class="sc-code">{{ stock.code }}</span>
